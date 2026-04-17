@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// Store URLs for force update
+const String appStoreUrl = 'https://play.google.com/store/apps/details?id=com.rentalapp.tenant';
+
 class AppColors {
   AppColors._();
 

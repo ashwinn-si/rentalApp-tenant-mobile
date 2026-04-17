@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/constants/app_tokens.dart';
+import '../../app_version/data/app_version_repository.dart';
+import '../../../widgets/ui/force_update_dialog.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -40,12 +43,28 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
   }
 
-  void _navigateToHome() {
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        context.go('/login');
+  Future<void> _navigateToHome() async {
+    await Future.delayed(const Duration(milliseconds: 2500));
+    if (!mounted) return;
+
+    try {
+      final repo = AppVersionRepository();
+      final response = await repo.getCurrentVersion();
+      if (response.isSuccess && response.data != null && response.data!.forceUpdate) {
+        final packageInfo = await PackageInfo.fromPlatform();
+        final currentVersion = packageInfo.version;
+        if (currentVersion != response.data!.versionNumber) {
+          if (mounted) {
+            await ForceUpdateDialog.show(context, storeUrl: appStoreUrl);
+          }
+          return; // do not navigate
+        }
       }
-    });
+    } catch (_) {
+      // version check failure is non-fatal
+    }
+
+    if (mounted) context.go('/login');
   }
 
   @override

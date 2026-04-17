@@ -10,4 +10,5 @@ class ApiPaths {
   static const String notifications = '$tenantMobilePrefix/notifications';
   static const String documents = '$tenantMobilePrefix/documents';
   static const String profile = '$tenantMobilePrefix/profile';
+  static const String currentAppVersion = '$tenantMobilePrefix/app-version/current';
 }
