@@ -7,8 +7,8 @@ import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/domain/simple_paginator.dart';
+import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/chart_widgets.dart';
-import '../../../widgets/ui/skeleton_card.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/history_provider.dart';
@@ -23,6 +23,34 @@ class HistoryScreen extends ConsumerStatefulWidget {
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   int _page = 1;
 
+  Widget _buildLatestBreakdown(dynamic item) {
+    final breakdownItems = <BreakdownItem>[
+      BreakdownItem(
+        label: 'Base Rent',
+        amount: item.baseRent,
+        color: const Color(0xFF7C3AED),
+      ),
+      BreakdownItem(
+        label: 'Utility Bill',
+        amount: item.utilityBill,
+        color: const Color(0xFF06B6D4),
+      ),
+      BreakdownItem(
+        label: 'Maintenance',
+        amount: item.maintenance,
+        color: const Color(0xFFF59E0B),
+      ),
+      if (item.previousDues > 0)
+        BreakdownItem(
+          label: 'Previous Dues',
+          amount: item.previousDues,
+          color: const Color(0xFFDC2626),
+        ),
+    ];
+
+    return RentBreakdownPieChart(items: breakdownItems);
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncHistory = ref.watch(activeHistoryProvider(_page));
@@ -31,38 +59,31 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'History'),
       body: asyncDashboard.when(
-        loading: () => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[SkeletonCard(), SkeletonCard(), SkeletonCard()],
-        ),
-        error: (_, __) => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[
-            SkeletonCard(),
-            SkeletonCard(),
-            SkeletonCard(),
-          ],
-        ),
+        loading: () => const AppLoader(),
+        error: (_, __) => const AppLoader(),
         data: (dashboardData) {
           final flatItems = dashboardData.availableFlats
               .map((flat) => FlatModel(id: flat.id, label: flat.label))
               .toList();
 
           return asyncHistory.when(
-            loading: () => ListView(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              children: const <Widget>[SkeletonCard(), SkeletonCard()],
-            ),
+            loading: () => const AppLoader(),
             error: (_, __) => const Padding(
               padding: EdgeInsets.all(AppSpacing.md),
-              child: StateCard(message: 'Unable to load history', variant: StateCardVariant.error),
+              child: StateCard(
+                  message: 'Unable to load history',
+                  variant: StateCardVariant.error),
             ),
             data: (history) {
               final barData = history.items
-                  .map((item) => RentBarItem(monthLabel: item.monthLabel, total: item.totalDue))
+                  .map((item) => RentBarItem(
+                      monthLabel: item.monthLabel, total: item.totalDue))
                   .toList();
               final lineData = history.items
-                  .map((item) => RentLineItem(monthLabel: item.monthLabel, due: item.totalDue, paid: item.paidAmount))
+                  .map((item) => RentLineItem(
+                      monthLabel: item.monthLabel,
+                      due: item.totalDue,
+                      paid: item.paidAmount))
                   .toList();
 
               return ListView(
@@ -72,7 +93,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     FadeSlideTransition(
                       child: FlatSelector(flats: flatItems),
                     ),
-                  if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                  if (flatItems.isNotEmpty)
+                    const SizedBox(height: AppSpacing.md),
+                  if (history.items.isNotEmpty)
+                    FadeSlideTransition(
+                      child: _buildLatestBreakdown(history.items.first),
+                    ),
+                  if (history.items.isNotEmpty)
+                    const SizedBox(height: AppSpacing.lg),
                   if (history.items.length >= 2) ...<Widget>[
                     FadeSlideTransition(
                       child: Column(
@@ -133,8 +161,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         child: SimplePaginator(
                           page: history.page,
                           totalPages: history.totalPages,
-                          onPrev: () => setState(() => _page = (_page - 1).clamp(1, history.totalPages)),
-                          onNext: () => setState(() => _page = (_page + 1).clamp(1, history.totalPages)),
+                          onPrev: () => setState(() =>
+                              _page = (_page - 1).clamp(1, history.totalPages)),
+                          onNext: () => setState(() =>
+                              _page = (_page + 1).clamp(1, history.totalPages)),
                         ),
                       ),
                     ),

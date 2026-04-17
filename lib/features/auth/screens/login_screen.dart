@@ -1,3 +1,5 @@
+import 'dart:math' as Math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,13 +17,30 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _clientCodeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  AnimationController? _accentController;
+
+  AnimationController _ensureAccentController() {
+    _accentController ??= AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat();
+    return _accentController!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _ensureAccentController();
+  }
 
   @override
   void dispose() {
+    _accentController?.dispose();
     _clientCodeController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -29,22 +48,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    debugPrint('=== Login Submit Called ===');
     final clientCode = _clientCodeController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
+    debugPrint(
+      'Login Input - Code: $clientCode, Email: $email, Password: ${password.isNotEmpty ? '***' : 'empty'}',
+    );
+
     if (clientCode.isEmpty || email.isEmpty || password.isEmpty) {
+      debugPrint('Validation failed - missing fields');
       ToastService.showError('All fields are required');
       return;
     }
 
+    debugPrint('Calling auth provider login...');
     final error = await ref.read(authProvider.notifier).login(
           clientCode: clientCode,
           email: email,
           password: password,
         );
+    debugPrint('Login response error: $error');
     if (error != null) {
       ToastService.showError(error);
+    } else {
+      debugPrint('Login successful!');
     }
   }
 
@@ -56,61 +85,119 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
+          // Gradient background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.violet, Color(0xFF6D28D9)],
+                colors: [AppColors.bgGradient1, AppColors.bgGradient2],
               ),
             ),
           ),
+
+          // Animated accent blob (top right)
+          Positioned(
+            top: -60,
+            right: -80,
+            child: AnimatedBuilder(
+              animation: _ensureAccentController(),
+              builder: (context, child) {
+                final accentController = _ensureAccentController();
+                return Transform.translate(
+                  offset: Offset(
+                    20 * Math.sin(accentController.value * 2 * 3.14),
+                    20 * Math.cos(accentController.value * 2 * 3.14),
+                  ),
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.violet.withOpacity(0.08),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Accent line (bottom left)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: Container(
+              width: 120,
+              height: 4,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.accentWarm,
+                    AppColors.violet.withOpacity(0.5),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.xl,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const SizedBox(height: AppSpacing.xl),
+                  // Header section
                   FadeSlideTransition(
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.95),
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.violet.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          const Text(
-                            'Tenant Portal',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.violet,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppColors.violet, AppColors.violetDark],
                             ),
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
                           ),
-                          const SizedBox(height: AppSpacing.xs),
-                          const Text(
-                            'Access your rental account',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textSecondary,
-                            ),
+                          child: const Icon(
+                            Icons.apartment_rounded,
+                            color: Colors.white,
+                            size: 24,
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        const Text(
+                          'Welcome Back',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimary,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        const Text(
+                          'Sign in to manage your properties',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
+
+                  const SizedBox(height: AppSpacing.xl + AppSpacing.lg),
+
+                  // Form fields with enhanced styling
                   FadeSlideTransition(
                     duration: const Duration(milliseconds: 300),
                     child: AppTextField(
@@ -120,16 +207,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       prefixIcon: Icons.apartment_outlined,
                     ),
                   ),
+
+                  const SizedBox(height: AppSpacing.md),
+
                   FadeSlideTransition(
                     duration: const Duration(milliseconds: 400),
                     child: AppTextField(
-                      label: 'Email',
+                      label: 'Email Address',
                       placeholder: 'you@example.com',
                       keyboardType: TextInputType.emailAddress,
                       controller: _emailController,
                       prefixIcon: Icons.email_outlined,
                     ),
                   ),
+
+                  const SizedBox(height: AppSpacing.md),
+
                   FadeSlideTransition(
                     duration: const Duration(milliseconds: 500),
                     child: AppTextField(
@@ -139,7 +232,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       prefixIcon: Icons.lock_outlined,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // Sign in button
                   FadeSlideTransition(
                     duration: const Duration(milliseconds: 600),
                     child: AppButton(
@@ -147,6 +243,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onPressed: _submit,
                       isLoading: isLoading,
                       fullWidth: true,
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Footer text
+                  FadeSlideTransition(
+                    duration: const Duration(milliseconds: 700),
+                    child: Center(
+                      child: Text(
+                        'Secure login • Multi-tenant platform',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary.withOpacity(0.7),
+                        ),
+                      ),
                     ),
                   ),
                 ],

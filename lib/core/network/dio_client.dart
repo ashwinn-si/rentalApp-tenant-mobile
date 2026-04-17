@@ -6,13 +6,30 @@ import '../constants/constants.dart';
 
 const String _apiUrlFromEnv = String.fromEnvironment('API_URL');
 
+String _resolveBaseUrl() {
+  if (_apiUrlFromEnv.isEmpty) {
+    return baseURL;
+  }
+
+  final normalized = _apiUrlFromEnv.endsWith('/')
+      ? _apiUrlFromEnv.substring(0, _apiUrlFromEnv.length - 1)
+      : _apiUrlFromEnv;
+
+  if (normalized.endsWith('/api')) {
+    return normalized;
+  }
+
+  return '$normalized/api';
+}
+
 class DioClient {
   DioClient._() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: _apiUrlFromEnv.isNotEmpty ? _apiUrlFromEnv : baseURL,
+        baseUrl: _resolveBaseUrl(),
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
+        validateStatus: (_) => true,
         headers: <String, dynamic>{'Content-Type': 'application/json'},
       ),
     )..interceptors.add(
@@ -55,9 +72,22 @@ class DioClient {
         data: data,
         queryParameters: queryParams,
       );
+
+      final statusCode = response.statusCode;
+      final isSuccess =
+          statusCode != null && statusCode >= 200 && statusCode < 300;
+      if (!isSuccess) {
+        final responseData = response.data;
+        final message = (responseData is Map<String, dynamic> &&
+                responseData['message'] != null)
+            ? responseData['message'].toString()
+            : 'Request failed';
+        return ApiResponse.failure(message, statusCode);
+      }
+
       final parsed =
           fromJson != null ? fromJson(response.data) : response.data as T;
-      return ApiResponse.success(parsed, response.statusCode);
+      return ApiResponse.success(parsed, statusCode);
     } on DioException catch (e) {
       final message = (e.response?.data is Map<String, dynamic> &&
               e.response?.data['message'] != null)

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/network/api_response.dart';
 import '../../../core/network/dio_client.dart';
@@ -12,7 +13,14 @@ class AuthRepository {
       ApiPaths.login,
       data: request.toJson(),
       fromJson: (json) {
-        return LoginResponse.fromJson(json as Map<String, dynamic>);
+        debugPrint('Login API Response: $json');
+        final Map<String, dynamic> responseMap = json as Map<String, dynamic>;
+
+        // Extract data from wrapper if present
+        // Backend returns: {success, data, message}
+        final dataMap = responseMap['data'] ?? responseMap;
+
+        return LoginResponse.fromJson(dataMap as Map<String, dynamic>);
       },
     );
   }
@@ -27,7 +35,15 @@ class AuthRepository {
         'currentPassword': currentPassword,
         'newPassword': newPassword,
       },
-      fromJson: (json) => json as Map<String, dynamic>,
+      fromJson: (json) {
+        debugPrint('Change Password API Response: $json');
+        final Map<String, dynamic> responseMap = json as Map<String, dynamic>;
+
+        // Extract data from wrapper if present
+        final dataMap = responseMap['data'] ?? responseMap;
+
+        return dataMap as Map<String, dynamic>;
+      },
     );
   }
 }

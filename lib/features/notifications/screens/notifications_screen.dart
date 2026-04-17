@@ -6,7 +6,7 @@ import '../../../core/utils/animations.dart';
 import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/domain/notification_card.dart';
-import '../../../widgets/ui/skeleton_card.dart';
+import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/notifications_provider.dart';
@@ -22,31 +22,20 @@ class NotificationsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'Notifications'),
       body: asyncDashboard.when(
-        loading: () => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[SkeletonCard(), SkeletonCard(), SkeletonCard()],
-        ),
-        error: (_, __) => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[
-            SkeletonCard(),
-            SkeletonCard(),
-            SkeletonCard(),
-          ],
-        ),
+        loading: () => const AppLoader(),
+        error: (_, __) => const AppLoader(),
         data: (dashboardData) {
           final flatItems = dashboardData.availableFlats
               .map((flat) => FlatModel(id: flat.id, label: flat.label))
               .toList();
 
           return asyncNotifications.when(
-            loading: () => ListView(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              children: const <Widget>[SkeletonCard(), SkeletonCard()],
-            ),
+            loading: () => const AppLoader(),
             error: (_, __) => const Padding(
               padding: EdgeInsets.all(AppSpacing.md),
-              child: StateCard(message: 'Unable to load notifications', variant: StateCardVariant.error),
+              child: StateCard(
+                  message: 'Unable to load notifications',
+                  variant: StateCardVariant.error),
             ),
             data: (items) {
               if (items.isEmpty) {
@@ -58,7 +47,8 @@ class NotificationsScreen extends ConsumerWidget {
                         FadeSlideTransition(
                           child: FlatSelector(flats: flatItems),
                         ),
-                      if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                      if (flatItems.isNotEmpty)
+                        const SizedBox(height: AppSpacing.md),
                       const Expanded(
                         child: StateCard(message: 'No notifications found'),
                       ),
@@ -77,7 +67,8 @@ class NotificationsScreen extends ConsumerWidget {
                     FadeSlideTransition(
                       child: FlatSelector(flats: flatItems),
                     ),
-                  if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                  if (flatItems.isNotEmpty)
+                    const SizedBox(height: AppSpacing.md),
                   FadeSlideTransition(
                     child: Text(
                       'Active (${active.length})',

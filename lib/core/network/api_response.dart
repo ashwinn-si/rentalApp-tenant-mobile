@@ -7,6 +7,8 @@ class ApiResponse<T> {
 
   bool get isSuccess => data != null && error == null;
 
+  String? get message => error;
+
   factory ApiResponse.success(T data, [int? statusCode]) {
     return ApiResponse(data: data, statusCode: statusCode);
   }

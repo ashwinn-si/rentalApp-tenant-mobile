@@ -71,7 +71,7 @@ class ForceUpdateDialog extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             const Text(
-              'A new version of the app is available. Please update to continue using the app.',
+              'Kindly update the app and come back for the best experience.',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,

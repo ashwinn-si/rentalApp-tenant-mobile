@@ -8,7 +8,7 @@ import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/animations.dart';
 import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/domain/flat_selector.dart';
-import '../../../widgets/ui/skeleton_card.dart';
+import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/documents_provider.dart';
@@ -33,31 +33,20 @@ class DocumentsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'Documents'),
       body: asyncDashboard.when(
-        loading: () => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[SkeletonCard(), SkeletonCard(), SkeletonCard()],
-        ),
-        error: (_, __) => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[
-            SkeletonCard(),
-            SkeletonCard(),
-            SkeletonCard(),
-          ],
-        ),
+        loading: () => const AppLoader(),
+        error: (_, __) => const AppLoader(),
         data: (dashboardData) {
           final flatItems = dashboardData.availableFlats
               .map((flat) => FlatModel(id: flat.id, label: flat.label))
               .toList();
 
           return asyncDocuments.when(
-            loading: () => ListView(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              children: const <Widget>[SkeletonCard(), SkeletonCard()],
-            ),
+            loading: () => const AppLoader(),
             error: (_, __) => const Padding(
               padding: EdgeInsets.all(AppSpacing.md),
-              child: StateCard(message: 'Unable to load documents', variant: StateCardVariant.error),
+              child: StateCard(
+                  message: 'Unable to load documents',
+                  variant: StateCardVariant.error),
             ),
             data: (documents) {
               if (documents.isEmpty) {
@@ -69,7 +58,8 @@ class DocumentsScreen extends ConsumerWidget {
                         FadeSlideTransition(
                           child: FlatSelector(flats: flatItems),
                         ),
-                      if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                      if (flatItems.isNotEmpty)
+                        const SizedBox(height: AppSpacing.md),
                       const Expanded(
                         child: StateCard(message: 'No documents available'),
                       ),
@@ -85,7 +75,8 @@ class DocumentsScreen extends ConsumerWidget {
                     FadeSlideTransition(
                       child: FlatSelector(flats: flatItems),
                     ),
-                  if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
+                  if (flatItems.isNotEmpty)
+                    const SizedBox(height: AppSpacing.md),
                   ...documents.map((doc) {
                     return FadeSlideTransition(
                       child: Container(
@@ -124,7 +115,7 @@ class DocumentsScreen extends ConsumerWidget {
                               color: AppColors.violet.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(AppRadius.md),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.description_outlined,
                               color: AppColors.violet,
                               size: 24,
@@ -147,9 +138,11 @@ class DocumentsScreen extends ConsumerWidget {
                           trailing: TextButton(
                             onPressed: () => _openDocument(doc.url),
                             style: TextButton.styleFrom(
-                              backgroundColor: AppColors.violet.withOpacity(0.1),
+                              backgroundColor:
+                                  AppColors.violet.withOpacity(0.1),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppRadius.md),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.md),
                               ),
                             ),
                             child: const Text(
@@ -163,7 +156,7 @@ class DocumentsScreen extends ConsumerWidget {
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               );
             },

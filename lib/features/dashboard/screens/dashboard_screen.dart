@@ -8,8 +8,8 @@ import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/domain/notification_card.dart';
 import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/domain/flat_selector.dart';
+import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/confirmation_dialog.dart';
-import '../../../widgets/ui/skeleton_card.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../history/providers/history_provider.dart';
@@ -47,14 +47,7 @@ class DashboardScreen extends ConsumerWidget {
         ],
       ),
       body: asyncDashboard.when(
-        loading: () => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[
-            SkeletonCard(),
-            SkeletonCard(),
-            SkeletonCard()
-          ],
-        ),
+        loading: () => const AppLoader(),
         error: (error, stack) => const Padding(
           padding: EdgeInsets.all(AppSpacing.md),
           child: StateCard(
@@ -67,7 +60,7 @@ class DashboardScreen extends ConsumerWidget {
               .map((flat) => FlatModel(id: flat.id, label: flat.label))
               .toList();
           final notificationSection = asyncNotifications.when<Widget?>(
-            loading: () => const SkeletonCard(),
+            loading: () => const AppLoader(),
             error: (_, __) =>
                 const StateCard(message: 'Notifications unavailable'),
             data: (items) {
@@ -152,7 +145,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               asyncHistory.when(
-                loading: () => const SkeletonCard(),
+                loading: () => const AppLoader(),
                 error: (_, __) =>
                     const StateCard(message: 'History unavailable'),
                 data: (history) {

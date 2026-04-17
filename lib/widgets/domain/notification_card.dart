@@ -23,9 +23,7 @@ class NotificationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = isExpired
         ? <Color>[const Color(0xFF6B7280), const Color(0xFF4B5563)]
-        : (targetType == 'tenant'
-            ? <Color>[const Color(0xFF7C3AED), const Color(0xFFA21CAF)]
-            : <Color>[const Color(0xFFD97706), const Color(0xFFB45309)]);
+        : <Color>[const Color(0xFF7C3AED), const Color(0xFF6D28D9)];
 
     return Opacity(
       opacity: isExpired ? 0.6 : 1,

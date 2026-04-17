@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/utils/animations.dart';
 import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/ui/app_button.dart';
+import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/confirmation_dialog.dart';
 import '../../../widgets/ui/info_field.dart';
-import '../../../widgets/ui/skeleton_card.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
@@ -23,14 +22,7 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'Profile'),
       body: asyncProfile.when(
-        loading: () => ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: const <Widget>[
-            SkeletonCard(),
-            SkeletonCard(),
-            SkeletonCard()
-          ],
-        ),
+        loading: () => const AppLoader(),
         error: (_, __) => const Padding(
           padding: EdgeInsets.all(AppSpacing.md),
           child: StateCard(

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+// App version (from pubspec.yaml)
+// Format: versionNumber+buildNumber (e.g., 1.0.0+1)
+const String appVersion = '1.0.0';
+const int appBuildNumber = 1;
+
 // Store URLs for force update
 const String appStoreUrl = 'https://play.google.com/store/apps/details?id=com.rentalapp.tenant';
 
@@ -14,6 +19,12 @@ class AppColors {
   static const cardBg = Color(0xFFFFFFFF);
   static const textPrimary = Color(0xFF111827);
   static const textSecondary = Color(0xFF6B7280);
+
+  // Login page colors
+  static const violetDark = Color(0xFF6D28D9);
+  static const accentWarm = Color(0xFFF97316);
+  static const bgGradient1 = Color(0xFFF9F5FF);
+  static const bgGradient2 = Color(0xFFEDE9FE);
 }
 
 class AppSpacing {
