@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_tokens.dart';
+import '../../core/constants/tenant_screens.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
-class TabShell extends StatelessWidget {
+typedef _TabDef = (String path, String label, IconData icon, String? screenKey);
+
+class TabShell extends ConsumerWidget {
   const TabShell({required this.child, super.key});
 
   final Widget child;
 
-  static const List<(String path, String label, IconData icon)> _tabs =
-      <(String, String, IconData)>[
-        ('/dashboard', 'Dashboard', Icons.home_outlined),
-        ('/history', 'History', Icons.history_outlined),
-        ('/documents', 'Docs', Icons.description_outlined),
-        ('/notifications', 'Alerts', Icons.notifications_outlined),
-        ('/profile', 'Profile', Icons.person_outline),
-      ];
+  static const List<_TabDef> _allTabs = <_TabDef>[
+    ('/dashboard', 'Dashboard', Icons.home_outlined, TenantScreens.dashboard),
+    ('/history', 'History', Icons.history_outlined, TenantScreens.history),
+    ('/documents', 'Docs', Icons.description_outlined, TenantScreens.documents),
+    ('/notifications', 'Alerts', Icons.notifications_outlined, TenantScreens.notifications),
+    ('/payment-page', 'Pay', Icons.payment_outlined, TenantScreens.paymentPage),
+    ('/profile', 'Profile', Icons.person_outline, TenantScreens.profile),
+  ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enabledScreens = ref.watch(authProvider.select((s) => s.enabledScreens));
+    final tabs = _allTabs
+        .where((tab) => tab.$4 == null || enabledScreens.contains(tab.$4))
+        .toList();
+
     final location = GoRouterState.of(context).matchedLocation;
-    final currentIndex = _tabs.indexWhere((tab) => location.startsWith(tab.$1));
+    final currentIndex = tabs.indexWhere((tab) => location.startsWith(tab.$1));
+
+    if (tabs.length < 2) {
+      return Scaffold(body: child);
+    }
 
     return Scaffold(
       body: child,
@@ -44,7 +58,7 @@ class TabShell extends StatelessWidget {
         ),
         child: BottomNavigationBar(
           currentIndex: currentIndex < 0 ? 0 : currentIndex,
-          onTap: (index) => context.go(_tabs[index].$1),
+          onTap: (index) => context.go(tabs[index].$1),
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -52,7 +66,7 @@ class TabShell extends StatelessWidget {
           unselectedItemColor: Colors.white.withOpacity(0.5),
           selectedFontSize: 12,
           unselectedFontSize: 11,
-          items: _tabs
+          items: tabs
               .map(
                 (tab) => BottomNavigationBarItem(
                   icon: Padding(

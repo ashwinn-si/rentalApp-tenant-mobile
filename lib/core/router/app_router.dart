@@ -10,10 +10,15 @@ import '../../features/history/screens/history_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
+import '../utils/screen_navigation.dart';
 import 'tab_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  // Only recreate router on auth-relevant changes, not isLoading
+  ref.watch(
+    authProvider.select((s) => (s.token, s.mustChangePassword, s.enabledScreens)),
+  );
+  final authState = ref.read(authProvider);
 
   return GoRouter(
     initialLocation: '/splash',
@@ -23,6 +28,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       final location = state.matchedLocation;
 
       if (location == '/splash') {
+        // Authenticated users skip splash entirely
+        if (isAuth && !mustChangePassword) {
+          return getFirstEnabledScreenRoute(authState.enabledScreens);
+        }
+        if (isAuth && mustChangePassword) {
+          return '/change-password';
+        }
         return null;
       }
 
@@ -33,7 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return '/change-password';
       }
       if (isAuth && !mustChangePassword && (location == '/login' || location == '/change-password')) {
-        return '/dashboard';
+        return getFirstEnabledScreenRoute(authState.enabledScreens);
       }
       return null;
     },

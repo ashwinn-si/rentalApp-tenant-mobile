@@ -20,11 +20,13 @@ class LoginResponse {
     required this.accessToken,
     required this.user,
     required this.mustChangePassword,
+    required this.enabledScreens,
   });
 
   final String accessToken;
   final LoginUser user;
   final bool mustChangePassword;
+  final List<String> enabledScreens;
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     // Backend response helper wraps payload under "data".
@@ -36,12 +38,18 @@ class LoginResponse {
         ? payload['user'] as Map<String, dynamic>
         : <String, dynamic>{};
 
+    final rawScreens = payload['enabledScreens'];
+    final enabledScreens = rawScreens is List
+        ? rawScreens.map((e) => e.toString()).toList()
+        : <String>[];
+
     return LoginResponse(
       // Support both token and accessToken key names for compatibility.
       accessToken:
           ((payload['token'] ?? payload['accessToken']) ?? '').toString(),
       user: LoginUser.fromJson(userJson),
       mustChangePassword: payload['mustChangePassword'] == true,
+      enabledScreens: enabledScreens,
     );
   }
 }

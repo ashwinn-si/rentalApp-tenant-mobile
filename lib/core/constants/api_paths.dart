@@ -3,7 +3,7 @@ class ApiPaths {
 
   static const String tenantMobilePrefix = '/tenant-mobile';
 
-  static const String login = '/login/tenant-mobile';
+  static const String login = '/auth/tenant-mobile';
   static const String changePassword = '$tenantMobilePrefix/change-password';
   static const String dashboard = '$tenantMobilePrefix/dashboard';
   static const String history = '$tenantMobilePrefix/history';

@@ -16,6 +16,7 @@ class AuthState {
     this.mustChangePassword = false,
     this.isLoading = false,
     this.error,
+    this.enabledScreens = const [],
   });
 
   final String? token;
@@ -25,6 +26,9 @@ class AuthState {
   final bool mustChangePassword;
   final bool isLoading;
   final String? error;
+  final List<String> enabledScreens;
+
+  bool hasScreen(String screenKey) => enabledScreens.contains(screenKey);
 
   AuthState copyWith({
     String? token,
@@ -34,6 +38,7 @@ class AuthState {
     bool? mustChangePassword,
     bool? isLoading,
     String? error,
+    List<String>? enabledScreens,
   }) {
     return AuthState(
       token: token ?? this.token,
@@ -43,6 +48,7 @@ class AuthState {
       mustChangePassword: mustChangePassword ?? this.mustChangePassword,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      enabledScreens: enabledScreens ?? this.enabledScreens,
     );
   }
 }
@@ -63,12 +69,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     DioClient.instance.setSessionToken(token);
 
     final prefs = await SharedPreferences.getInstance();
+    final rawScreens = prefs.getStringList('enabledScreens') ?? [];
     state = state.copyWith(
       token: token,
       userId: prefs.getString('userId'),
       tenantKey: prefs.getString('tenantKey'),
       activeFlatId: prefs.getString('activeFlatId'),
       mustChangePassword: prefs.getBool('mustChangePassword') ?? false,
+      enabledScreens: rawScreens,
       error: null,
     );
   }
@@ -106,6 +114,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await prefs.setString('userId', loginData.user.id);
     await prefs.setString('tenantKey', loginData.user.tenantKey);
     await prefs.setBool('mustChangePassword', loginData.mustChangePassword);
+    await prefs.setStringList('enabledScreens', loginData.enabledScreens);
 
     state = state.copyWith(
       isLoading: false,
@@ -113,6 +122,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       userId: loginData.user.id,
       tenantKey: loginData.user.tenantKey,
       mustChangePassword: loginData.mustChangePassword,
+      enabledScreens: loginData.enabledScreens,
       error: null,
     );
     return null;

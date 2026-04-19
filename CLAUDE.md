@@ -196,7 +196,9 @@ InputDecoration(
 lib/
 ├── core/
 │   ├── constants/
-│   │   └── app_tokens.dart (colors, spacing, theme)
+│   │   ├── app_tokens.dart      (colors, spacing, theme)
+│   │   ├── api_paths.dart       (all API endpoint paths)
+│   │   └── tenant_screens.dart  (screen key constants — add new keys here)
 │   └── utils/
 │       └── animations.dart (reusable animation widgets)
 ├── widgets/
@@ -212,6 +214,28 @@ lib/
     ├── history/
     └── ...
 ```
+
+## Screen Visibility
+
+All screens are optional, controlled per client by super admin.
+`AuthState.enabledScreens` (from login response) drives which tabs show in `tab_shell.dart`.
+`tab_shell.dart` filters `_allTabs` at runtime — only tabs whose `screenKey` is in `enabledScreens` are shown.
+
+**When adding a new screen:** follow `../readme/FEATURES/tenant-screen-guide.md` exactly.
+Key files to update when adding a screen:
+- `lib/core/constants/tenant_screens.dart` — add key constant
+- `lib/core/router/app_router.dart` — add GoRoute
+- `lib/core/router/tab_shell.dart` — add entry to `_allTabs`
+- `lib/core/constants/api_paths.dart` — add API path
+- `lib/features/<screen>/` — create full feature module (data/providers/screens)
+
+## Documentation References
+
+Before implementing features, consult:
+- `../readme/CORE/PRD.md` — Product requirements
+- `../readme/CORE/implementation_requirements.md` — Frozen architecture decisions
+- `../readme/FEATURES/tenant-screen-guide.md` — Screen implementation guide
+- `../readme/FEATURES/mobile-activation.md` — Mobile app setup
 
 ### Testing UI Changes
 
