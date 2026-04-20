@@ -13,16 +13,35 @@ import '../../../widgets/ui/confirmation_dialog.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
+import '../../app_version/services/app_update_checker.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../history/providers/history_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
 import '../providers/dashboard_provider.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await checkForAppUpdate(
+        context,
+        notifyOptionalUpdate: true,
+        showErrorToast: false,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final asyncDashboard = ref.watch(activeDashboardProvider);
     final asyncHistory = ref.watch(activeHistoryProvider(1));
     final asyncNotifications = ref.watch(notificationsProvider);

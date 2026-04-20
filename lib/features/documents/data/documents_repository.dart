@@ -42,7 +42,12 @@ class DocumentsRepository {
               final baseName = (mapped['name'] ?? 'Document').toString();
               mapped['name'] = '$baseName ($contextLabel)';
             }
-            return TenantDocument.fromJson(mapped);
+            final parsed = TenantDocument.fromJson(mapped);
+            if (kDebugMode && parsed.url.trim().isEmpty) {
+              debugPrint(
+                  'Document URL missing for payload keys: ${mapped.keys.toList()}');
+            }
+            return parsed;
           });
         });
 

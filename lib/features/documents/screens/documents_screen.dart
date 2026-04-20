@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
@@ -25,19 +26,19 @@ class DocumentsScreen extends ConsumerWidget {
       return;
     }
 
-    final candidate = Uri.tryParse(raw);
-    final uri = (candidate != null && candidate.hasScheme)
-        ? candidate
-        : Uri.tryParse('https://$raw');
+    final normalized = raw.startsWith('http://') || raw.startsWith('https://')
+        ? raw
+        : 'https://$raw';
 
-    if (uri == null) {
+    if (Uri.tryParse(normalized) == null) {
       ToastService.showError('Document URL is invalid');
       return;
     }
 
     try {
-      final openedInBrowserView = await launchUrl(
-        uri,
+      // Keep pre-signed S3 URL query string untouched to avoid signature mismatch.
+      final openedInBrowserView = await launchUrlString(
+        normalized,
         mode: LaunchMode.inAppBrowserView,
       );
 
@@ -45,8 +46,8 @@ class DocumentsScreen extends ConsumerWidget {
         return;
       }
 
-      final openedExternally = await launchUrl(
-        uri,
+      final openedExternally = await launchUrlString(
+        normalized,
         mode: LaunchMode.externalApplication,
       );
 
@@ -124,6 +125,8 @@ class DocumentsScreen extends ConsumerWidget {
                             child: FlatSelector(flats: flatItems),
                           ),
                         ...documents.map((doc) {
+                          final hasUrl = doc.url.trim().isNotEmpty;
+
                           return PremiumCard(
                             child: ListTile(
                               contentPadding: const EdgeInsets.symmetric(
@@ -163,7 +166,9 @@ class DocumentsScreen extends ConsumerWidget {
                                 ),
                               ),
                               trailing: TextButton(
-                                onPressed: () => _openDocument(doc.url),
+                                onPressed: hasUrl
+                                    ? () => _openDocument(doc.url)
+                                    : null,
                                 style: TextButton.styleFrom(
                                   backgroundColor: actionBg,
                                   shape: RoundedRectangleBorder(
@@ -171,9 +176,9 @@ class DocumentsScreen extends ConsumerWidget {
                                         BorderRadius.circular(AppRadius.md),
                                   ),
                                 ),
-                                child: const Text(
-                                  'View',
-                                  style: TextStyle(
+                                child: Text(
+                                  hasUrl ? 'View' : 'Unavailable',
+                                  style: const TextStyle(
                                     color: AppColors.violet,
                                     fontWeight: FontWeight.w600,
                                   ),

@@ -11,3 +11,5 @@ String get baseURL {
 
   return 'http://localhost:$_defaultApiPort/api';
 }
+
+const buildNumber = 1;

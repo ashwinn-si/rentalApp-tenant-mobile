@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../storage/secure_storage.dart';
 import 'api_response.dart';
@@ -72,6 +73,12 @@ class DioClient {
         data: data,
         queryParameters: queryParams,
       );
+
+      if (kDebugMode) {
+        debugPrint(
+          '[API] $method $path -> ${response.statusCode}\nresponse: ${response.data}',
+        );
+      }
 
       final statusCode = response.statusCode;
       final isSuccess =
