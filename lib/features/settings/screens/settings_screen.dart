@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/constants/constants.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/utils/app_bar_helper.dart';
@@ -18,14 +18,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  late final Future<PackageInfo> _packageInfoFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _packageInfoFuture = PackageInfo.fromPlatform();
-  }
-
   Future<void> _openStore() async {
     final raw = appStoreUrl.trim();
     if (raw.isEmpty) {
@@ -64,13 +56,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'Settings'),
       body: ScreenBackground(
-        child: FutureBuilder<PackageInfo>(
-          future: _packageInfoFuture,
-          builder: (context, snapshot) {
-            final packageInfo = snapshot.data;
-            final currentVersion = packageInfo?.version ?? appVersion;
-            final currentBuild =
-                int.tryParse(packageInfo?.buildNumber ?? '') ?? appBuildNumber;
+        child: Builder(
+          builder: (context) {
+            const currentVersion = appVersion;
+            const currentBuild = buildNumber;
 
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -121,8 +110,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      _InfoRow(label: 'Version', value: currentVersion),
-                      _InfoRow(label: 'Build Number', value: '$currentBuild'),
+                      const _InfoRow(label: 'Version', value: currentVersion),
+                      const _InfoRow(
+                          label: 'Build Number', value: '$currentBuild'),
                     ],
                   ),
                 ),
@@ -179,6 +169,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               onPressed: _openStore,
                               icon: const Icon(Icons.open_in_new),
                               label: const Text('Update App'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.violet,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: AppSpacing.md,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.md),
+                                ),
+                              ),
                             ),
                           ),
                         ],
