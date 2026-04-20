@@ -6,7 +6,8 @@ const String appVersion = '1.0.0';
 const int appBuildNumber = 1;
 
 // Store URLs for force update
-const String appStoreUrl = 'https://play.google.com/store/apps/details?id=com.rentalapp.tenant';
+const String appStoreUrl =
+    'https://play.google.com/store/apps/details?id=com.rentalapp.tenant';
 
 class AppColors {
   AppColors._();
@@ -44,15 +45,128 @@ class AppRadius {
   static const double lg = 16;
 }
 
+class AppShadows {
+  AppShadows._();
+
+  static List<BoxShadow> card([Color color = AppColors.violet]) => [
+        BoxShadow(
+          color: color.withOpacity(0.06),
+          blurRadius: 12,
+          offset: const Offset(0, 2),
+        ),
+        BoxShadow(
+          color: color.withOpacity(0.03),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
+        ),
+      ];
+}
+
 ThemeData buildAppTheme() {
+  final colorScheme = ColorScheme.fromSeed(seedColor: AppColors.violet);
+
   return ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(seedColor: AppColors.violet),
+    colorScheme: colorScheme,
     scaffoldBackgroundColor: AppColors.screenBg,
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
+        color: AppColors.textPrimary,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        color: AppColors.textPrimary,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textPrimary,
+      ),
+      bodySmall: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: AppColors.textSecondary,
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.violet,
       foregroundColor: Colors.white,
       elevation: 0,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: 14,
+      ),
+      labelStyle: const TextStyle(
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w500,
+      ),
+      hintStyle: TextStyle(
+        color: AppColors.textSecondary.withOpacity(0.6),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: BorderSide(
+          color: AppColors.violet.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: BorderSide(
+          color: AppColors.violet.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: const BorderSide(
+          color: AppColors.violet,
+          width: 2,
+        ),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.violet,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+      ),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.white.withOpacity(0.55),
+      selectedLabelStyle: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelStyle: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+      ),
     ),
     cardTheme: CardThemeData(
       color: AppColors.cardBg,

@@ -20,9 +20,6 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-      'AppButton: label=$label, hasOnPressed=${onPressed != null}, isLoading=$isLoading, fullWidth=$fullWidth',
-    );
     final child = isLoading
         ? const SizedBox(
             width: 20,
@@ -41,7 +38,9 @@ class AppButton extends StatelessWidget {
             ),
           );
 
-    final button = Container(
+    final button = AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: isLoading

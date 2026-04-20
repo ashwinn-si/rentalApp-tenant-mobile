@@ -9,6 +9,7 @@ import '../../../core/utils/animations.dart';
 import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_loader.dart';
+import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/documents_provider.dart';
@@ -70,93 +71,71 @@ class DocumentsScreen extends ConsumerWidget {
 
               return ListView(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                children: <Widget>[
-                  if (flatItems.isNotEmpty)
-                    FadeSlideTransition(
-                      child: FlatSelector(flats: flatItems),
-                    ),
-                  if (flatItems.isNotEmpty)
-                    const SizedBox(height: AppSpacing.md),
-                  ...documents.map((doc) {
-                    return FadeSlideTransition(
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white,
-                              Colors.white.withOpacity(0.95),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.violet.withOpacity(0.06),
-                              blurRadius: 12,
-                              offset: const Offset(0, 2),
-                            ),
-                            BoxShadow(
-                              color: AppColors.violet.withOpacity(0.03),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+                children: [
+                  StaggeredListView(
+                    children: [
+                      if (flatItems.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: FlatSelector(flats: flatItems),
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.sm,
-                          ),
-                          leading: Container(
-                            padding: const EdgeInsets.all(AppSpacing.sm),
-                            decoration: BoxDecoration(
-                              color: AppColors.violet.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(AppRadius.md),
+                      ...documents.map((doc) {
+                        return PremiumCard(
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.sm,
                             ),
-                            child: const Icon(
-                              Icons.description_outlined,
-                              color: AppColors.violet,
-                              size: 24,
-                            ),
-                          ),
-                          title: Text(
-                            doc.fileName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'Uploaded: ${formatDate(doc.uploadedAt)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary.withOpacity(0.7),
-                            ),
-                          ),
-                          trailing: TextButton(
-                            onPressed: () => _openDocument(doc.url),
-                            style: TextButton.styleFrom(
-                              backgroundColor:
-                                  AppColors.violet.withOpacity(0.1),
-                              shape: RoundedRectangleBorder(
+                            leading: Container(
+                              padding: const EdgeInsets.all(AppSpacing.sm),
+                              decoration: BoxDecoration(
+                                color: AppColors.violet.withOpacity(0.1),
                                 borderRadius:
                                     BorderRadius.circular(AppRadius.md),
                               ),
-                            ),
-                            child: const Text(
-                              'View',
-                              style: TextStyle(
+                              child: const Icon(
+                                Icons.description_outlined,
                                 color: AppColors.violet,
+                                size: 24,
+                              ),
+                            ),
+                            title: Text(
+                              doc.fileName,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Uploaded: ${formatDate(doc.uploadedAt)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary.withOpacity(0.7),
+                              ),
+                            ),
+                            trailing: TextButton(
+                              onPressed: () => _openDocument(doc.url),
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    AppColors.violet.withOpacity(0.1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.md),
+                                ),
+                              ),
+                              child: const Text(
+                                'View',
+                                style: TextStyle(
+                                  color: AppColors.violet,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  }),
+                        );
+                      }),
+                    ],
+                  ),
                 ],
               );
             },

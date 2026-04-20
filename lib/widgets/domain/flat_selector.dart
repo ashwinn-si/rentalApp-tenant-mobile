@@ -35,13 +35,7 @@ class FlatSelector extends ConsumerWidget {
             color: AppColors.violet.withOpacity(0.2),
             width: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.violet.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: AppShadows.card(),
         ),
         child: Row(
           children: [
@@ -70,19 +64,13 @@ class FlatSelector extends ConsumerWidget {
     // If multiple flats, show dropdown
     return Container(
       decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.violet.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppShadows.card(),
       ),
       child: DropdownButtonFormField<String>(
         initialValue: activeFlatId,
         decoration: InputDecoration(
           labelText: 'Select Unit',
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             color: AppColors.textSecondary,
             fontWeight: FontWeight.w500,
           ),

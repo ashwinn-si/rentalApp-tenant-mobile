@@ -10,6 +10,7 @@ import '../../../widgets/domain/simple_paginator.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/chart_widgets.dart';
 import '../../../widgets/ui/state_card.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/history_provider.dart';
 
@@ -40,12 +41,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         amount: item.maintenance,
         color: const Color(0xFFF59E0B),
       ),
-      if (item.previousDues > 0)
-        BreakdownItem(
-          label: 'Previous Dues',
-          amount: item.previousDues,
-          color: const Color(0xFFDC2626),
-        ),
     ];
 
     return RentBreakdownPieChart(items: breakdownItems);
@@ -53,6 +48,15 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<String?>(
+      authProvider.select((state) => state.activeFlatId),
+      (prev, next) {
+        if (prev != next && mounted) {
+          setState(() => _page = 1);
+        }
+      },
+    );
+
     final asyncHistory = ref.watch(activeHistoryProvider(_page));
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
@@ -76,98 +80,82 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
             data: (history) {
               final barData = history.items
-                  .map((item) => RentBarItem(
-                      monthLabel: item.monthLabel, total: item.totalDue))
-                  .toList();
-              final lineData = history.items
-                  .map((item) => RentLineItem(
+                  .map(
+                    (item) => RentBarItem(
                       monthLabel: item.monthLabel,
-                      due: item.totalDue,
-                      paid: item.paidAmount))
+                      baseRent: item.baseRent,
+                      utilityBill: item.utilityBill,
+                      maintenance: item.maintenance,
+                    ),
+                  )
                   .toList();
 
               return ListView(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                children: <Widget>[
-                  if (flatItems.isNotEmpty)
-                    FadeSlideTransition(
-                      child: FlatSelector(flats: flatItems),
-                    ),
-                  if (flatItems.isNotEmpty)
-                    const SizedBox(height: AppSpacing.md),
-                  if (history.items.isNotEmpty)
-                    FadeSlideTransition(
-                      child: _buildLatestBreakdown(history.items.first),
-                    ),
-                  if (history.items.isNotEmpty)
-                    const SizedBox(height: AppSpacing.lg),
-                  if (history.items.length >= 2) ...<Widget>[
-                    FadeSlideTransition(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Monthly Rent Breakdown',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                              color: AppColors.textPrimary,
-                            ),
+                children: [
+                  StaggeredListView(
+                    children: [
+                      if (flatItems.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: FlatSelector(flats: flatItems),
+                        ),
+                      if (history.items.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                          child: _buildLatestBreakdown(history.items.first),
+                        ),
+                      if (history.items.length >= 2)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Monthly Rent Breakdown',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+                              RentStackedBarChart(data: barData),
+                            ],
                           ),
-                          const SizedBox(height: AppSpacing.sm),
-                          RentStackedBarChart(data: barData),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    FadeSlideTransition(
-                      duration: AppAnimations.normal,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Due vs Paid Trend',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          RentTrendLineChart(data: lineData),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
-                  ...history.items.map(
-                    (item) => FadeSlideTransition(
-                      child: RentBreakdownCard(
-                        monthLabel: item.monthLabel,
-                        status: item.status,
-                        baseRent: item.baseRent,
-                        utilityBill: item.utilityBill,
-                        maintenance: item.maintenance,
-                        previousDues: item.previousDues,
-                        totalDue: item.totalDue,
-                        paidAmount: item.paidAmount,
-                      ),
-                    ),
-                  ),
-                  if (history.totalPages > 1)
-                    Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.md),
-                      child: FadeSlideTransition(
-                        child: SimplePaginator(
-                          page: history.page,
-                          totalPages: history.totalPages,
-                          onPrev: () => setState(() =>
-                              _page = (_page - 1).clamp(1, history.totalPages)),
-                          onNext: () => setState(() =>
-                              _page = (_page + 1).clamp(1, history.totalPages)),
+                        ),
+                      ...history.items.map(
+                        (item) => RentBreakdownCard(
+                          monthLabel: item.monthLabel,
+                          status: item.status,
+                          baseRent: item.baseRent,
+                          utilityBill: item.utilityBill,
+                          maintenance: item.maintenance,
+                          previousDues: 0,
+                          totalDue: item.totalDue,
+                          paidAmount: item.paidAmount,
                         ),
                       ),
-                    ),
+                      if (history.totalPages > 1 || _page > 1)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: AppSpacing.md,
+                            bottom: AppSpacing.lg,
+                          ),
+                          child: SimplePaginator(
+                            page: history.page,
+                            totalPages: history.totalPages,
+                            onPrev: () => setState(
+                              () => _page = (history.page - 1).clamp(1, 9999),
+                            ),
+                            onNext: () => setState(
+                              () => _page = (history.page + 1)
+                                  .clamp(1, history.totalPages),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ],
               );
             },

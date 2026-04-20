@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_tokens.dart';
+import '../../core/utils/animations.dart';
 import '../../core/constants/tenant_screens.dart';
 import '../../features/auth/providers/auth_provider.dart';
 
@@ -17,14 +18,20 @@ class TabShell extends ConsumerWidget {
     ('/dashboard', 'Dashboard', Icons.home_outlined, TenantScreens.dashboard),
     ('/history', 'History', Icons.history_outlined, TenantScreens.history),
     ('/documents', 'Docs', Icons.description_outlined, TenantScreens.documents),
-    ('/notifications', 'Alerts', Icons.notifications_outlined, TenantScreens.notifications),
+    (
+      '/notifications',
+      'Alerts',
+      Icons.notifications_outlined,
+      TenantScreens.notifications
+    ),
     ('/payment-page', 'Pay', Icons.payment_outlined, TenantScreens.paymentPage),
     ('/profile', 'Profile', Icons.person_outline, TenantScreens.profile),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final enabledScreens = ref.watch(authProvider.select((s) => s.enabledScreens));
+    final enabledScreens =
+        ref.watch(authProvider.select((s) => s.enabledScreens));
     final tabs = _allTabs
         .where((tab) => tab.$4 == null || enabledScreens.contains(tab.$4))
         .toList();
@@ -37,35 +44,37 @@ class TabShell extends ConsumerWidget {
     }
 
     return Scaffold(
-      body: child,
+      body: AnimatedSwitcher(
+        duration: AppAnimations.normal,
+        switchInCurve: AppAnimations.easeOutCubic,
+        switchOutCurve: AppAnimations.easeInOutCubic,
+        transitionBuilder: (switchChild, animation) {
+          return RouteFadeSlideTransition(
+            animation: animation,
+            child: switchChild,
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey<String>(location),
+          child: child,
+        ),
+      ),
       bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
               AppColors.violet,
-              AppColors.violet.withOpacity(0.8),
+              AppColors.violet.withOpacity(0.84),
             ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.violet.withOpacity(0.3),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          boxShadow: AppShadows.card(AppColors.violet),
         ),
         child: BottomNavigationBar(
           currentIndex: currentIndex < 0 ? 0 : currentIndex,
           onTap: (index) => context.go(tabs[index].$1),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white.withOpacity(0.5),
-          selectedFontSize: 12,
-          unselectedFontSize: 11,
           items: tabs
               .map(
                 (tab) => BottomNavigationBarItem(

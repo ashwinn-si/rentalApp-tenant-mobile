@@ -31,11 +31,7 @@ class InfoField extends StatelessWidget {
           width: 1,
         ),
         boxShadow: [
-          BoxShadow(
-            color: AppColors.violet.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 1),
-          ),
+          ...AppShadows.card(),
         ],
       ),
       child: Column(

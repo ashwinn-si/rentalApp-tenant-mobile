@@ -62,58 +62,52 @@ class NotificationsScreen extends ConsumerWidget {
 
               return ListView(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                children: <Widget>[
-                  if (flatItems.isNotEmpty)
-                    FadeSlideTransition(
-                      child: FlatSelector(flats: flatItems),
-                    ),
-                  if (flatItems.isNotEmpty)
-                    const SizedBox(height: AppSpacing.md),
-                  FadeSlideTransition(
-                    child: Text(
-                      'Active (${active.length})',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: AppColors.textPrimary,
+                children: [
+                  StaggeredListView(
+                    children: [
+                      if (flatItems.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: FlatSelector(flats: flatItems),
+                        ),
+                      Text(
+                        'Active (${active.length})',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  ...active.map(
-                    (item) => FadeSlideTransition(
-                      child: NotificationCard(
-                        title: item.title,
-                        message: item.message,
-                        targetType: item.targetType,
-                        expiresAt: item.expiresAt,
-                        isExpired: false,
+                      const SizedBox(height: AppSpacing.sm),
+                      ...active.map(
+                        (item) => NotificationCard(
+                          title: item.title,
+                          message: item.message,
+                          targetType: item.targetType,
+                          expiresAt: item.expiresAt,
+                          isExpired: false,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  FadeSlideTransition(
-                    duration: AppAnimations.normal,
-                    child: Text(
-                      'Expired (${expired.length})',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: AppColors.textPrimary,
+                      const SizedBox(height: AppSpacing.lg),
+                      Text(
+                        'Expired (${expired.length})',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  ...expired.map(
-                    (item) => FadeSlideTransition(
-                      child: NotificationCard(
-                        title: item.title,
-                        message: item.message,
-                        targetType: item.targetType,
-                        expiresAt: item.expiresAt,
-                        isExpired: true,
+                      const SizedBox(height: AppSpacing.sm),
+                      ...expired.map(
+                        (item) => NotificationCard(
+                          title: item.title,
+                          message: item.message,
+                          targetType: item.targetType,
+                          expiresAt: item.expiresAt,
+                          isExpired: true,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               );

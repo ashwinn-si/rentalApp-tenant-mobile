@@ -10,6 +10,7 @@ import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/confirmation_dialog.dart';
+import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../history/providers/history_provider.dart';
@@ -80,100 +81,71 @@ class DashboardScreen extends ConsumerWidget {
             },
           );
 
+          final historySection = asyncHistory.when(
+            loading: () => const AppLoader(),
+            error: (_, __) => const StateCard(message: 'History unavailable'),
+            data: (history) {
+              if (history.items.isEmpty) {
+                return const StateCard(message: 'No rent history available');
+              }
+
+              return StaggeredListView(
+                children: history.items
+                    .take(2)
+                    .map(
+                      (item) => RentBreakdownCard(
+                        monthLabel: item.monthLabel,
+                        status: item.status,
+                        baseRent: item.baseRent,
+                        utilityBill: item.utilityBill,
+                        maintenance: item.maintenance,
+                        previousDues: item.previousDues,
+                        totalDue: item.totalDue,
+                        paidAmount: item.paidAmount,
+                      ),
+                    )
+                    .toList(),
+              );
+            },
+          );
+
+          final children = <Widget>[
+            if (flatItems.isNotEmpty) FlatSelector(flats: flatItems),
+            if (notificationSection != null) notificationSection,
+            ScaleInAnimation(
+              duration: AppAnimations.normal,
+              child: PremiumCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      'Total Outstanding',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      formatINR(data.totalOutstanding),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.violet,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            historySection,
+          ];
+
           return ListView(
             padding: const EdgeInsets.all(AppSpacing.md),
-            children: <Widget>[
-              if (flatItems.isNotEmpty)
-                FadeSlideTransition(
-                  child: FlatSelector(flats: flatItems),
-                ),
-              if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
-              if (notificationSection != null) ...<Widget>[
-                FadeSlideTransition(
-                  duration: AppAnimations.normal,
-                  child: notificationSection,
-                ),
-                const SizedBox(height: AppSpacing.md),
-              ],
-              ScaleInAnimation(
-                duration: AppAnimations.normal,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white,
-                        Colors.white.withOpacity(0.95),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.violet.withOpacity(0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        const Text(
-                          'Total Outstanding',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          formatINR(data.totalOutstanding),
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.violet,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              asyncHistory.when(
-                loading: () => const AppLoader(),
-                error: (_, __) =>
-                    const StateCard(message: 'History unavailable'),
-                data: (history) {
-                  if (history.items.isEmpty) {
-                    return const StateCard(
-                        message: 'No rent history available');
-                  }
-                  return Column(
-                    children: history.items
-                        .take(2)
-                        .map(
-                          (item) => FadeSlideTransition(
-                            child: RentBreakdownCard(
-                              monthLabel: item.monthLabel,
-                              status: item.status,
-                              baseRent: item.baseRent,
-                              utilityBill: item.utilityBill,
-                              maintenance: item.maintenance,
-                              previousDues: item.previousDues,
-                              totalDue: item.totalDue,
-                              paidAmount: item.paidAmount,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  );
-                },
-              ),
+            children: [
+              StaggeredListView(children: children),
             ],
           );
         },

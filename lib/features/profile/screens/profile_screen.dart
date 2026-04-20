@@ -31,52 +31,50 @@ class ProfileScreen extends ConsumerWidget {
         ),
         data: (profile) => ListView(
           padding: const EdgeInsets.all(AppSpacing.md),
-          children: <Widget>[
-            FadeSlideTransition(
-                child: InfoField(label: 'Name', value: profile.name)),
-            FadeSlideTransition(
-                child: InfoField(label: 'Email', value: profile.email)),
-            FadeSlideTransition(
-                child: InfoField(label: 'Phone', value: profile.phone)),
-            FadeSlideTransition(
-                child: InfoField(
-                    label: 'Alternate Phone', value: profile.alternatePhone)),
-            FadeSlideTransition(
-                child:
-                    InfoField(label: 'Aadhaar', value: profile.aadhaarMasked)),
-            FadeSlideTransition(
-                child: InfoField(label: 'PAN', value: profile.panMasked)),
-            FadeSlideTransition(
-                child: InfoField(
-                    label: 'Emergency Contact Name',
-                    value: profile.emergencyName)),
-            FadeSlideTransition(
-                child: InfoField(
-                    label: 'Emergency Contact Relation',
-                    value: profile.emergencyRelation)),
-            FadeSlideTransition(
-                child: InfoField(
-                    label: 'Emergency Phone', value: profile.emergencyPhone)),
-            const SizedBox(height: AppSpacing.lg),
-            FadeSlideTransition(
-              duration: const Duration(milliseconds: 700),
-              child: AppButton(
-                label: 'Logout',
-                onPressed: () async {
-                  final confirmed = await ConfirmationDialog.show(
-                    context,
-                    title: 'Sign Out',
-                    message:
-                        'Are you sure you want to sign out from your account?',
-                    confirmLabel: 'Sign Out',
-                    isDangerous: true,
-                  );
-                  if (confirmed && context.mounted) {
-                    await ref.read(authProvider.notifier).logout();
-                  }
-                },
-                backgroundColor: AppColors.pending,
-              ),
+          children: [
+            StaggeredListView(
+              children: <Widget>[
+                InfoField(label: 'Name', value: profile.name),
+                InfoField(label: 'Email', value: profile.email),
+                InfoField(label: 'Phone', value: profile.phone),
+                InfoField(
+                    label: 'Alternate Phone', value: profile.alternatePhone),
+                InfoField(label: 'Aadhaar', value: profile.aadhaarMasked),
+                InfoField(label: 'PAN', value: profile.panMasked),
+                InfoField(
+                  label: 'Emergency Contact Name',
+                  value: profile.emergencyName,
+                ),
+                InfoField(
+                  label: 'Emergency Contact Relation',
+                  value: profile.emergencyRelation,
+                ),
+                InfoField(
+                  label: 'Emergency Phone',
+                  value: profile.emergencyPhone,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.lg),
+                  child: AppButton(
+                    label: 'Logout',
+                    fullWidth: true,
+                    onPressed: () async {
+                      final confirmed = await ConfirmationDialog.show(
+                        context,
+                        title: 'Sign Out',
+                        message:
+                            'Are you sure you want to sign out from your account?',
+                        confirmLabel: 'Sign Out',
+                        isDangerous: true,
+                      );
+                      if (confirmed && context.mounted) {
+                        await ref.read(authProvider.notifier).logout();
+                      }
+                    },
+                    backgroundColor: AppColors.pending,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

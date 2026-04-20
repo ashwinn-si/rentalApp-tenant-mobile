@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_tokens.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../ui/premium_card.dart';
 import '../ui/status_chip.dart';
 
 class RentBreakdownCard extends StatelessWidget {
@@ -28,71 +29,44 @@ class RentBreakdownCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            Colors.white.withOpacity(0.95),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.violet.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
-          ),
-          BoxShadow(
-            color: AppColors.violet.withOpacity(0.03),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  monthLabel,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                  ),
+    return PremiumCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                monthLabel,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
                 ),
-                StatusChip.fromString(status),
-              ],
+              ),
+              StatusChip.fromString(status),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _row('Base Rent', baseRent),
+          _row('Electricity / Water', utilityBill),
+          _row('Maintenance', maintenance),
+          if (previousDues > 0)
+            _row('Previous Dues', previousDues, highlight: true),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            child: Divider(
+              height: 1,
+              color: AppColors.textSecondary.withOpacity(0.15),
             ),
-            const SizedBox(height: AppSpacing.md),
-            _row('Base Rent', baseRent),
-            _row('Electricity / Water', utilityBill),
-            _row('Maintenance', maintenance),
-            if (previousDues > 0)
-              _row('Previous Dues', previousDues, highlight: true),
+          ),
+          _row('Total Due', totalDue, bold: true),
+          if (paidAmount > 0)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              child: Divider(
-                height: 1,
-                color: AppColors.textSecondary.withOpacity(0.15),
-              ),
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: _row('Paid', paidAmount, paid: true),
             ),
-            _row('Total Due', totalDue, bold: true),
-            if (paidAmount > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: _row('Paid', paidAmount, paid: true),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }

@@ -103,7 +103,8 @@ class ConfirmationDialog extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     ),
                     child: Text(
                       cancelLabel,
@@ -118,11 +119,9 @@ class ConfirmationDialog extends StatelessWidget {
                 Expanded(
                   child: AppButton(
                     label: confirmLabel,
-                    onPressed: () {
-                      onConfirm();
-                      Navigator.pop(context, true);
-                    },
-                    backgroundColor: isDangerous ? AppColors.pending : AppColors.violet,
+                    onPressed: onConfirm,
+                    backgroundColor:
+                        isDangerous ? AppColors.pending : AppColors.violet,
                   ),
                 ),
               ],
