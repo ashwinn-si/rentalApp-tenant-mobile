@@ -10,6 +10,7 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.fullWidth = false,
     this.backgroundColor,
+    this.useSolidBackground = false,
   });
 
   final String label;
@@ -17,9 +18,27 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
   final bool fullWidth;
   final Color? backgroundColor;
+  final bool useSolidBackground;
+
+  Color _withLightness(Color color, double delta) {
+    final hsl = HSLColor.fromColor(color);
+    final next = (hsl.lightness + delta).clamp(0.0, 1.0);
+    return hsl.withLightness(next).toColor();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = backgroundColor ?? AppColors.violet;
+    final hasCustomColor = backgroundColor != null;
+    final gradientColors = hasCustomColor
+        ? <Color>[
+            _withLightness(primaryColor, 0.06),
+            _withLightness(primaryColor, -0.08),
+          ]
+        : <Color>[
+            primaryColor,
+            AppColors.violetDark,
+          ];
     final child = isLoading
         ? const SizedBox(
             width: 20,
@@ -43,23 +62,34 @@ class AppButton extends StatelessWidget {
       curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.md),
+        color: useSolidBackground ? primaryColor : null,
+        gradient: useSolidBackground
+            ? null
+            : LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradientColors,
+              ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.24),
+        ),
         boxShadow: isLoading
             ? []
             : [
                 BoxShadow(
-                  color: AppColors.violet.withOpacity(0.25),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: primaryColor.withValues(alpha: 0.28),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
               ],
       ),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? AppColors.violet,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              (backgroundColor ?? AppColors.violet).withOpacity(0.6),
+          disabledBackgroundColor: Colors.transparent,
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.9),
           elevation: 0,
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
@@ -68,6 +98,7 @@ class AppButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
+          shadowColor: Colors.transparent,
         ),
         child: child,
       ),

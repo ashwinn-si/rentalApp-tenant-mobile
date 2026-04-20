@@ -9,6 +9,7 @@ import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/domain/simple_paginator.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/chart_widgets.dart';
+import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -93,7 +94,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     .toList();
 
                 return ListView(
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.sm,
+                    AppSpacing.sm,
+                    AppSpacing.sm,
+                    AppSpacing.md,
+                  ),
                   children: [
                     StaggeredListView(
                       children: [
@@ -106,27 +112,36 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         if (history.items.isNotEmpty)
                           Padding(
                             padding:
-                                const EdgeInsets.only(bottom: AppSpacing.lg),
-                            child: _buildLatestBreakdown(history.items.first),
+                                const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: PremiumCard(
+                              child: _buildLatestBreakdown(history.items.first),
+                            ),
                           ),
                         if (history.items.length >= 2)
                           Padding(
                             padding:
-                                const EdgeInsets.only(bottom: AppSpacing.lg),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Monthly Rent Breakdown',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
-                                    color: AppColors.textPrimary,
+                                const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: PremiumCard(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(
+                                      left: AppSpacing.xs,
+                                      bottom: AppSpacing.sm,
+                                    ),
+                                    child: Text(
+                                      'Monthly Rent Breakdown',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: AppSpacing.sm),
-                                RentStackedBarChart(data: barData),
-                              ],
+                                  RentStackedBarChart(data: barData),
+                                ],
+                              ),
                             ),
                           ),
                         ...history.items.map(

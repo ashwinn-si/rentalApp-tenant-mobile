@@ -66,129 +66,128 @@ class RentStackedBarChart extends StatelessWidget {
     }
 
     return ScaleInAnimation(
-      child: PremiumCard(
-        child: SizedBox(
-          height: 240,
-          child: BarChart(
-            BarChartData(
-              barGroups: data
-                  .asMap()
-                  .entries
-                  .map(
-                    (entry) => BarChartGroupData(
-                      x: entry.key,
-                      barRods: <BarChartRodData>[
-                        BarChartRodData(
-                          toY: entry.value.total,
-                          width: 18,
-                          color: Colors.transparent,
-                          rodStackItems: [
-                            BarChartRodStackItem(
-                              0,
-                              entry.value.baseRent.toDouble(),
-                              baseColor,
-                            ),
-                            BarChartRodStackItem(
-                              entry.value.baseRent.toDouble(),
-                              entry.value.baseRent.toDouble() +
-                                  entry.value.utilityBill.toDouble(),
-                              utilityColor,
-                            ),
-                            BarChartRodStackItem(
-                              entry.value.baseRent.toDouble() +
-                                  entry.value.utilityBill.toDouble(),
-                              entry.value.total,
-                              maintenanceColor,
-                            ),
-                          ],
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF17142A)
-                                : Colors.transparent,
-                            width: isDark ? 1.2 : 0,
+      child: SizedBox(
+        height: 300,
+        child: BarChart(
+          BarChartData(
+            barGroups: data
+                .asMap()
+                .entries
+                .map(
+                  (entry) => BarChartGroupData(
+                    x: entry.key,
+                    barRods: <BarChartRodData>[
+                      BarChartRodData(
+                        toY: entry.value.total,
+                        width: 22,
+                        color: Colors.transparent,
+                        rodStackItems: [
+                          BarChartRodStackItem(
+                            0,
+                            entry.value.baseRent.toDouble(),
+                            baseColor,
                           ),
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(6),
+                          BarChartRodStackItem(
+                            entry.value.baseRent.toDouble(),
+                            entry.value.baseRent.toDouble() +
+                                entry.value.utilityBill.toDouble(),
+                            utilityColor,
                           ),
-                          backDrawRodData: BackgroundBarChartRodData(
-                            show: true,
-                            toY: _getMaxValue(),
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.05)
-                                : AppColors.violet.withOpacity(0.05),
+                          BarChartRodStackItem(
+                            entry.value.baseRent.toDouble() +
+                                entry.value.utilityBill.toDouble(),
+                            entry.value.total,
+                            maintenanceColor,
                           ),
+                        ],
+                        borderSide: BorderSide(
+                          color: isDark
+                              ? const Color(0xFF17142A)
+                              : Colors.transparent,
+                          width: isDark ? 1.2 : 0,
                         ),
-                      ],
-                    ),
-                  )
-                  .toList(),
-              titlesData: FlTitlesData(
-                topTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(6),
+                        ),
+                        backDrawRodData: BackgroundBarChartRodData(
+                          show: true,
+                          toY: _getMaxValue(),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : AppColors.violet.withOpacity(0.05),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                .toList(),
+            titlesData: FlTitlesData(
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 46,
+                  getTitlesWidget: (value, meta) {
+                    return Text(
+                      value.toInt().toString(),
+                      style: TextStyle(
+                        color: axisTextColor.withValues(alpha: 0.78),
+                        fontSize: 11,
+                      ),
+                    );
+                  },
                 ),
-                rightTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) {
-                      return Text(
-                        value.toInt().toString(),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 34,
+                  getTitlesWidget: (value, _) {
+                    final idx = value.toInt();
+                    if (idx < 0 || idx >= data.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.sm),
+                      child: Text(
+                        _compactMonthLabel(data[idx].monthLabel),
                         style: TextStyle(
-                          color: axisTextColor.withValues(alpha: 0.78),
-                          fontSize: 10,
+                          fontSize: 11,
+                          color: axisTextColor.withValues(alpha: 0.86),
+                          fontWeight: FontWeight.w500,
                         ),
-                      );
-                    },
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, _) {
-                      final idx = value.toInt();
-                      if (idx < 0 || idx >= data.length) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.sm),
-                        child: Text(
-                          data[idx].monthLabel,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: axisTextColor.withValues(alpha: 0.86),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
-              gridData: FlGridData(
-                show: true,
-                drawVerticalLine: false,
-                horizontalInterval: _getMaxValue() / 4,
-                getDrawingHorizontalLine: (value) {
-                  return FlLine(
-                    color: gridColor,
-                    strokeWidth: 1,
-                  );
-                },
-              ),
-              borderData: FlBorderData(
-                show: true,
-                border: Border(
-                  bottom: BorderSide(
-                    color: borderColor,
-                    width: 1,
-                  ),
-                  left: BorderSide(
-                    color: borderColor,
-                    width: 1,
-                  ),
+            ),
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: _getMaxValue() / 4,
+              getDrawingHorizontalLine: (value) {
+                return FlLine(
+                  color: gridColor,
+                  strokeWidth: 1,
+                );
+              },
+            ),
+            borderData: FlBorderData(
+              show: true,
+              border: Border(
+                bottom: BorderSide(
+                  color: borderColor,
+                  width: 1,
+                ),
+                left: BorderSide(
+                  color: borderColor,
+                  width: 1,
                 ),
               ),
             ),
@@ -196,6 +195,15 @@ class RentStackedBarChart extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _compactMonthLabel(String input) {
+    final parts = input.trim().split(' ');
+    if (parts.length < 2) return input;
+    final month = parts.first;
+    final year = parts.last;
+    final shortMonth = month.length > 3 ? month.substring(0, 3) : month;
+    return '$shortMonth $year';
   }
 
   double _getMaxValue() {
@@ -461,100 +469,98 @@ class _RentBreakdownPieChartState extends State<RentBreakdownPieChart> {
 
     return ScaleInAnimation(
       duration: AppAnimations.slow,
-      child: PremiumCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Rent Breakdown',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: headingColor,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Rent Breakdown',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: headingColor,
             ),
-            const SizedBox(height: AppSpacing.md),
-            SizedBox(
-              height: 180,
-              child: PieChart(
-                PieChartData(
-                  sectionsSpace: isDark ? 1.2 : 2,
-                  centerSpaceRadius: 50,
-                  centerSpaceColor:
-                      isDark ? const Color(0xFF25213B) : Colors.white,
-                  sections: widget.items.asMap().entries.map(
-                    (entry) {
-                      final sectionColor = isDark
-                          ? _lighten(entry.value.color, 0.2)
-                          : entry.value.color;
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: 260,
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: isDark ? 1.2 : 2,
+                centerSpaceRadius: 56,
+                centerSpaceColor:
+                    isDark ? const Color(0xFF25213B) : Colors.white,
+                sections: widget.items.asMap().entries.map(
+                  (entry) {
+                    final sectionColor = isDark
+                        ? _lighten(entry.value.color, 0.2)
+                        : entry.value.color;
 
-                      return PieChartSectionData(
-                        value: entry.value.amount.toDouble(),
+                    return PieChartSectionData(
+                      value: entry.value.amount.toDouble(),
+                      color: sectionColor,
+                      radius: _touchedIndex == entry.key ? 88 : 82,
+                      borderSide: BorderSide(
                         color: sectionColor,
-                        radius: _touchedIndex == entry.key ? 65 : 60,
-                        borderSide: BorderSide(
-                          color: sectionColor,
-                          width: isDark ? 0.6 : 0,
-                        ),
-                        title: '',
-                      );
-                    },
-                  ).toList(),
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        _touchedIndex = pieTouchResponse
-                                ?.touchedSection?.touchedSectionIndex ??
-                            -1;
-                      });
-                    },
-                  ),
+                        width: isDark ? 0.6 : 0,
+                      ),
+                      title: '',
+                    );
+                  },
+                ).toList(),
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    setState(() {
+                      _touchedIndex = pieTouchResponse
+                              ?.touchedSection?.touchedSectionIndex ??
+                          -1;
+                    });
+                  },
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            Column(
-              children: widget.items
-                  .map(
-                    (item) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: item.color,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Column(
+            children: widget.items
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: item.color,
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: Text(
-                              item.label,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: legendTextColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            formatINR(item.amount),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            item.label,
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: valueTextColor,
+                              color: legendTextColor,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        Text(
+                          formatINR(item.amount),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: valueTextColor,
+                          ),
+                        ),
+                      ],
                     ),
-                  )
-                  .toList(),
-            ),
-          ],
-        ),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
       ),
     );
   }

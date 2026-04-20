@@ -152,8 +152,10 @@ class ConfirmationDialog extends StatelessWidget {
                   child: AppButton(
                     label: confirmLabel,
                     onPressed: onConfirm,
-                    backgroundColor:
-                        isDangerous ? AppColors.pending : AppColors.violet,
+                    backgroundColor: isDangerous
+                        ? const Color(0xFFDC2626)
+                        : AppColors.violet,
+                    useSolidBackground: isDangerous,
                   ),
                 ),
               ],

@@ -1,8 +1,14 @@
 # Tenant Mobile App — Flutter
 
+## Mandatory Style Guide
+
+Before touching any file, read `../style.md` at repo root.
+Use it as the baseline visual contract, then apply package-specific Flutter constraints from this file.
+
 ## Styling & UI Enhancements
 
 ### Color System (DO NOT CHANGE)
+
 - **Primary**: `#7C3AED` (Violet) — main UI elements, buttons, appbar
 - **Success/Paid**: `#16A34A` (Green) — successful transactions
 - **Partial**: `#D97706` (Orange) — partial payments
@@ -13,6 +19,7 @@
 - **Text Secondary**: `#6B7280` (Medium Gray) — secondary text
 
 ### Spacing System (8pt Grid)
+
 ```dart
 AppSpacing.xs = 4px
 AppSpacing.sm = 8px
@@ -24,6 +31,7 @@ AppSpacing.xl = 32px
 ### Animations & Transitions
 
 #### Animation Durations
+
 ```dart
 AppAnimations.fast    = 200ms
 AppAnimations.normal  = 300ms
@@ -31,6 +39,7 @@ AppAnimations.slow    = 500ms
 ```
 
 #### Animation Curves
+
 - **easeOutCubic**: For fade-in and scale transitions (smooth deceleration)
 - **easeInOutCubic**: For complex animations
 - **easeOutExpo**: For scale animations (quick snap-to-position)
@@ -38,28 +47,30 @@ AppAnimations.slow    = 500ms
 #### Reusable Animation Widgets
 
 1. **FadeSlideTransition**: Fade in + slide up
-   ```dart
-   FadeSlideTransition(
-     duration: AppAnimations.normal,
-     child: MyWidget(),
-   )
-   ```
+
+    ```dart
+    FadeSlideTransition(
+      duration: AppAnimations.normal,
+      child: MyWidget(),
+    )
+    ```
 
 2. **ScaleInAnimation**: Fade in + scale up
-   ```dart
-   ScaleInAnimation(
-     duration: AppAnimations.normal,
-     child: MyWidget(),
-   )
-   ```
+
+    ```dart
+    ScaleInAnimation(
+      duration: AppAnimations.normal,
+      child: MyWidget(),
+    )
+    ```
 
 3. **StaggeredListView**: Auto-animate list items with stagger
-   ```dart
-   StaggeredListView(
-     children: myItems,
-     staggerDuration: Duration(milliseconds: 50),
-   )
-   ```
+    ```dart
+    StaggeredListView(
+      children: myItems,
+      staggerDuration: Duration(milliseconds: 50),
+    )
+    ```
 
 ### Card Styling Pattern
 
@@ -101,6 +112,7 @@ Container(
 ### Chart Styling Pattern
 
 Charts must include:
+
 - Container with gradient background
 - Rounded corners (AppRadius.lg)
 - Dual-layer shadow for depth
@@ -141,43 +153,46 @@ InputDecoration(
 
 ### Typography Hierarchy
 
-| Level | Size | Weight | Color |
-|-------|------|--------|-------|
-| H1    | 24   | w800   | textPrimary |
-| H2    | 18   | w800   | textPrimary |
-| H3    | 16   | w700   | textPrimary |
-| Body  | 14   | w500   | textPrimary |
-| Caption | 12  | w400   | textSecondary |
+| Level   | Size | Weight | Color         |
+| ------- | ---- | ------ | ------------- |
+| H1      | 24   | w800   | textPrimary   |
+| H2      | 18   | w800   | textPrimary   |
+| H3      | 16   | w700   | textPrimary   |
+| Body    | 14   | w500   | textPrimary   |
+| Caption | 12   | w400   | textSecondary |
 
 ### Shadow Pattern (for depth)
 
 - **Cards**: Light shadow + medium blur (6-12px)
-  ```dart
-  BoxShadow(
-    color: AppColors.violet.withOpacity(0.06),
-    blurRadius: 12,
-    offset: const Offset(0, 2),
-  )
-  ```
+
+    ```dart
+    BoxShadow(
+      color: AppColors.violet.withOpacity(0.06),
+      blurRadius: 12,
+      offset: const Offset(0, 2),
+    )
+    ```
 
 - **Elevated Elements**: Dual layer shadow
-  ```dart
-  BoxShadow(color: ..., blurRadius: 12, offset: Offset(0, 2)),
-  BoxShadow(color: ..., blurRadius: 24, offset: Offset(0, 8)),
-  ```
+
+    ```dart
+    BoxShadow(color: ..., blurRadius: 12, offset: Offset(0, 2)),
+    BoxShadow(color: ..., blurRadius: 24, offset: Offset(0, 8)),
+    ```
 
 - **Tooltips/Floating**: Stronger shadow
-  ```dart
-  BoxShadow(
-    color: color.withOpacity(0.25),
-    blurRadius: 16,
-    offset: const Offset(0, 4),
-  )
-  ```
+    ```dart
+    BoxShadow(
+      color: color.withOpacity(0.25),
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    )
+    ```
 
 ### When to Use Animations
 
 ✅ **DO**:
+
 - Entrance animations for screens (fade + slide)
 - Staggered animations for lists (50-100ms delay between items)
 - Scale animations when showing modals/cards
@@ -185,6 +200,7 @@ InputDecoration(
 - Subtle hover/press feedback
 
 ❌ **DON'T**:
+
 - Animate every single element (causes visual noise)
 - Use animations > 500ms (feels laggy)
 - Skip animations on page transitions (feels abrupt)
@@ -223,6 +239,7 @@ All screens are optional, controlled per client by super admin.
 
 **When adding a new screen:** follow `../readme/FEATURES/tenant-screen-guide.md` exactly.
 Key files to update when adding a screen:
+
 - `lib/core/constants/tenant_screens.dart` — add key constant
 - `lib/core/router/app_router.dart` — add GoRoute
 - `lib/core/router/tab_shell.dart` — add entry to `_allTabs`
@@ -232,6 +249,7 @@ Key files to update when adding a screen:
 ## Documentation References
 
 Before implementing features, consult:
+
 - `../readme/CORE/PRD.md` — Product requirements
 - `../readme/CORE/implementation_requirements.md` — Frozen architecture decisions
 - `../readme/FEATURES/tenant-screen-guide.md` — Screen implementation guide

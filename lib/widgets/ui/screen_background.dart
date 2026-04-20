@@ -38,12 +38,45 @@ class ScreenBackground extends StatelessWidget {
           ],
         ),
       ),
-      child: padding == null
-          ? child
-          : Padding(
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            top: -120,
+            right: -90,
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.04)
+                    : AppColors.violet.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -100,
+            left: -80,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.03)
+                    : AppColors.violetDark.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+          if (padding == null)
+            child
+          else
+            Padding(
               padding: padding!,
               child: child,
             ),
+        ],
+      ),
     );
   }
 }

@@ -21,14 +21,66 @@ class HistoryItem {
   final num paidAmount;
   final String flatId;
 
+  static const List<String> _monthNames = <String>[
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  static String _formatMonthLabel(
+      {dynamic month, dynamic year, dynamic rawLabel}) {
+    int? monthValue;
+    int? yearValue;
+
+    if (month != null) {
+      monthValue = month is int ? month : int.tryParse('$month');
+    }
+    if (year != null) {
+      yearValue = year is int ? year : int.tryParse('$year');
+    }
+
+    if (monthValue != null &&
+        yearValue != null &&
+        monthValue >= 1 &&
+        monthValue <= 12) {
+      return '${_monthNames[monthValue - 1]} $yearValue';
+    }
+
+    final label = (rawLabel ?? '').toString().trim();
+    final slashParts = label.split('/');
+    if (slashParts.length == 2) {
+      final parsedMonth = int.tryParse(slashParts[0].trim());
+      final parsedYear = int.tryParse(slashParts[1].trim());
+      if (parsedMonth != null &&
+          parsedYear != null &&
+          parsedMonth >= 1 &&
+          parsedMonth <= 12) {
+        return '${_monthNames[parsedMonth - 1]} $parsedYear';
+      }
+    }
+
+    return label.isNotEmpty ? label : 'Unknown';
+  }
+
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
     final breakdown = (json['breakdown'] as Map<String, dynamic>?) ??
         const <String, dynamic>{};
     final month = json['month'];
     final year = json['year'];
-    final monthLabel = (json['monthLabel'] ??
-            ((month != null && year != null) ? '$month/$year' : 'Unknown'))
-        .toString();
+    final monthLabel = _formatMonthLabel(
+      month: month,
+      year: year,
+      rawLabel: json['monthLabel'],
+    );
 
     return HistoryItem(
       monthLabel: monthLabel,

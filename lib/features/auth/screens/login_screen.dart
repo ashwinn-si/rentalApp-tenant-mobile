@@ -183,7 +183,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         const Text(
-                          'Sign in to manage your properties',
+                          'Sign in to check dues, payment status, and history',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -197,67 +197,77 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                   const SizedBox(height: AppSpacing.xl + AppSpacing.lg),
 
-                  // Form fields with enhanced styling
                   FadeSlideTransition(
                     duration: const Duration(milliseconds: 300),
-                    child: AppTextField(
-                      label: 'Client Code',
-                      placeholder: 'e.g. PM001',
-                      controller: _clientCodeController,
-                      prefixIcon: Icons.apartment_outlined,
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        border: Border.all(
+                          color: AppColors.violet.withValues(alpha: 0.16),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.violet.withValues(alpha: 0.08),
+                            blurRadius: 24,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: <Widget>[
+                          AppTextField(
+                            label: 'Client Code',
+                            placeholder: 'e.g. PM001',
+                            controller: _clientCodeController,
+                            prefixIcon: Icons.apartment_outlined,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          AppTextField(
+                            label: 'Email Address',
+                            placeholder: 'you@example.com',
+                            keyboardType: TextInputType.emailAddress,
+                            controller: _emailController,
+                            prefixIcon: Icons.email_outlined,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          AppTextField(
+                            label: 'Password',
+                            obscureText: true,
+                            controller: _passwordController,
+                            prefixIcon: Icons.lock_outlined,
+                          ),
+                          const SizedBox(height: AppSpacing.xl),
+                          AppButton(
+                            label: 'Sign In',
+                            onPressed: _submit,
+                            isLoading: isLoading,
+                            fullWidth: true,
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          Text(
+                            'Secure login • Multi-tenant platform',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-
                   const SizedBox(height: AppSpacing.md),
-
-                  FadeSlideTransition(
-                    duration: const Duration(milliseconds: 400),
-                    child: AppTextField(
-                      label: 'Email Address',
-                      placeholder: 'you@example.com',
-                      keyboardType: TextInputType.emailAddress,
-                      controller: _emailController,
-                      prefixIcon: Icons.email_outlined,
-                    ),
-                  ),
-
-                  const SizedBox(height: AppSpacing.md),
-
-                  FadeSlideTransition(
-                    duration: const Duration(milliseconds: 500),
-                    child: AppTextField(
-                      label: 'Password',
-                      obscureText: true,
-                      controller: _passwordController,
-                      prefixIcon: Icons.lock_outlined,
-                    ),
-                  ),
-
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // Sign in button
-                  FadeSlideTransition(
-                    duration: const Duration(milliseconds: 600),
-                    child: AppButton(
-                      label: 'Sign In',
-                      onPressed: _submit,
-                      isLoading: isLoading,
-                      fullWidth: true,
-                    ),
-                  ),
-
-                  const SizedBox(height: AppSpacing.lg),
-
-                  // Footer text
                   FadeSlideTransition(
                     duration: const Duration(milliseconds: 700),
                     child: Center(
                       child: Text(
-                        'Secure login • Multi-tenant platform',
+                        'Sign in to check rent dues, payment status, and history',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary.withOpacity(0.7),
+                          color: AppColors.textSecondary.withOpacity(0.68),
                         ),
                       ),
                     ),

@@ -144,16 +144,31 @@ class _TabButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedScale(
-      scale: selected ? 1 : 0.98,
+      scale: selected ? 1 : 0.985,
       duration: AppAnimations.fast,
       curve: AppAnimations.easeOutCubic,
       child: AnimatedContainer(
         duration: AppAnimations.normal,
         curve: AppAnimations.easeOutCubic,
         margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
         decoration: BoxDecoration(
-          color: Colors.transparent,
+          gradient: selected
+              ? const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[
+                    Color(0x1F6D28D9),
+                    Color(0x126D28D9),
+                  ],
+                )
+              : null,
+          color: selected ? null : Colors.transparent,
+          border: Border.all(
+            color: selected
+                ? AppColors.violet.withValues(alpha: 0.24)
+                : Colors.transparent,
+          ),
           borderRadius: BorderRadius.circular(14),
         ),
         child: InkWell(
@@ -184,7 +199,7 @@ class _TabButton extends StatelessWidget {
                       : isDark
                           ? const Color(0xFFD1D5DB)
                           : AppColors.textSecondary.withValues(alpha: 0.84),
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 11.5,
                 ),
               ),
