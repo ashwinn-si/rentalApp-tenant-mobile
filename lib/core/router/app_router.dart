@@ -10,6 +10,7 @@ import '../../features/documents/screens/documents_screen.dart';
 import '../../features/history/screens/history_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
 import '../utils/animations.dart';
 import '../utils/screen_navigation.dart';
@@ -130,6 +131,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => _buildTransitionPage(
               key: state.pageKey,
               child: const ProfileScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/settings',
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: const SettingsScreen(),
             ),
           ),
         ],

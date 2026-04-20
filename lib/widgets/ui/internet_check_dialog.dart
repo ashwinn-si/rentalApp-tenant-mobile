@@ -17,19 +17,44 @@ class InternetCheckDialog extends ConsumerWidget {
         if (online) {
           return const SizedBox.shrink();
         }
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final titleColor =
+            isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary;
+        final messageColor =
+            isDark ? const Color(0xFFCBD5E1) : AppColors.textSecondary;
+
         return PopScope(
           canPop: false,
           child: Dialog(
             insetAnimationDuration: const Duration(milliseconds: 0),
+            backgroundColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.lg),
             ),
-            child: Padding(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark
+                      ? const <Color>[Color(0xFF1D1A2B), Color(0xFF171527)]
+                      : <Color>[
+                          Colors.white,
+                          Colors.white.withValues(alpha: 0.98)
+                        ],
+                ),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : const Color(0xFFE5E7EB),
+                ),
+              ),
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.wifi_off,
                     size: 48,
                     color: AppColors.pending,
@@ -40,7 +65,7 @@ class InternetCheckDialog extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: titleColor,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -50,7 +75,7 @@ class InternetCheckDialog extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
+                      color: messageColor,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),

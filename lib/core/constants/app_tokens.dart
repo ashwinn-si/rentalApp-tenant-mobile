@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // App version (from pubspec.yaml)
 // Format: versionNumber+buildNumber (e.g., 1.0.0+1)
@@ -12,20 +13,21 @@ const String appStoreUrl =
 class AppColors {
   AppColors._();
 
-  static const violet = Color(0xFF7C3AED);
-  static const paid = Color(0xFF16A34A);
+  static const violet = Color(0xFF5D3FD3);
+  static const paid = Color(0xFF10B981);
   static const partial = Color(0xFFD97706);
-  static const pending = Color(0xFFDC2626);
-  static const screenBg = Color(0xFFF5F3FF);
+  static const pending = Color(0xFFF59E0B);
+  static const screenBg = Color(0xFFF8F9FA);
   static const cardBg = Color(0xFFFFFFFF);
   static const textPrimary = Color(0xFF111827);
   static const textSecondary = Color(0xFF6B7280);
 
   // Login page colors
-  static const violetDark = Color(0xFF6D28D9);
+  static const violetDark = Color(0xFF4B32A8);
   static const accentWarm = Color(0xFFF97316);
-  static const bgGradient1 = Color(0xFFF9F5FF);
-  static const bgGradient2 = Color(0xFFEDE9FE);
+  static const bgGradient1 = Color(0xFFFFFFFF);
+  static const bgGradient2 = Color(0xFFF3F4F6);
+  static const bgGradient3 = Color(0xFFFFFFFF);
 }
 
 class AppSpacing {
@@ -50,20 +52,52 @@ class AppShadows {
 
   static List<BoxShadow> card([Color color = AppColors.violet]) => [
         BoxShadow(
-          color: color.withOpacity(0.06),
-          blurRadius: 12,
-          offset: const Offset(0, 2),
-        ),
-        BoxShadow(
-          color: color.withOpacity(0.03),
-          blurRadius: 24,
-          offset: const Offset(0, 8),
+          color: color.withValues(alpha: 0.05),
+          blurRadius: 4,
+          offset: const Offset(0, 1),
         ),
       ];
 }
 
 ThemeData buildAppTheme() {
-  final colorScheme = ColorScheme.fromSeed(seedColor: AppColors.violet);
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: AppColors.violet,
+    primary: AppColors.violet,
+    secondary: AppColors.violetDark,
+    surface: AppColors.cardBg,
+  );
+  final baseTextTheme = GoogleFonts.interTextTheme().copyWith(
+    headlineLarge: const TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w800,
+      color: AppColors.textPrimary,
+      height: 1.2,
+    ),
+    headlineMedium: const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.w700,
+      color: AppColors.textPrimary,
+      height: 1.25,
+    ),
+    titleMedium: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: AppColors.textPrimary,
+      height: 1.3,
+    ),
+    bodyMedium: const TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: AppColors.textPrimary,
+      height: 1.35,
+    ),
+    bodySmall: const TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: AppColors.textSecondary,
+      height: 1.35,
+    ),
+  );
 
   return ThemeData(
     useMaterial3: true,
@@ -75,37 +109,12 @@ ThemeData buildAppTheme() {
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
       },
     ),
-    textTheme: const TextTheme(
-      headlineLarge: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w800,
-        color: AppColors.textPrimary,
-      ),
-      headlineMedium: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w800,
-        color: AppColors.textPrimary,
-      ),
-      titleMedium: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
-      ),
-      bodyMedium: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: AppColors.textPrimary,
-      ),
-      bodySmall: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        color: AppColors.textSecondary,
-      ),
-    ),
+    textTheme: baseTextTheme,
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.violet,
+      backgroundColor: Colors.transparent,
       foregroundColor: Colors.white,
       elevation: 0,
+      scrolledUnderElevation: 0,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -119,19 +128,19 @@ ThemeData buildAppTheme() {
         fontWeight: FontWeight.w500,
       ),
       hintStyle: TextStyle(
-        color: AppColors.textSecondary.withOpacity(0.6),
+        color: AppColors.textSecondary.withValues(alpha: 0.6),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.md),
         borderSide: BorderSide(
-          color: AppColors.violet.withOpacity(0.2),
+          color: AppColors.violet.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.md),
         borderSide: BorderSide(
-          color: AppColors.violet.withOpacity(0.2),
+          color: AppColors.violet.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -145,9 +154,13 @@ ThemeData buildAppTheme() {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.violet,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
@@ -158,7 +171,7 @@ ThemeData buildAppTheme() {
       backgroundColor: Colors.transparent,
       elevation: 0,
       selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.white.withOpacity(0.55),
+      unselectedItemColor: Colors.white.withValues(alpha: 0.55),
       selectedLabelStyle: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -170,6 +183,72 @@ ThemeData buildAppTheme() {
     ),
     cardTheme: CardThemeData(
       color: AppColors.cardBg,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+    ),
+  );
+}
+
+ThemeData buildAppDarkTheme() {
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: AppColors.violet,
+    brightness: Brightness.dark,
+    primary: AppColors.violet,
+    secondary: AppColors.violetDark,
+    surface: const Color(0xFF171527),
+  );
+
+  final baseTextTheme = GoogleFonts.interTextTheme(
+    ThemeData.dark().textTheme,
+  ).copyWith(
+    headlineLarge: const TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w800,
+      color: Color(0xFFF9FAFB),
+      height: 1.2,
+    ),
+    headlineMedium: const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.w800,
+      color: Color(0xFFF9FAFB),
+      height: 1.25,
+    ),
+    titleMedium: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+      color: Color(0xFFF9FAFB),
+      height: 1.3,
+    ),
+    bodyMedium: const TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Color(0xFFE5E7EB),
+      height: 1.35,
+    ),
+    bodySmall: const TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w400,
+      color: Color(0xFF9CA3AF),
+      height: 1.35,
+    ),
+  );
+
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: colorScheme,
+    scaffoldBackgroundColor: const Color(0xFF100E1A),
+    textTheme: baseTextTheme,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+    ),
+    cardTheme: CardThemeData(
+      color: const Color(0xFF171527),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),

@@ -7,6 +7,7 @@ import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/domain/notification_card.dart';
 import '../../../widgets/ui/app_loader.dart';
+import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/notifications_provider.dart';
@@ -16,104 +17,110 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sectionTextColor =
+        isDark ? const Color(0xFFE5E7EB) : AppColors.textPrimary;
     final asyncNotifications = ref.watch(notificationsProvider);
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'Notifications'),
-      body: asyncDashboard.when(
-        loading: () => const AppLoader(),
-        error: (_, __) => const AppLoader(),
-        data: (dashboardData) {
-          final flatItems = dashboardData.availableFlats
-              .map((flat) => FlatModel(id: flat.id, label: flat.label))
-              .toList();
+      body: ScreenBackground(
+        child: asyncDashboard.when(
+          loading: () => const AppLoader(),
+          error: (_, __) => const AppLoader(),
+          data: (dashboardData) {
+            final flatItems = dashboardData.availableFlats
+                .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                .toList();
 
-          return asyncNotifications.when(
-            loading: () => const AppLoader(),
-            error: (_, __) => const Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: StateCard(
-                  message: 'Unable to load notifications',
-                  variant: StateCardVariant.error),
-            ),
-            data: (items) {
-              if (items.isEmpty) {
-                return Padding(
+            return asyncNotifications.when(
+              loading: () => const AppLoader(),
+              error: (_, __) => const Padding(
+                padding: EdgeInsets.all(AppSpacing.md),
+                child: StateCard(
+                    message: 'Unable to load notifications',
+                    variant: StateCardVariant.error),
+              ),
+              data: (items) {
+                if (items.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Column(
+                      children: <Widget>[
+                        if (flatItems.isNotEmpty)
+                          FadeSlideTransition(
+                            child: FlatSelector(flats: flatItems),
+                          ),
+                        if (flatItems.isNotEmpty)
+                          const SizedBox(height: AppSpacing.md),
+                        const Expanded(
+                          child: StateCard(message: 'No notifications found'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final active = items.where((item) => !item.isExpired).toList();
+                final expired = items.where((item) => item.isExpired).toList();
+
+                return ListView(
                   padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    children: <Widget>[
-                      if (flatItems.isNotEmpty)
-                        FadeSlideTransition(
-                          child: FlatSelector(flats: flatItems),
+                  children: [
+                    StaggeredListView(
+                      children: [
+                        if (flatItems.isNotEmpty)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: FlatSelector(flats: flatItems),
+                          ),
+                        Text(
+                          'Active (${active.length})',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: sectionTextColor,
+                          ),
                         ),
-                      if (flatItems.isNotEmpty)
-                        const SizedBox(height: AppSpacing.md),
-                      const Expanded(
-                        child: StateCard(message: 'No notifications found'),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(height: AppSpacing.sm),
+                        ...active.map(
+                          (item) => NotificationCard(
+                            title: item.title,
+                            message: item.message,
+                            targetType: item.targetType,
+                            expiresAt: item.expiresAt,
+                            isExpired: false,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Text(
+                          'Expired (${expired.length})',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: sectionTextColor,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        ...expired.map(
+                          (item) => NotificationCard(
+                            title: item.title,
+                            message: item.message,
+                            targetType: item.targetType,
+                            expiresAt: item.expiresAt,
+                            isExpired: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 );
-              }
-
-              final active = items.where((item) => !item.isExpired).toList();
-              final expired = items.where((item) => item.isExpired).toList();
-
-              return ListView(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                children: [
-                  StaggeredListView(
-                    children: [
-                      if (flatItems.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                          child: FlatSelector(flats: flatItems),
-                        ),
-                      Text(
-                        'Active (${active.length})',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      ...active.map(
-                        (item) => NotificationCard(
-                          title: item.title,
-                          message: item.message,
-                          targetType: item.targetType,
-                          expiresAt: item.expiresAt,
-                          isExpired: false,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      Text(
-                        'Expired (${expired.length})',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      ...expired.map(
-                        (item) => NotificationCard(
-                          title: item.title,
-                          message: item.message,
-                          targetType: item.targetType,
-                          expiresAt: item.expiresAt,
-                          isExpired: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          );
-        },
+              },
+            );
+          },
+        ),
       ),
     );
   }

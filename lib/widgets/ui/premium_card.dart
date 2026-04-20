@@ -7,7 +7,7 @@ class PremiumCard extends StatelessWidget {
     required this.child,
     super.key,
     this.margin = const EdgeInsets.only(bottom: AppSpacing.md),
-    this.padding = const EdgeInsets.all(AppSpacing.md),
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.borderRadius = AppRadius.lg,
   });
 
@@ -18,19 +18,45 @@ class PremiumCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: margin,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            Colors.white.withOpacity(0.95),
-          ],
+          colors: isDark
+              ? const <Color>[
+                  Color(0xFF1D1A2B),
+                  Color(0xFF171527),
+                ]
+              : <Color>[
+                  Colors.white,
+                  Colors.white.withValues(alpha: 0.98),
+                ],
+        ),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : const Color(0xFFE5E7EB),
+          width: 1,
         ),
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: AppShadows.card(),
+        boxShadow: isDark
+            ? <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.24),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : <BoxShadow>[
+                const BoxShadow(
+                  color: Color(0x0D111827),
+                  blurRadius: 4,
+                  offset: Offset(0, 1),
+                ),
+              ],
       ),
       child: Padding(
         padding: padding,

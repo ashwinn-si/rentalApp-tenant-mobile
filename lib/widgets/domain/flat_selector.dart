@@ -18,6 +18,13 @@ class FlatSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText =
+        isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary;
+    final secondaryText =
+        isDark ? const Color(0xFFD1D5DB) : AppColors.textSecondary;
+    final fieldFill = isDark ? const Color(0xFF1D1A2B) : Colors.white;
+
     final activeFlatId =
         ref.watch(authProvider.select((state) => state.activeFlatId));
 
@@ -29,10 +36,17 @@ class FlatSelector extends ConsumerWidget {
           horizontal: AppSpacing.md,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              fieldFill,
+              fieldFill.withValues(alpha: 0.95),
+            ],
+          ),
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color: AppColors.violet.withOpacity(0.2),
+            color: AppColors.violet.withValues(alpha: 0.2),
             width: 1,
           ),
           boxShadow: AppShadows.card(),
@@ -41,17 +55,17 @@ class FlatSelector extends ConsumerWidget {
           children: [
             Icon(
               Icons.apartment_outlined,
-              color: AppColors.violet.withOpacity(0.7),
+              color: AppColors.violet.withValues(alpha: 0.7),
               size: 20,
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
                 flats[0].label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: primaryText,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -64,27 +78,28 @@ class FlatSelector extends ConsumerWidget {
     // If multiple flats, show dropdown
     return Container(
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: AppShadows.card(),
       ),
       child: DropdownButtonFormField<String>(
         initialValue: activeFlatId,
         decoration: InputDecoration(
           labelText: 'Select Unit',
-          labelStyle: const TextStyle(
-            color: AppColors.textSecondary,
+          labelStyle: TextStyle(
+            color: secondaryText,
             fontWeight: FontWeight.w500,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
             borderSide: BorderSide(
-              color: AppColors.violet.withOpacity(0.2),
+              color: AppColors.violet.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
             borderSide: BorderSide(
-              color: AppColors.violet.withOpacity(0.2),
+              color: AppColors.violet.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -96,11 +111,16 @@ class FlatSelector extends ConsumerWidget {
             ),
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: fieldFill,
+          prefixIcon: Icon(
+            Icons.home_work_outlined,
+            color: AppColors.violet.withValues(alpha: 0.65),
+            size: 20,
+          ),
         ),
         icon: Icon(
-          Icons.apartment_outlined,
-          color: AppColors.violet.withOpacity(0.7),
+          Icons.keyboard_arrow_down_rounded,
+          color: AppColors.violet.withValues(alpha: 0.7),
         ),
         items: flats
             .map(
@@ -108,9 +128,9 @@ class FlatSelector extends ConsumerWidget {
                 value: flat.id,
                 child: Text(
                   flat.label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textPrimary,
+                    color: primaryText,
                   ),
                 ),
               ),

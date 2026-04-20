@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../core/constants/api_paths.dart';
 import '../../../core/network/api_response.dart';
 import '../../../core/network/dio_client.dart';
@@ -7,7 +9,8 @@ class DocumentsRepository {
   final DioClient _client = DioClient.instance;
 
   Future<ApiResponse<List<TenantDocument>>> getDocuments({String? flatId}) {
-    final queryParams = flatId == null ? null : <String, dynamic>{'flatId': flatId};
+    final queryParams =
+        flatId == null ? null : <String, dynamic>{'flatId': flatId};
 
     return _client.get<List<TenantDocument>>(
       ApiPaths.documents,
@@ -43,7 +46,15 @@ class DocumentsRepository {
           });
         });
 
-        return <TenantDocument>[...tenantDocs, ...mappingDocs];
+        final documents = <TenantDocument>[...tenantDocs, ...mappingDocs];
+
+        if (kDebugMode) {
+          for (final doc in documents) {
+            debugPrint('Documents API URL: ${doc.url}');
+          }
+        }
+
+        return documents;
       },
     );
   }

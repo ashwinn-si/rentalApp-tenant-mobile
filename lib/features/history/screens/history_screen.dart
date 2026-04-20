@@ -9,6 +9,7 @@ import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/domain/simple_paginator.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/chart_widgets.dart';
+import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
@@ -62,105 +63,110 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'History'),
-      body: asyncDashboard.when(
-        loading: () => const AppLoader(),
-        error: (_, __) => const AppLoader(),
-        data: (dashboardData) {
-          final flatItems = dashboardData.availableFlats
-              .map((flat) => FlatModel(id: flat.id, label: flat.label))
-              .toList();
+      body: ScreenBackground(
+        child: asyncDashboard.when(
+          loading: () => const AppLoader(),
+          error: (_, __) => const AppLoader(),
+          data: (dashboardData) {
+            final flatItems = dashboardData.availableFlats
+                .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                .toList();
 
-          return asyncHistory.when(
-            loading: () => const AppLoader(),
-            error: (_, __) => const Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: StateCard(
-                  message: 'Unable to load history',
-                  variant: StateCardVariant.error),
-            ),
-            data: (history) {
-              final barData = history.items
-                  .map(
-                    (item) => RentBarItem(
-                      monthLabel: item.monthLabel,
-                      baseRent: item.baseRent,
-                      utilityBill: item.utilityBill,
-                      maintenance: item.maintenance,
-                    ),
-                  )
-                  .toList();
-
-              return ListView(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                children: [
-                  StaggeredListView(
-                    children: [
-                      if (flatItems.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                          child: FlatSelector(flats: flatItems),
-                        ),
-                      if (history.items.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                          child: _buildLatestBreakdown(history.items.first),
-                        ),
-                      if (history.items.length >= 2)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Monthly Rent Breakdown',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
-                              RentStackedBarChart(data: barData),
-                            ],
-                          ),
-                        ),
-                      ...history.items.map(
-                        (item) => RentBreakdownCard(
-                          monthLabel: item.monthLabel,
-                          status: item.status,
-                          baseRent: item.baseRent,
-                          utilityBill: item.utilityBill,
-                          maintenance: item.maintenance,
-                          previousDues: 0,
-                          totalDue: item.totalDue,
-                          paidAmount: item.paidAmount,
-                        ),
+            return asyncHistory.when(
+              loading: () => const AppLoader(),
+              error: (_, __) => const Padding(
+                padding: EdgeInsets.all(AppSpacing.md),
+                child: StateCard(
+                    message: 'Unable to load history',
+                    variant: StateCardVariant.error),
+              ),
+              data: (history) {
+                final barData = history.items
+                    .map(
+                      (item) => RentBarItem(
+                        monthLabel: item.monthLabel,
+                        baseRent: item.baseRent,
+                        utilityBill: item.utilityBill,
+                        maintenance: item.maintenance,
                       ),
-                      if (history.totalPages > 1 || _page > 1)
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: AppSpacing.md,
-                            bottom: AppSpacing.lg,
+                    )
+                    .toList();
+
+                return ListView(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  children: [
+                    StaggeredListView(
+                      children: [
+                        if (flatItems.isNotEmpty)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: FlatSelector(flats: flatItems),
                           ),
-                          child: SimplePaginator(
-                            page: history.page,
-                            totalPages: history.totalPages,
-                            onPrev: () => setState(
-                              () => _page = (history.page - 1).clamp(1, 9999),
+                        if (history.items.isNotEmpty)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: AppSpacing.lg),
+                            child: _buildLatestBreakdown(history.items.first),
+                          ),
+                        if (history.items.length >= 2)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: AppSpacing.lg),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Monthly Rent Breakdown',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                RentStackedBarChart(data: barData),
+                              ],
                             ),
-                            onNext: () => setState(
-                              () => _page = (history.page + 1)
-                                  .clamp(1, history.totalPages),
-                            ),
+                          ),
+                        ...history.items.map(
+                          (item) => RentBreakdownCard(
+                            monthLabel: item.monthLabel,
+                            status: item.status,
+                            baseRent: item.baseRent,
+                            utilityBill: item.utilityBill,
+                            maintenance: item.maintenance,
+                            previousDues: 0,
+                            totalDue: item.totalDue,
+                            paidAmount: item.paidAmount,
                           ),
                         ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          );
-        },
+                        if (history.totalPages > 1 || _page > 1)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: AppSpacing.md,
+                              bottom: AppSpacing.lg,
+                            ),
+                            child: SimplePaginator(
+                              page: history.page,
+                              totalPages: history.totalPages,
+                              onPrev: () => setState(
+                                () => _page = (history.page - 1).clamp(1, 9999),
+                              ),
+                              onNext: () => setState(
+                                () => _page = (history.page + 1)
+                                    .clamp(1, history.totalPages),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

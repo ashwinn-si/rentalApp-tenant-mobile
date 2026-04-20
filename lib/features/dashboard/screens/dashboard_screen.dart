@@ -11,6 +11,7 @@ import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/confirmation_dialog.dart';
 import '../../../widgets/ui/premium_card.dart';
+import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../history/providers/history_provider.dart';
@@ -47,108 +48,124 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: asyncDashboard.when(
-        loading: () => const AppLoader(),
-        error: (error, stack) => const Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: StateCard(
-            message: 'Failed to load dashboard',
-            variant: StateCardVariant.error,
+      body: ScreenBackground(
+        child: asyncDashboard.when(
+          loading: () => const AppLoader(),
+          error: (error, stack) => const Padding(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: StateCard(
+              message: 'Failed to load dashboard',
+              variant: StateCardVariant.error,
+            ),
           ),
-        ),
-        data: (data) {
-          final flatItems = data.availableFlats
-              .map((flat) => FlatModel(id: flat.id, label: flat.label))
-              .toList();
-          final notificationSection = asyncNotifications.when<Widget?>(
-            loading: () => const AppLoader(),
-            error: (_, __) =>
-                const StateCard(message: 'Notifications unavailable'),
-            data: (items) {
-              final activeItems =
-                  items.where((item) => !item.isExpired).toList();
-              if (activeItems.isEmpty) {
-                return null;
-              }
+          data: (data) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            final secondaryText =
+                isDark ? const Color(0xFFD1D5DB) : AppColors.textSecondary;
+            final flatItems = data.availableFlats
+                .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                .toList();
+            final notificationSection = asyncNotifications.when<Widget?>(
+              loading: () => const AppLoader(),
+              error: (_, __) =>
+                  const StateCard(message: 'Notifications unavailable'),
+              data: (items) {
+                final activeItems =
+                    items.where((item) => !item.isExpired).toList();
+                if (activeItems.isEmpty) {
+                  return null;
+                }
 
-              final latest = activeItems.first;
-              return NotificationCard(
-                title: latest.title,
-                message: latest.message,
-                targetType: latest.targetType,
-                expiresAt: latest.expiresAt,
-              );
-            },
-          );
+                final latest = activeItems.first;
+                return NotificationCard(
+                  title: latest.title,
+                  message: latest.message,
+                  targetType: latest.targetType,
+                  expiresAt: latest.expiresAt,
+                );
+              },
+            );
 
-          final historySection = asyncHistory.when(
-            loading: () => const AppLoader(),
-            error: (_, __) => const StateCard(message: 'History unavailable'),
-            data: (history) {
-              if (history.items.isEmpty) {
-                return const StateCard(message: 'No rent history available');
-              }
+            final historySection = asyncHistory.when(
+              loading: () => const AppLoader(),
+              error: (_, __) => const StateCard(message: 'History unavailable'),
+              data: (history) {
+                if (history.items.isEmpty) {
+                  return const StateCard(message: 'No rent history available');
+                }
 
-              return StaggeredListView(
-                children: history.items
-                    .take(2)
-                    .map(
-                      (item) => RentBreakdownCard(
-                        monthLabel: item.monthLabel,
-                        status: item.status,
-                        baseRent: item.baseRent,
-                        utilityBill: item.utilityBill,
-                        maintenance: item.maintenance,
-                        previousDues: item.previousDues,
-                        totalDue: item.totalDue,
-                        paidAmount: item.paidAmount,
+                return StaggeredListView(
+                  children: history.items
+                      .take(2)
+                      .map(
+                        (item) => RentBreakdownCard(
+                          monthLabel: item.monthLabel,
+                          status: item.status,
+                          baseRent: item.baseRent,
+                          utilityBill: item.utilityBill,
+                          maintenance: item.maintenance,
+                          previousDues: item.previousDues,
+                          totalDue: item.totalDue,
+                          paidAmount: item.paidAmount,
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+            );
+
+            final children = <Widget>[
+              if (flatItems.isNotEmpty) FlatSelector(flats: flatItems),
+              if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
+              if (notificationSection != null) notificationSection,
+              ScaleInAnimation(
+                duration: AppAnimations.normal,
+                child: PremiumCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Total Outstanding',
+                        style: TextStyle(
+                          color: secondaryText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    )
-                    .toList(),
-              );
-            },
-          );
-
-          final children = <Widget>[
-            if (flatItems.isNotEmpty) FlatSelector(flats: flatItems),
-            if (notificationSection != null) notificationSection,
-            ScaleInAnimation(
-              duration: AppAnimations.normal,
-              child: PremiumCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      'Total Outstanding',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        formatINR(data.totalOutstanding),
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.violet,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      formatINR(data.totalOutstanding),
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.violet,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            historySection,
-          ];
+              historySection,
+            ];
 
-          return ListView(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            children: [
-              StaggeredListView(children: children),
-            ],
-          );
-        },
+            return ListView(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Text(
+                    'Overview',
+                    style: TextStyle(
+                      color: secondaryText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                StaggeredListView(children: children),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

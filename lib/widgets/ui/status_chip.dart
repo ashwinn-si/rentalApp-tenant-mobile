@@ -29,15 +29,15 @@ class StatusChip extends StatelessWidget {
     switch (status) {
       case RentStatus.paid:
         fg = AppColors.paid;
-        bg = const Color(0xFFDCFCE7);
+        bg = const Color(0xFFEAFBF4);
         label = 'Paid';
       case RentStatus.partial:
         fg = AppColors.partial;
-        bg = const Color(0xFFFEF3C7);
+        bg = const Color(0xFFFEF6E8);
         label = 'Partial';
       case RentStatus.pending:
         fg = AppColors.pending;
-        bg = const Color(0xFFFEE2E2);
+        bg = const Color(0xFFFFF4DE);
         label = 'Pending';
     }
 
@@ -46,6 +46,9 @@ class StatusChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: fg.withValues(alpha: 0.22),
+        ),
       ),
       child: Text(
         label,

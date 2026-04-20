@@ -21,12 +21,24 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final colors = isExpired
-        ? <Color>[const Color(0xFF6B7280), const Color(0xFF4B5563)]
-        : <Color>[const Color(0xFF7C3AED), const Color(0xFF6D28D9)];
+        ? (isDark
+            ? <Color>[const Color(0xFF525A73), const Color(0xFF3C4357)]
+            : <Color>[const Color(0xFF6B7280), const Color(0xFF4B5563)])
+        : (isDark
+            ? <Color>[const Color(0xFF8B3DFF), const Color(0xFF6B2BD8)]
+            : <Color>[const Color(0xFF7C3AED), const Color(0xFF6D28D9)]);
+
+    final titleColor = isDark ? const Color(0xFFF8FAFC) : Colors.white;
+    final messageColor =
+        isDark ? const Color(0xFFEEF2FF) : Colors.white.withOpacity(0.95);
+    final captionColor =
+        isDark ? const Color(0xFFD8DBFF) : Colors.white.withOpacity(0.8);
 
     return Opacity(
-      opacity: isExpired ? 0.6 : 1,
+      opacity: isExpired ? (isDark ? 0.78 : 0.6) : 1,
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -37,9 +49,15 @@ class NotificationCard extends StatelessWidget {
             colors: colors,
           ),
           borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.transparent,
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: colors.first.withOpacity(0.25),
+              color: colors.first.withOpacity(isDark ? 0.32 : 0.25),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -50,8 +68,8 @@ class NotificationCard extends StatelessWidget {
           children: <Widget>[
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: titleColor,
                 fontWeight: FontWeight.w800,
                 fontSize: 16,
               ),
@@ -60,7 +78,7 @@ class NotificationCard extends StatelessWidget {
             Text(
               message,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.95),
+                color: messageColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 height: 1.4,
@@ -70,7 +88,7 @@ class NotificationCard extends StatelessWidget {
             Text(
               'Expires: ${formatDate(expiresAt)}',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: captionColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),

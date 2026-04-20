@@ -19,6 +19,7 @@ class ForceUpdateDialog extends StatelessWidget {
     return await showDialog<void>(
       context: context,
       barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.62),
       builder: (context) => ForceUpdateDialog(
         storeUrl: storeUrl,
       ),
@@ -27,8 +28,26 @@ class ForceUpdateDialog extends StatelessWidget {
 
   Future<void> _launchStore() async {
     try {
-      final uri = Uri.parse(storeUrl);
-      if (await canLaunchUrl(uri)) {
+      final raw = storeUrl.trim();
+      if (raw.isEmpty) {
+        return;
+      }
+
+      final candidate = Uri.tryParse(raw);
+      final uri = (candidate != null && candidate.hasScheme)
+          ? candidate
+          : Uri.tryParse('https://$raw');
+
+      if (uri == null) {
+        return;
+      }
+
+      final openedInBrowserView = await launchUrl(
+        uri,
+        mode: LaunchMode.inAppBrowserView,
+      );
+
+      if (!openedInBrowserView) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
@@ -38,12 +57,33 @@ class ForceUpdateDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final titleColor = isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary;
+    final messageColor =
+        isDark ? const Color(0xFFCBD5E1) : AppColors.textSecondary;
+
     return Dialog(
+      backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? const <Color>[Color(0xFF1D1A2B), Color(0xFF171527)]
+                : <Color>[Colors.white, Colors.white.withValues(alpha: 0.98)],
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -51,7 +91,12 @@ class ForceUpdateDialog extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: AppSpacing.md),
               padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color: AppColors.violet.withOpacity(0.1),
+                color: isDark
+                    ? const Color(0xFF2C2550)
+                    : AppColors.violet.withOpacity(0.1),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF3B3267) : Colors.transparent,
+                ),
                 borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: const Icon(
@@ -60,22 +105,22 @@ class ForceUpdateDialog extends StatelessWidget {
                 size: 40,
               ),
             ),
-            const Text(
+            Text(
               'Update Required',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: titleColor,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.md),
-            const Text(
+            Text(
               'Kindly update the app and come back for the best experience.',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textSecondary,
+                color: messageColor,
               ),
               textAlign: TextAlign.center,
             ),

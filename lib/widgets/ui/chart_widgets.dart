@@ -6,6 +6,10 @@ import '../../core/utils/animations.dart';
 import '../../core/utils/currency_formatter.dart';
 import 'premium_card.dart';
 
+Color _lighten(Color color, [double amount = 0.16]) {
+  return Color.lerp(color, Colors.white, amount) ?? color;
+}
+
 class RentBarItem {
   const RentBarItem({
     required this.monthLabel,
@@ -42,6 +46,21 @@ class RentStackedBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final axisTextColor =
+        isDark ? const Color(0xFFCBD5E1) : AppColors.textSecondary;
+    final gridColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : AppColors.textSecondary.withOpacity(0.08);
+    final borderColor = isDark
+        ? const Color(0xFF2A2540)
+        : AppColors.textSecondary.withOpacity(0.1);
+    final baseColor = isDark ? _lighten(AppColors.violet) : AppColors.violet;
+    final utilityColor =
+        isDark ? _lighten(const Color(0xFF06B6D4)) : const Color(0xFF06B6D4);
+    final maintenanceColor =
+        isDark ? _lighten(const Color(0xFFF59E0B)) : const Color(0xFFF59E0B);
+
     if (data.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -67,28 +86,36 @@ class RentStackedBarChart extends StatelessWidget {
                             BarChartRodStackItem(
                               0,
                               entry.value.baseRent.toDouble(),
-                              AppColors.violet,
+                              baseColor,
                             ),
                             BarChartRodStackItem(
                               entry.value.baseRent.toDouble(),
                               entry.value.baseRent.toDouble() +
                                   entry.value.utilityBill.toDouble(),
-                              const Color(0xFF06B6D4),
+                              utilityColor,
                             ),
                             BarChartRodStackItem(
                               entry.value.baseRent.toDouble() +
                                   entry.value.utilityBill.toDouble(),
                               entry.value.total,
-                              const Color(0xFFF59E0B),
+                              maintenanceColor,
                             ),
                           ],
+                          borderSide: BorderSide(
+                            color: isDark
+                                ? const Color(0xFF17142A)
+                                : Colors.transparent,
+                            width: isDark ? 1.2 : 0,
+                          ),
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(6),
                           ),
                           backDrawRodData: BackgroundBarChartRodData(
                             show: true,
                             toY: _getMaxValue(),
-                            color: AppColors.violet.withOpacity(0.05),
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.05)
+                                : AppColors.violet.withOpacity(0.05),
                           ),
                         ),
                       ],
@@ -110,7 +137,7 @@ class RentStackedBarChart extends StatelessWidget {
                       return Text(
                         value.toInt().toString(),
                         style: TextStyle(
-                          color: AppColors.textSecondary.withOpacity(0.6),
+                          color: axisTextColor.withValues(alpha: 0.78),
                           fontSize: 10,
                         ),
                       );
@@ -131,7 +158,7 @@ class RentStackedBarChart extends StatelessWidget {
                           data[idx].monthLabel,
                           style: TextStyle(
                             fontSize: 10,
-                            color: AppColors.textSecondary.withOpacity(0.7),
+                            color: axisTextColor.withValues(alpha: 0.86),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -146,7 +173,7 @@ class RentStackedBarChart extends StatelessWidget {
                 horizontalInterval: _getMaxValue() / 4,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: AppColors.textSecondary.withOpacity(0.08),
+                    color: gridColor,
                     strokeWidth: 1,
                   );
                 },
@@ -155,11 +182,11 @@ class RentStackedBarChart extends StatelessWidget {
                 show: true,
                 border: Border(
                   bottom: BorderSide(
-                    color: AppColors.textSecondary.withOpacity(0.1),
+                    color: borderColor,
                     width: 1,
                   ),
                   left: BorderSide(
-                    color: AppColors.textSecondary.withOpacity(0.1),
+                    color: borderColor,
                     width: 1,
                   ),
                 ),
@@ -344,25 +371,29 @@ class RentTrendLineChart extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            _buildLegend(),
+            _buildLegend(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLegend() {
+  Widget _buildLegend(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final legendTextColor =
+        isDark ? const Color(0xFFE5E7EB) : AppColors.textSecondary;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem('Due', AppColors.violet),
+        _buildLegendItem('Due', AppColors.violet, legendTextColor),
         const SizedBox(width: AppSpacing.lg),
-        _buildLegendItem('Paid', AppColors.paid),
+        _buildLegendItem('Paid', AppColors.paid, legendTextColor),
       ],
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(String label, Color color, Color textColor) {
     return Row(
       children: [
         Container(
@@ -376,9 +407,9 @@ class RentTrendLineChart extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: AppColors.textSecondary,
+            color: textColor,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -416,6 +447,14 @@ class _RentBreakdownPieChartState extends State<RentBreakdownPieChart> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headingColor =
+        isDark ? const Color(0xFFF9FAFB) : AppColors.textPrimary;
+    final legendTextColor =
+        isDark ? const Color(0xFFE5E7EB) : AppColors.textSecondary;
+    final valueTextColor =
+        isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary;
+
     if (widget.items.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -426,12 +465,12 @@ class _RentBreakdownPieChartState extends State<RentBreakdownPieChart> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Rent Breakdown',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: headingColor,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -439,20 +478,28 @@ class _RentBreakdownPieChartState extends State<RentBreakdownPieChart> {
               height: 180,
               child: PieChart(
                 PieChartData(
-                  sectionsSpace: 2,
+                  sectionsSpace: isDark ? 1.2 : 2,
                   centerSpaceRadius: 50,
-                  sections: widget.items
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => PieChartSectionData(
-                          value: entry.value.amount.toDouble(),
-                          color: entry.value.color,
-                          radius: _touchedIndex == entry.key ? 65 : 60,
-                          title: '',
+                  centerSpaceColor:
+                      isDark ? const Color(0xFF25213B) : Colors.white,
+                  sections: widget.items.asMap().entries.map(
+                    (entry) {
+                      final sectionColor = isDark
+                          ? _lighten(entry.value.color, 0.2)
+                          : entry.value.color;
+
+                      return PieChartSectionData(
+                        value: entry.value.amount.toDouble(),
+                        color: sectionColor,
+                        radius: _touchedIndex == entry.key ? 65 : 60,
+                        borderSide: BorderSide(
+                          color: sectionColor,
+                          width: isDark ? 0.6 : 0,
                         ),
-                      )
-                      .toList(),
+                        title: '',
+                      );
+                    },
+                  ).toList(),
                   pieTouchData: PieTouchData(
                     touchCallback: (FlTouchEvent event, pieTouchResponse) {
                       setState(() {
@@ -485,19 +532,19 @@ class _RentBreakdownPieChartState extends State<RentBreakdownPieChart> {
                           Expanded(
                             child: Text(
                               item.label,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: legendTextColor,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                           Text(
                             formatINR(item.amount),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: valueTextColor,
                             ),
                           ),
                         ],
