@@ -46,4 +46,24 @@ class AuthRepository {
       },
     );
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> registerFcmToken({
+    required String fcmToken,
+    String? deviceName,
+  }) {
+    return _client.post<Map<String, dynamic>>(
+      ApiPaths.fcmToken,
+      data: <String, dynamic>{
+        'fcmToken': fcmToken,
+        'deviceName': (deviceName ?? '').trim().isEmpty
+            ? 'Tenant Mobile App'
+            : deviceName,
+      },
+      fromJson: (json) {
+        final responseMap = json as Map<String, dynamic>;
+        final dataMap = responseMap['data'] ?? responseMap;
+        return dataMap as Map<String, dynamic>;
+      },
+    );
+  }
 }

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/secure_storage.dart';
+import '../../../services/fcm_service.dart';
 import '../data/auth_repository.dart';
 import '../data/models/login_request.dart';
 import '../data/models/login_response.dart';
@@ -125,6 +126,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
       enabledScreens: loginData.enabledScreens,
       error: null,
     );
+
+    try {
+      final fcmToken = FcmService.getToken() ?? await FcmService.refreshToken();
+      if (fcmToken != null && fcmToken.trim().isNotEmpty) {
+        await _repository.registerFcmToken(fcmToken: fcmToken.trim());
+      }
+    } catch (_) {
+      // Ignore FCM registration errors so authentication still succeeds.
+    }
+
     return null;
   }
 
