@@ -8,10 +8,15 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/documents/screens/documents_screen.dart';
 import '../../features/history/screens/history_screen.dart';
+import '../../features/notifications/screens/enable_notifications_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
+import '../../features/payment_proof/screens/payment_proof_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
+import '../../features/maintenance_issues/screens/issue_history_screen.dart';
+import '../../features/maintenance_issues/screens/report_issue_screen.dart';
 import '../../features/splash/screens/splash_screen.dart';
+import '../services/notification_permission_service.dart';
 import '../utils/animations.dart';
 import '../utils/screen_navigation.dart';
 import 'tab_shell.dart';
@@ -44,7 +49,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     initialLocation: '/splash',
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final isAuth = authState.token != null;
       final mustChangePassword = authState.mustChangePassword;
       final location = state.matchedLocation;
@@ -52,6 +57,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (location == '/splash') {
         // Authenticated users skip splash entirely
         if (isAuth && !mustChangePassword) {
+          final hasNotifications = await NotificationPermissionService.isEnabled();
+          if (!hasNotifications) return '/enable-notifications';
           return getFirstEnabledScreenRoute(authState.enabledScreens);
         }
         if (isAuth && mustChangePassword) {
@@ -65,6 +72,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       if (isAuth && mustChangePassword && location != '/change-password') {
         return '/change-password';
+      }
+      if (isAuth && !mustChangePassword) {
+        final hasNotifications = await NotificationPermissionService.isEnabled();
+        if (!hasNotifications && location != '/enable-notifications') {
+          return '/enable-notifications';
+        }
+        if (hasNotifications && location == '/enable-notifications') {
+          return getFirstEnabledScreenRoute(authState.enabledScreens);
+        }
       }
       if (isAuth &&
           !mustChangePassword &&
@@ -93,6 +109,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _buildTransitionPage(
           key: state.pageKey,
           child: const ChangePasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/enable-notifications',
+        pageBuilder: (context, state) => _buildTransitionPage(
+          key: state.pageKey,
+          child: const EnableNotificationsScreen(),
         ),
       ),
       ShellRoute(
@@ -138,6 +161,27 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => _buildTransitionPage(
               key: state.pageKey,
               child: const SettingsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/maintenance/history',
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: const IssueHistoryScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/maintenance/report',
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: const ReportIssueScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/payment-proof',
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: const PaymentProofScreen(),
             ),
           ),
         ],

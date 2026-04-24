@@ -12,6 +12,8 @@ class AppTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
     this.helperText,
+    this.validator,
+    this.maxLines = 1,
   });
 
   final String label;
@@ -21,6 +23,8 @@ class AppTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final IconData? prefixIcon;
   final String? helperText;
+  final String? Function(String?)? validator;
+  final int maxLines;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -52,6 +56,8 @@ class _AppTextFieldState extends State<AppTextField> {
             controller: widget.controller,
             keyboardType: widget.keyboardType,
             obscureText: widget.obscureText && !_showPassword,
+            validator: widget.validator,
+            maxLines: widget.maxLines,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,

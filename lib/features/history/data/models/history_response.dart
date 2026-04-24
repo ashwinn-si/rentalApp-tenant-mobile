@@ -1,3 +1,27 @@
+class MaintenanceBreakdownItem {
+  const MaintenanceBreakdownItem({
+    required this.name,
+    required this.amount,
+    required this.type,
+  });
+
+  final String name;
+  final num amount;
+  final String type; // 'reimbursement', 'adjustment', or null
+
+  factory MaintenanceBreakdownItem.fromJson(Map<String, dynamic> json) {
+    final yourShare = (json['yourShare'] ?? 0) as num;
+    final issueType = (json['issueType'] ?? 'adjustment').toString();
+    final name = (json['name'] ?? '').toString();
+
+    return MaintenanceBreakdownItem(
+      name: name,
+      amount: yourShare,
+      type: issueType,
+    );
+  }
+}
+
 class HistoryItem {
   const HistoryItem({
     required this.monthLabel,
@@ -9,6 +33,7 @@ class HistoryItem {
     required this.totalDue,
     required this.paidAmount,
     required this.flatId,
+    this.maintenanceBreakdownItems = const <MaintenanceBreakdownItem>[],
   });
 
   final String monthLabel;
@@ -20,6 +45,7 @@ class HistoryItem {
   final num totalDue;
   final num paidAmount;
   final String flatId;
+  final List<MaintenanceBreakdownItem> maintenanceBreakdownItems;
 
   static const List<String> _monthNames = <String>[
     'January',
@@ -82,19 +108,37 @@ class HistoryItem {
       rawLabel: json['monthLabel'],
     );
 
+    // Parse maintenance breakdown items with proper signs
+    final maintenanceBreakdown = (breakdown['maintenanceBreakdown'] as List<dynamic>?) ?? <dynamic>[];
+    final breakdownItems = <MaintenanceBreakdownItem>[];
+    num maintenanceTotal = (json['maintenance'] ?? breakdown['maintenanceShare'] ?? 0) as num;
+
+    for (final item in maintenanceBreakdown) {
+      if (item is Map<String, dynamic>) {
+        final breakdownItem = MaintenanceBreakdownItem.fromJson(item);
+        breakdownItems.add(breakdownItem);
+        // Apply signs: reimbursement subtracts, adjustment adds
+        if (breakdownItem.type == 'reimbursement') {
+          maintenanceTotal -= breakdownItem.amount;
+        } else {
+          maintenanceTotal += breakdownItem.amount;
+        }
+      }
+    }
+
     return HistoryItem(
       monthLabel: monthLabel,
       status: (json['status'] ?? 'pending').toString(),
       baseRent: (json['baseRent'] ?? breakdown['baseRent'] ?? 0) as num,
       utilityBill:
           (json['utilityBill'] ?? breakdown['utilityBill'] ?? 0) as num,
-      maintenance:
-          (json['maintenance'] ?? breakdown['maintenanceShare'] ?? 0) as num,
+      maintenance: maintenanceTotal,
       previousDues:
           (json['previousDues'] ?? breakdown['previousDues'] ?? 0) as num,
       totalDue: (json['totalDue'] ?? breakdown['totalDue'] ?? 0) as num,
       paidAmount: (json['paidAmount'] ?? 0) as num,
       flatId: (json['flatId'] ?? '').toString(),
+      maintenanceBreakdownItems: breakdownItems,
     );
   }
 }

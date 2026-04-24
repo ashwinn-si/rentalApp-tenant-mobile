@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,6 +47,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final asyncDashboard = ref.watch(activeDashboardProvider);
     final asyncHistory = ref.watch(activeHistoryProvider(1));
     final asyncNotifications = ref.watch(notificationsProvider);
+
+    developer.log('[DashboardScreen] Build - asyncDashboard: ${asyncDashboard.runtimeType}, value: ${asyncDashboard.valueOrNull}, error: ${asyncDashboard.error}');
 
     return Scaffold(
       appBar: buildPremiumAppBar(
@@ -126,6 +130,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           previousDues: item.previousDues,
                           totalDue: item.totalDue,
                           paidAmount: item.paidAmount,
+                          maintenanceBreakdownItems: item.maintenanceBreakdownItems,
                         ),
                       )
                       .toList(),

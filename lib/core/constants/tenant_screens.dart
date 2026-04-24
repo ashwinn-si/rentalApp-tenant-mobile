@@ -10,4 +10,6 @@ class TenantScreens {
   static const String notifications = 'NOTIFICATIONS';
   static const String profile = 'PROFILE';
   static const String paymentPage = 'PAYMENT_PAGE';
+  static const String maintenance = 'MAINTENANCE';
+  static const String paymentProof = 'PAYMENT_PROOF_SUBMISSION';
 }

@@ -4,12 +4,14 @@ class FlatDto {
     required this.label,
     required this.apartmentName,
     required this.flatNumber,
+    required this.apartmentId,
   });
 
   final String id;
   final String label;
   final String apartmentName;
   final String flatNumber;
+  final String apartmentId;
 
   factory FlatDto.fromJson(Map<String, dynamic> json) {
     return FlatDto(
@@ -17,6 +19,7 @@ class FlatDto {
       label: (json['label'] ?? '').toString(),
       apartmentName: (json['apartmentName'] ?? '').toString(),
       flatNumber: (json['flatNumber'] ?? '').toString(),
+      apartmentId: (json['apartmentId'] ?? '').toString(),
     );
   }
 }

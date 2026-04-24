@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_tokens.dart';
 
-enum RentStatus { paid, partial, pending }
+enum RentStatus { paid, partial, pending, error }
 
 class StatusChip extends StatelessWidget {
-  const StatusChip({required this.status, super.key});
+  const StatusChip({required this.status, this.label, super.key});
 
   final RentStatus status;
+  final String? label;
 
   factory StatusChip.fromString(String status) {
     final normalized = status.toLowerCase();
@@ -17,6 +18,9 @@ class StatusChip extends StatelessWidget {
     if (normalized == 'partial') {
       return const StatusChip(status: RentStatus.partial);
     }
+    if (normalized == 'error' || normalized == 'rejected') {
+      return const StatusChip(status: RentStatus.error);
+    }
     return const StatusChip(status: RentStatus.pending);
   }
 
@@ -24,21 +28,25 @@ class StatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color fg;
     final Color bg;
-    final String label;
+    final String defaultLabel;
 
     switch (status) {
       case RentStatus.paid:
         fg = AppColors.paid;
         bg = const Color(0xFFEAFBF4);
-        label = 'Paid';
+        defaultLabel = 'Paid';
       case RentStatus.partial:
         fg = AppColors.partial;
         bg = const Color(0xFFFEF6E8);
-        label = 'Partial';
+        defaultLabel = 'Partial';
       case RentStatus.pending:
         fg = AppColors.pending;
         bg = const Color(0xFFFFF4DE);
-        label = 'Pending';
+        defaultLabel = 'Pending';
+      case RentStatus.error:
+        fg = Colors.red.shade700;
+        bg = const Color(0xFFFEF2F2);
+        defaultLabel = 'Error';
     }
 
     return Container(
@@ -51,7 +59,7 @@ class StatusChip extends StatelessWidget {
         ),
       ),
       child: Text(
-        label,
+        label ?? defaultLabel,
         style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12),
       ),
     );

@@ -17,6 +17,10 @@ class AppColors {
   static const paid = Color(0xFF10B981);
   static const partial = Color(0xFFD97706);
   static const pending = Color(0xFFF59E0B);
+  static const emerald = Color(0xFF10B981);
+  static const green = Color(0xFF10B981);
+  static const red = Color(0xFFEF4444);
+  static const orange = Color(0xFFD97706);
   static const screenBg = Color(0xFFF8F9FA);
   static const cardBg = Color(0xFFFFFFFF);
   static const textPrimary = Color(0xFF111827);
@@ -43,6 +47,7 @@ class AppSpacing {
 class AppRadius {
   AppRadius._();
 
+  static const double sm = 8;
   static const double md = 12;
   static const double lg = 16;
 }

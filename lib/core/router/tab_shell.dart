@@ -7,11 +7,15 @@ import '../../core/constants/app_tokens.dart';
 import '../../core/utils/animations.dart';
 import '../../core/constants/tenant_screens.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../../features/dashboard/providers/dashboard_provider.dart';
 import '../../features/documents/providers/documents_provider.dart';
+import '../../features/history/providers/history_provider.dart';
+import '../../features/notifications/providers/notifications_provider.dart';
+import '../../features/payment_proof/providers/payment_proof_provider.dart';
 
 typedef _TabDef = (String path, String label, IconData icon, String? screenKey);
 
-class TabShell extends ConsumerWidget {
+class TabShell extends ConsumerStatefulWidget {
   const TabShell({required this.child, super.key});
 
   final Widget child;
@@ -27,27 +31,79 @@ class TabShell extends ConsumerWidget {
       TenantScreens.notifications
     ),
     ('/payment-page', 'Pay', Icons.payment_outlined, TenantScreens.paymentPage),
+    (
+      '/payment-proof',
+      'Receipt',
+      Icons.receipt_outlined,
+      TenantScreens.paymentProof
+    ),
+    (
+      '/maintenance/history',
+      'Fix',
+      Icons.build_circle_outlined,
+      TenantScreens.maintenance
+    ),
     ('/profile', 'Profile', Icons.person_outline, TenantScreens.profile),
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TabShell> createState() => _TabShellState();
+}
+
+class _TabShellState extends ConsumerState<TabShell> {
+  int _refreshTick = 0;
+  String? _lastMatchedLocation;
+
+  void _refreshAll() {
+    // Invalidate tab-root data so the next watch refetches.
+    ref.invalidate(dashboardProvider);
+    ref.invalidate(activeDashboardProvider);
+    ref.invalidate(historyProvider);
+    ref.invalidate(activeHistoryProvider);
+    ref.invalidate(documentsProvider);
+    ref.invalidate(notificationsProvider);
+    ref.invalidate(paymentProofsProvider);
+  }
+
+  void _bumpRefreshTick() {
+    if (!mounted) return;
+    setState(() => _refreshTick++);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enabledScreens =
         ref.watch(authProvider.select((s) => s.enabledScreens));
-    final tabs = _allTabs
+    final tabs = TabShell._allTabs
         .where((tab) => tab.$4 == null || enabledScreens.contains(tab.$4))
         .toList();
 
     final location = GoRouterState.of(context).matchedLocation;
     final currentIndex = tabs.indexWhere((tab) => location.startsWith(tab.$1));
 
+    if (_lastMatchedLocation != location) {
+      _lastMatchedLocation = location;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshAll();
+        _bumpRefreshTick();
+      });
+    }
+
     if (tabs.length < 2) {
-      return Scaffold(body: child);
+      return Scaffold(
+        body: KeyedSubtree(
+          key: ValueKey<String>('tabShell:$location:$_refreshTick'),
+          child: widget.child,
+        ),
+      );
     }
 
     return Scaffold(
-      body: child,
+      body: KeyedSubtree(
+        key: ValueKey<String>('tabShell:$location:$_refreshTick'),
+        child: widget.child,
+      ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(
           AppSpacing.md,
@@ -95,29 +151,27 @@ class TabShell extends ConsumerWidget {
                         ),
                       ],
               ),
-              child: Row(
-                children: tabs.asMap().entries.map(
-                  (entry) {
-                    final tabPath = entry.value.$1;
-                    final isDocumentsTab = tabPath == '/documents';
-                    final isNotificationTab = tabPath == '/notifications';
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: tabs.asMap().entries.map(
+                    (entry) {
+                      final tabPath = entry.value.$1;
 
-                    return Expanded(
-                      child: _TabButton(
+                      return _TabButton(
                         label: entry.value.$2,
                         icon: entry.value.$3,
                         selected:
                             (currentIndex < 0 ? 0 : currentIndex) == entry.key,
                         onTap: () {
-                          if (isDocumentsTab || isNotificationTab) {
-                            final _ = ref.refresh(documentsProvider);
-                          }
+                          _refreshAll();
+                          _bumpRefreshTick();
                           context.go(tabPath);
                         },
-                      ),
-                    );
-                  },
-                ).toList(),
+                      );
+                    },
+                  ).toList(),
+                ),
               ),
             ),
           ),

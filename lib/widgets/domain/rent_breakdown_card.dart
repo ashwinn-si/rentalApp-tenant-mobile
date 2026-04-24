@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_tokens.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../features/history/data/models/history_response.dart';
 import '../ui/premium_card.dart';
 import '../ui/status_chip.dart';
+import 'maintenance_detail_widget.dart';
 
 class RentBreakdownCard extends StatelessWidget {
   const RentBreakdownCard({
@@ -16,6 +18,7 @@ class RentBreakdownCard extends StatelessWidget {
     required this.totalDue,
     super.key,
     this.paidAmount = 0,
+    this.maintenanceBreakdownItems = const <MaintenanceBreakdownItem>[],
   });
 
   final String monthLabel;
@@ -26,6 +29,7 @@ class RentBreakdownCard extends StatelessWidget {
   final num previousDues;
   final num totalDue;
   final num paidAmount;
+  final List<MaintenanceBreakdownItem> maintenanceBreakdownItems;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +98,15 @@ class RentBreakdownCard extends StatelessWidget {
             maintenance,
             primaryText: primaryText,
             secondaryText: secondaryText,
+            isCredit: maintenance < 0,
           ),
+          if (maintenanceBreakdownItems.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            MaintenanceDetailWidget(
+              items: maintenanceBreakdownItems,
+              total: maintenance,
+            ),
+          ],
           if (previousDues > 0)
             _row(
               'Previous Dues',
@@ -139,6 +151,7 @@ class RentBreakdownCard extends StatelessWidget {
     bool highlight = false,
     bool bold = false,
     bool paid = false,
+    bool isCredit = false,
     required Color primaryText,
     required Color secondaryText,
   }) {
@@ -147,7 +160,12 @@ class RentBreakdownCard extends StatelessWidget {
       color = AppColors.pending;
     } else if (paid) {
       color = AppColors.paid;
+    } else if (isCredit) {
+      color = AppColors.paid; // Green for credit/refund
     }
+
+    final displayAmount = isCredit ? amount.abs() : amount;
+    final amountLabel = isCredit ? '${formatINR(displayAmount)} (Credit)' : formatINR(displayAmount);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -157,7 +175,7 @@ class RentBreakdownCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: (highlight || paid)
+              color: (highlight || paid || isCredit)
                   ? color
                   : (bold ? primaryText : secondaryText),
               fontWeight: bold ? FontWeight.w600 : FontWeight.w500,
@@ -165,7 +183,7 @@ class RentBreakdownCard extends StatelessWidget {
             ),
           ),
           Text(
-            formatINR(amount),
+            amountLabel,
             style: TextStyle(
               color: color,
               fontWeight: bold ? FontWeight.w700 : FontWeight.w600,

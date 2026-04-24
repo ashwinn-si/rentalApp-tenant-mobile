@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -61,6 +63,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     final asyncHistory = ref.watch(activeHistoryProvider(_page));
     final asyncDashboard = ref.watch(activeDashboardProvider);
+
+    developer.log('[HistoryScreen] Build - asyncHistory: ${asyncHistory.runtimeType}, page=$_page, value: ${asyncHistory.valueOrNull}, error: ${asyncHistory.error}');
 
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'History'),
@@ -151,9 +155,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                             baseRent: item.baseRent,
                             utilityBill: item.utilityBill,
                             maintenance: item.maintenance,
-                            previousDues: 0,
+                            previousDues: item.previousDues,
                             totalDue: item.totalDue,
                             paidAmount: item.paidAmount,
+                            maintenanceBreakdownItems: item.maintenanceBreakdownItems,
                           ),
                         ),
                         if (history.totalPages > 1 || _page > 1)
