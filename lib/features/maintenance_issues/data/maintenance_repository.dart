@@ -7,9 +7,15 @@ import './models/maintenance_issue.dart';
 class MaintenanceRepository {
   final DioClient _client = DioClient.instance;
 
-  Future<ApiResponse<MaintenanceIssuesResponse>> getIssues({String? status}) {
+  Future<ApiResponse<MaintenanceIssuesResponse>> getIssues({
+    String? status,
+    int page = 1,
+    int limit = 10,
+  }) {
     final query = <String, dynamic>{};
     if (status != null) query['status'] = status;
+    query['skip'] = (page - 1) * limit;
+    query['limit'] = limit;
 
     return _client.get<MaintenanceIssuesResponse>(
       ApiPaths.maintenanceIssues,

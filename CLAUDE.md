@@ -5,6 +5,24 @@
 Before touching any file, read `../style.md` at repo root.
 Use it as the baseline visual contract, then apply package-specific Flutter constraints from this file.
 
+### CRITICAL: Dark Mode Support (MANDATORY)
+
+**ALL UI code must support both light AND dark modes.**
+
+- Always check `Theme.of(context).brightness == Brightness.dark`
+- Provide separate colors/styles for dark mode
+- Use `withOpacity()` to adjust colors for dark backgrounds
+- Dark backgrounds: `#1F2937` (card), `#111827` (deeper areas)
+- Light text on dark: use `Colors.white.withOpacity(0.8-0.9)`
+- Test every component in both light and dark modes before submitting
+
+Example:
+```dart
+final isDark = Theme.of(context).brightness == Brightness.dark;
+final bgColor = isDark ? const Color(0xFF1F2937) : Colors.white;
+final textColor = isDark ? Colors.white : AppColors.textPrimary;
+```
+
 ## Styling & UI Enhancements
 
 ### Color System (DO NOT CHANGE)
@@ -265,7 +283,7 @@ Before implementing features, consult:
 
 ### Future Enhancements
 
-- [ ] Dark mode support
+- [x] Dark mode support (MANDATORY as of now — all new code must support it)
 - [ ] Custom route transitions
 - [ ] Gesture feedback (haptic)
 - [ ] Loading state animations

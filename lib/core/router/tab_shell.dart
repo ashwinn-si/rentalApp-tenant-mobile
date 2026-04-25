@@ -39,7 +39,7 @@ class TabShell extends ConsumerStatefulWidget {
     ),
     (
       '/maintenance/history',
-      'Fix',
+      'Maintenance',
       Icons.build_circle_outlined,
       TenantScreens.maintenance
     ),
@@ -182,6 +182,8 @@ class _TabShellState extends ConsumerState<TabShell> {
 }
 
 class _TabButton extends StatelessWidget {
+  static const double _itemWidth = 50;
+
   const _TabButton({
     required this.label,
     required this.icon,
@@ -205,7 +207,7 @@ class _TabButton extends StatelessWidget {
         duration: AppAnimations.normal,
         curve: AppAnimations.easeOutCubic,
         margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           gradient: selected
               ? const LinearGradient(
@@ -230,44 +232,48 @@ class _TabButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           splashColor: AppColors.violet.withValues(alpha: 0.08),
           highlightColor: Colors.transparent,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: selected
-                    ? AppColors.violet
-                    : isDark
-                        ? const Color(0xFF9CA3AF)
-                        : AppColors.textSecondary.withValues(alpha: 0.78),
-                size: 21,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+          child: SizedBox(
+            width: _itemWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
                   color: selected
                       ? AppColors.violet
                       : isDark
-                          ? const Color(0xFFD1D5DB)
-                          : AppColors.textSecondary.withValues(alpha: 0.84),
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  fontSize: 11.5,
+                          ? const Color(0xFF9CA3AF)
+                          : AppColors.textSecondary.withValues(alpha: 0.78),
+                  size: 21,
                 ),
-              ),
-              const SizedBox(height: 3),
-              AnimatedContainer(
-                duration: AppAnimations.fast,
-                width: selected ? 14 : 0,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: AppColors.violet,
-                  borderRadius: BorderRadius.circular(99),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: selected
+                        ? AppColors.violet
+                        : isDark
+                            ? const Color(0xFFD1D5DB)
+                            : AppColors.textSecondary.withValues(alpha: 0.84),
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 11.5,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 3),
+                AnimatedContainer(
+                  duration: AppAnimations.fast,
+                  width: selected ? 14 : 0,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: AppColors.violet,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

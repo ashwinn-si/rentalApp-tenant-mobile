@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:dio/dio.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/network/dio_client.dart';
@@ -35,20 +37,36 @@ class PaymentProofRepository {
   }
 
   Future<List<PaymentProof>> getMyProofs({String? rentRecordId}) async {
-    final response = await _client.get<List<dynamic>>(
+    developer.log('[PaymentProofRepository.getMyProofs] Calling endpoint: ${ApiPaths.paymentProofs}');
+
+    final response = await _client.get<Map<String, dynamic>>(
       ApiPaths.paymentProofs,
-      fromJson: (json) => json as List<dynamic>,
+      fromJson: (json) => json as Map<String, dynamic>,
       queryParams: {
         if (rentRecordId != null) 'rentRecordId': rentRecordId,
       },
     );
 
+    developer.log('[PaymentProofRepository.getMyProofs] Response received - isSuccess: ${response.isSuccess}, statusCode: ${response.statusCode}');
+
     if (!response.isSuccess) {
+      developer.log('[PaymentProofRepository.getMyProofs] API Error: ${response.message}');
       throw Exception(response.message);
     }
 
-    final data = response.data ?? [];
-    return data
+    developer.log('[PaymentProofRepository.getMyProofs] Response data: ${response.data}');
+
+    final responseData = response.data ?? {};
+    // Handle wrapped response: { "data": [...] }
+    final proofsList = responseData['data'] as List<dynamic>? ?? responseData as List<dynamic>?;
+
+    developer.log('[PaymentProofRepository.getMyProofs] Parsed proofs count: ${proofsList?.length ?? 0}');
+
+    if (proofsList == null) {
+      return [];
+    }
+
+    return proofsList
         .map((item) => PaymentProof.fromJson(item as Map<String, dynamic>))
         .toList();
   }
@@ -71,7 +89,12 @@ class PaymentProofRepository {
       throw Exception(response.message);
     }
 
-    return response.data ?? {};
+    final data = response.data ?? {};
+    // Handle wrapped response format: { "data": { "url": ..., "key": ... } }
+    if (data.containsKey('data') && data['data'] is Map) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return data;
   }
 
   Future<void> uploadToS3({
@@ -93,6 +116,43 @@ class PaymentProofRepository {
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<PaymentProof> submitProofWithFiles({
+    required String rentRecordId,
+    required String paidToName,
+    required List<PaymentMethod> paymentMethods,
+    required List<List<int>> fileBytes,
+    required List<String> fileNames,
+  }) async {
+    final formData = FormData();
+    formData.fields.add(MapEntry('rentRecordId', rentRecordId));
+    formData.fields.add(MapEntry('paidToName', paidToName));
+    formData.fields.add(MapEntry(
+      'paymentMethods',
+      jsonEncode(paymentMethods.map((m) => m.toJson()).toList()),
+    ));
+
+    for (int i = 0; i < fileBytes.length; i++) {
+      formData.files.add(
+        MapEntry(
+          'proofImages',
+          MultipartFile.fromBytes(fileBytes[i], filename: fileNames[i]),
+        ),
+      );
+    }
+
+    final response = await _client.post<Map<String, dynamic>>(
+      '${ApiPaths.paymentProofs}/with-files',
+      fromJson: (json) => json as Map<String, dynamic>,
+      data: formData,
+    );
+
+    if (!response.isSuccess) {
+      throw Exception(response.message);
+    }
+
+    return PaymentProof.fromJson(response.data ?? {});
   }
 
   Future<PaymentProof> submitProof({

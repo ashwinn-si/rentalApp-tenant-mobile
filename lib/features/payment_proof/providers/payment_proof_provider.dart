@@ -65,16 +65,20 @@ final activeRentProvider =
 
 // Payment proofs list provider
 final paymentProofsProvider = FutureProvider<List<PaymentProof>>((ref) async {
-  developer.log('[PaymentProofsProvider] Loading proofs');
+  developer.log('[PaymentProofsProvider] Loading proofs - starting');
 
   try {
+    developer.log('[PaymentProofsProvider] Getting repository');
     final repository = ref.watch(paymentProofRepositoryProvider);
+
+    developer.log('[PaymentProofsProvider] Calling getMyProofs()');
     final proofs = await repository.getMyProofs();
 
-    developer.log('[PaymentProofsProvider] Got ${proofs.length} proofs');
+    developer.log('[PaymentProofsProvider] Success! Got ${proofs.length} proofs');
     return proofs;
   } catch (e, stack) {
-    developer.log('[PaymentProofsProvider] Error: $e\n$stack');
+    developer.log('[PaymentProofsProvider] ERROR: $e');
+    developer.log('[PaymentProofsProvider] Stack: $stack');
     rethrow;
   }
 });

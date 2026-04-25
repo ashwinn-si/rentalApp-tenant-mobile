@@ -2,65 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_tokens.dart';
-import '../../../core/services/toast_service.dart';
-import '../../../core/utils/animations.dart';
-import '../../../core/utils/app_bar_helper.dart';
-import '../../../widgets/ui/app_loader.dart';
-import '../../../widgets/ui/premium_card.dart';
-import '../../../widgets/ui/screen_background.dart';
-import '../../../widgets/ui/state_card.dart';
+import '../../../widgets/templates/list_page_template.dart';
+import '../../../widgets/ui/pagination_footer.dart';
+import '../data/models/payment_proof.dart';
 import '../providers/payment_proof_provider.dart';
+import 'proof_detail_screen.dart';
+import 'add_payment_proof_screen.dart';
 
 class PaymentProofScreen extends ConsumerStatefulWidget {
   const PaymentProofScreen({super.key});
 
   @override
-  ConsumerState<PaymentProofScreen> createState() =>
-      _PaymentProofScreenState();
+  ConsumerState<PaymentProofScreen> createState() => _PaymentProofScreenState();
 }
 
 class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
-  late DateTime now;
-  late int selectedMonth;
-  late int selectedYear;
-
-  final List<String> months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  final paymentMethods = [
-    {'label': 'Cash', 'value': 'cash'},
-    {'label': 'Bank Transfer', 'value': 'bank_transfer'},
-    {'label': 'Cheque', 'value': 'cheque'},
-    {'label': 'UPI', 'value': 'upi'},
-    {'label': 'NEFT', 'value': 'neft'},
-  ];
-
-  late Set<String> selectedMethods;
-  late Map<String, double> amounts;
-  late TextEditingController paidToController;
-
-  @override
-  void initState() {
-    super.initState();
-    now = DateTime.now();
-    selectedMonth = now.month;
-    selectedYear = now.year;
-    selectedMethods = {'cash'};
-    amounts = {'cash': 0.0};
-    paidToController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    paidToController.dispose();
-    super.dispose();
-  }
-
-  List<int> getYearOptions() {
-    return [now.year - 1, now.year, now.year + 1];
-  }
+  static const int itemsPerPage = 5;
+  int currentPage = 0;
 
   String formatINR(double value) {
     return '₹${value.toStringAsFixed(2)}';
@@ -68,319 +26,323 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final rentAsync = ref.watch(
-      activeRentProvider(
-        RentParams(month: selectedMonth, year: selectedYear),
-      ),
-    );
     final proofsAsync = ref.watch(paymentProofsProvider);
 
-    return Scaffold(
-      appBar: buildPremiumAppBar(title: 'Payment Proof'),
-      body: ScreenBackground(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Month & Year Selector
-                _buildMonthYearSelector(),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Rent Record Display
-                rentAsync.when(
-                  loading: () => _buildLoadingCard(),
-                  error: (_, __) => _buildErrorCard('Failed to load rent'),
-                  data: (rent) => _buildRentCard(rent),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Proof History Section
-                _buildProofHistorySection(proofsAsync),
-              ],
-            ),
-          ),
+    return proofsAsync.when(
+      loading: () => ListPageTemplate(
+        title: 'Payment Proofs',
+        isLoading: true,
+        body: const SizedBox.shrink(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const AddPaymentProofScreen(),
+              ),
+            );
+          },
+          backgroundColor: AppColors.violet,
+          child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
-    );
-  }
+      error: (err, __) => ListPageTemplate(
+        title: 'Payment Proofs',
+        errorMessage: 'Failed to load proofs',
+        body: const SizedBox.shrink(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const AddPaymentProofScreen(),
+              ),
+            );
+          },
+          backgroundColor: AppColors.violet,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
+      ),
+      data: (allProofs) {
+        final totalPages = (allProofs.length / itemsPerPage).ceil().toInt();
 
-  Widget _buildMonthYearSelector() {
-    return PremiumCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Select Month & Year',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: DropdownButton<int>(
-                  isExpanded: true,
-                  value: selectedMonth,
-                  items: List.generate(
-                    12,
-                    (index) => DropdownMenuItem(
-                      value: index + 1,
-                      child: Text(months[index]),
+        // Empty state
+        if (allProofs.isEmpty) {
+          return ListPageTemplate(
+            title: 'Payment Proofs',
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'No payment proofs yet',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _buildAddButton(),
+                  ],
+                ),
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const AddPaymentProofScreen(),
                   ),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedMonth = value);
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: DropdownButton<int>(
-                  isExpanded: true,
-                  value: selectedYear,
-                  items: getYearOptions()
-                      .map(
-                        (year) => DropdownMenuItem(
-                          value: year,
-                          child: Text(year.toString()),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedYear = value);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingCard() {
-    return PremiumCard(
-      child: SizedBox(
-        height: 120,
-        child: Center(
-          child: CircularProgressIndicator(
-            color: AppColors.violet,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorCard(String message) {
-    return PremiumCard(
-      child: StateCard(
-        message: message,
-        variant: StateCardVariant.error,
-      ),
-    );
-  }
-
-  Widget _buildRentCard(dynamic rent) {
-    if (rent == null) {
-      return PremiumCard(
-        child: StateCard(
-          message:
-              'No rent record available for ${months[selectedMonth - 1]} $selectedYear',
-          variant: StateCardVariant.warning,
-        ),
-      );
-    }
-
-    return PremiumCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Rent Due',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              Text(
-                formatINR(rent.totalDue),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _buildBreakdownRow('Base Rent', rent.baseRent),
-          _buildBreakdownRow('Electricity', rent.electricityBill),
-          _buildBreakdownRow('Maintenance', rent.maintenanceShare),
-          _buildBreakdownRow('Already Paid', rent.paidAmount,
-              color: AppColors.green),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBreakdownRow(String label, double amount, {Color? color}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-          Text(
-            formatINR(amount),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: color ?? AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProofHistorySection(AsyncValue<List<dynamic>> proofsAsync) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Proof History',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                );
+              },
+              backgroundColor: AppColors.violet,
+              child: const Icon(Icons.add, color: Colors.white),
             ),
-            proofsAsync.when(
-              loading: () => SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.violet,
-                ),
-              ),
-              error: (_, __) => IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  ref.invalidate(paymentProofsProvider);
-                },
-              ),
-              data: (_) => IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  ref.invalidate(paymentProofsProvider);
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        proofsAsync.when(
-          loading: () => const AppLoader(),
-          error: (err, __) => StateCard(
-            message: 'Unable to load proofs',
-            variant: StateCardVariant.error,
-          ),
-          data: (proofs) {
-            if (proofs.isEmpty) {
-              return StateCard(
-                message: 'No submissions yet',
-                variant: StateCardVariant.info,
-              );
-            }
+          );
+        }
 
-            return Column(
-              children: proofs
-                  .map(
-                    (proof) => PremiumCard(
+        // Paginate
+        final startIdx = currentPage * itemsPerPage;
+        final endIdx = (startIdx + itemsPerPage).clamp(0, allProofs.length);
+        final pageProofs = allProofs.sublist(startIdx, endIdx);
+        final isSingleItem = pageProofs.length == 1 && totalPages == 1;
+
+        return ListPageTemplate(
+          title: 'Payment Proofs',
+          body: isSingleItem
+              ? SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height - 180,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                formatINR(proof.totalAmount),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                              _buildStatusBadge(proof.status),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            'Submitted: ${proof.submittedAt != null ? proof.submittedAt.toLocal() : '—'}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                          ),
-                          if (proof.status == 'rejected' &&
-                              proof.rejectionReason != null) ...[
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              'Reason: ${proof.rejectionReason}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: AppColors.red,
-                                  ),
-                            ),
-                          ],
+                          ...pageProofs.map((proof) => _buildProofCard(proof)),
                         ],
                       ),
                     ),
-                  )
-                  .toList(),
-            );
-          },
+                  ),
+                )
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: AppSpacing.md,
+                      right: AppSpacing.md,
+                      top: AppSpacing.md,
+                      bottom: totalPages > 1 ? 100 : AppSpacing.md,
+                    ),
+                    child: Column(
+                      children: [
+                        ...pageProofs.map((proof) => _buildProofCard(proof)),
+                        if (totalPages > 1) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          PaginationFooter(
+                            currentPage: currentPage + 1,
+                            totalPages: totalPages,
+                            onPreviousPressed: currentPage > 0
+                                ? () => setState(() => currentPage--)
+                                : null,
+                            onNextPressed: currentPage < totalPages - 1
+                                ? () => setState(() => currentPage++)
+                                : null,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const AddPaymentProofScreen(),
+                ),
+              );
+            },
+            backgroundColor: AppColors.violet,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProofCard(PaymentProof proof) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ProofDetailScreen(proof: proof),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(
+            color: const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.violet.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-      ],
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          formatINR(proof.totalAmount),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          proof.paidToName,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  _buildStatusBadge(proof.status),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Submitted: ${proof.submittedAt != null ? proof.submittedAt!.toLocal().toString().split('.')[0] : '—'}',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+              if (proof.paymentMethods.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Methods: ${proof.paymentMethods.map((m) => '${m.method} (${formatINR(m.amount)})').join(', ')}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              if (proof.proofImages.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    ...proof.proofImages.take(3).map((proofImage) {
+                      final imageUrl = proofImage.url ?? '';
+                      return Container(
+                        margin: const EdgeInsets.only(right: AppSpacing.xs),
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0),
+                            width: 1,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.sm - 1),
+                          child: imageUrl.isNotEmpty
+                              ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    color: AppColors.violet.withValues(alpha: 0.1),
+                                    child: const Icon(Icons.image, size: 20),
+                                  ),
+                                )
+                              : Container(
+                                  color: AppColors.violet.withValues(alpha: 0.1),
+                                  child: const Icon(Icons.image, size: 20),
+                                ),
+                        ),
+                      );
+                    }),
+                    if (proof.proofImages.length > 3) ...[
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          color: AppColors.violet.withValues(alpha: 0.1),
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0),
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '+${proof.proofImages.length - 3}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: AppColors.violet,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildStatusBadge(String status) {
     Color bgColor;
     Color textColor;
+    String label;
 
     switch (status) {
       case 'approved':
-        bgColor = AppColors.green.withOpacity(0.1);
-        textColor = AppColors.green;
+        bgColor = const Color(0xFFDCFCE7); // Soft Mint
+        textColor = const Color(0xFF166534); // Dark Green
+        label = 'APPROVED';
         break;
       case 'rejected':
-        bgColor = AppColors.red.withOpacity(0.1);
-        textColor = AppColors.red;
+        bgColor = const Color(0xFFFEE2E2); // Soft Rose
+        textColor = const Color(0xFF991B1B); // Dark Red
+        label = 'REJECTED';
         break;
       default:
-        bgColor = AppColors.orange.withOpacity(0.1);
-        textColor = AppColors.orange;
+        bgColor = const Color(0xFFFEF3C7); // Soft Gold
+        textColor = const Color(0xFF78350F); // Dark Brown
+        label = 'PENDING';
     }
 
     return Container(
@@ -391,13 +353,35 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(
+          color: textColor.withOpacity(0.2),
+          width: 0.5,
+        ),
       ),
       child: Text(
-        status.toUpperCase(),
+        label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: textColor,
               fontWeight: FontWeight.w600,
+              fontSize: 11,
             ),
+      ),
+    );
+  }
+
+Widget _buildAddButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const AddPaymentProofScreen(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Add Payment Proof'),
       ),
     );
   }

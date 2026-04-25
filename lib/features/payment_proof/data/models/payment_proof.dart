@@ -5,6 +5,7 @@ class PaymentProof {
   final String paidToName;
   final double totalAmount;
   final List<PaymentMethod> paymentMethods;
+  final List<ProofImage> proofImages;
   final String? rejectionReason;
   final DateTime? submittedAt;
 
@@ -15,19 +16,24 @@ class PaymentProof {
     required this.paidToName,
     required this.totalAmount,
     required this.paymentMethods,
+    List<ProofImage>? proofImages,
     this.rejectionReason,
     this.submittedAt,
-  });
+  }) : proofImages = proofImages ?? [];
 
   factory PaymentProof.fromJson(Map<String, dynamic> json) {
     return PaymentProof(
-      id: json['id'] ?? '',
-      status: json['status'] ?? 'pending',
+      id: json['_id'] ?? json['id'] ?? '',
+      status: json['paymentProofStatus'] ?? json['status'] ?? 'pending',
       rentRecordId: json['rentRecordId'] ?? '',
       paidToName: json['paidToName'] ?? '',
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
       paymentMethods: (json['paymentMethods'] as List?)
               ?.map((m) => PaymentMethod.fromJson(m))
+              .toList() ??
+          [],
+      proofImages: (json['proofImages'] as List?)
+              ?.map((img) => ProofImage.fromJson(img))
               .toList() ??
           [],
       rejectionReason: json['rejectionReason'],
@@ -54,6 +60,30 @@ class PaymentMethod {
     return {
       'method': method,
       'amount': amount,
+    };
+  }
+}
+
+class ProofImage {
+  final String s3Key;
+  final String? url; // Pre-signed URL from backend
+  final DateTime? uploadedAt;
+
+  ProofImage({required this.s3Key, this.url, this.uploadedAt});
+
+  factory ProofImage.fromJson(Map<String, dynamic> json) {
+    return ProofImage(
+      s3Key: json['s3Key'] ?? '',
+      url: json['url'],
+      uploadedAt: json['uploadedAt'] != null ? DateTime.parse(json['uploadedAt']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      's3Key': s3Key,
+      if (url != null) 'url': url,
+      if (uploadedAt != null) 'uploadedAt': uploadedAt!.toIso8601String(),
     };
   }
 }

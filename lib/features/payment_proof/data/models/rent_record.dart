@@ -8,6 +8,8 @@ class RentRecord {
   final double totalDue;
   final double paidAmount;
   final String status;
+  final String? paymentProofStatus;
+  final String? paymentProofId;
 
   RentRecord({
     required this.id,
@@ -19,6 +21,8 @@ class RentRecord {
     required this.totalDue,
     required this.paidAmount,
     required this.status,
+    this.paymentProofStatus,
+    this.paymentProofId,
   });
 
   factory RentRecord.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,8 @@ class RentRecord {
       totalDue: (json['totalDue'] ?? 0).toDouble(),
       paidAmount: (json['paidAmount'] ?? 0).toDouble(),
       status: json['status'] ?? 'unpaid',
+      paymentProofStatus: json['paymentProofStatus'],
+      paymentProofId: json['paymentProofId'],
     );
   }
 }

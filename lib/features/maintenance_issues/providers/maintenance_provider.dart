@@ -4,9 +4,9 @@ import '../data/models/maintenance_issue.dart';
 
 final maintenanceRepositoryProvider = Provider((ref) => MaintenanceRepository());
 
-final maintenanceIssuesProvider = FutureProvider<MaintenanceIssuesResponse>((ref) async {
+final maintenanceIssuesProvider = FutureProvider.family<MaintenanceIssuesResponse, ({int page, int limit})>((ref, params) async {
   final repository = ref.watch(maintenanceRepositoryProvider);
-  final result = await repository.getIssues();
+  final result = await repository.getIssues(page: params.page, limit: params.limit);
   if (!result.isSuccess || result.data == null) {
     throw Exception(result.error ?? 'Unable to load maintenance issues');
   }
