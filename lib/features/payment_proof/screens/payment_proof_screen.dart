@@ -24,6 +24,13 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
     return '₹${value.toStringAsFixed(2)}';
   }
 
+  List<Widget> get _refreshAction => [
+        IconButton(
+          onPressed: () => ref.invalidate(paymentProofsProvider),
+          icon: const Icon(Icons.refresh_outlined, color: Colors.white),
+        ),
+      ];
+
   @override
   Widget build(BuildContext context) {
     final proofsAsync = ref.watch(paymentProofsProvider);
@@ -32,6 +39,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
       loading: () => ListPageTemplate(
         title: 'Payment Proofs',
         isLoading: true,
+        actions: _refreshAction,
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -48,6 +56,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
       error: (err, __) => ListPageTemplate(
         title: 'Payment Proofs',
         errorMessage: 'Failed to load proofs',
+        actions: _refreshAction,
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -68,6 +77,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
         if (allProofs.isEmpty) {
           return ListPageTemplate(
             title: 'Payment Proofs',
+            actions: _refreshAction,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
@@ -110,6 +120,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
 
         return ListPageTemplate(
           title: 'Payment Proofs',
+          actions: _refreshAction,
           body: isSingleItem
               ? SingleChildScrollView(
                   child: ConstrainedBox(
@@ -191,7 +202,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.violet.withOpacity(0.04),
+              color: AppColors.violet.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -354,7 +365,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
         color: bgColor,
         borderRadius: BorderRadius.circular(AppRadius.sm),
         border: Border.all(
-          color: textColor.withOpacity(0.2),
+          color: textColor.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),

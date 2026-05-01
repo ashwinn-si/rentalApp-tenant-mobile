@@ -28,14 +28,14 @@ class InfoField extends StatelessWidget {
                 ]
               : <Color>[
                   const Color(0xFFF9FAFB),
-                  const Color(0xFFF3F4F6).withOpacity(0.9),
+                  const Color(0xFFF3F4F6).withValues(alpha: 0.9),
                 ],
         ),
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
           color: isDark
               ? const Color(0xFF393256)
-              : AppColors.violet.withOpacity(0.08),
+              : AppColors.violet.withValues(alpha: 0.08),
           width: 1,
         ),
         boxShadow: [
@@ -59,7 +59,7 @@ class InfoField extends StatelessWidget {
               fontSize: 12,
               color: isDark
                   ? const Color(0xFFB8BED3)
-                  : AppColors.textSecondary.withOpacity(0.8),
+                  : AppColors.textSecondary.withValues(alpha: 0.8),
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -58,7 +58,7 @@ class IssueTimeline extends StatelessWidget {
                       Container(
                         width: 2,
                         height: 32,
-                        color: AppColors.violet.withOpacity(0.2),
+                        color: AppColors.violet.withValues(alpha: 0.2),
                       ),
                   ],
                 ),

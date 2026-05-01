@@ -3,11 +3,15 @@ class MaintenanceBreakdownItem {
     required this.name,
     required this.amount,
     required this.type,
+    this.id,
+    this.issueId,
   });
 
   final String name;
   final num amount;
   final String type; // 'reimbursement', 'adjustment', or null
+  final String? id;      // MongoDB _id — used to fetch issue details
+  final String? issueId; // Human-readable issue ID (e.g. "MAINT-001")
 
   factory MaintenanceBreakdownItem.fromJson(Map<String, dynamic> json) {
     final yourShare = (json['yourShare'] ?? 0) as num;
@@ -18,6 +22,8 @@ class MaintenanceBreakdownItem {
       name: name,
       amount: yourShare,
       type: issueType,
+      id: json['_id']?.toString(),
+      issueId: json['issueId']?.toString(),
     );
   }
 }

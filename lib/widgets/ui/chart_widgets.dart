@@ -51,10 +51,10 @@ class RentStackedBarChart extends StatelessWidget {
         isDark ? const Color(0xFFCBD5E1) : AppColors.textSecondary;
     final gridColor = isDark
         ? Colors.white.withValues(alpha: 0.08)
-        : AppColors.textSecondary.withOpacity(0.08);
+        : AppColors.textSecondary.withValues(alpha: 0.08);
     final borderColor = isDark
         ? const Color(0xFF2A2540)
-        : AppColors.textSecondary.withOpacity(0.1);
+        : AppColors.textSecondary.withValues(alpha: 0.1);
     final baseColor = isDark ? _lighten(AppColors.violet) : AppColors.violet;
     final utilityColor =
         isDark ? _lighten(const Color(0xFF06B6D4)) : const Color(0xFF06B6D4);
@@ -114,7 +114,7 @@ class RentStackedBarChart extends StatelessWidget {
                           toY: _getMaxValue(),
                           color: isDark
                               ? Colors.white.withValues(alpha: 0.05)
-                              : AppColors.violet.withOpacity(0.05),
+                              : AppColors.violet.withValues(alpha: 0.05),
                         ),
                       ),
                     ],
@@ -266,8 +266,8 @@ class RentTrendLineChart extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            AppColors.violet.withOpacity(0.15),
-                            AppColors.violet.withOpacity(0.01),
+                            AppColors.violet.withValues(alpha: 0.15),
+                            AppColors.violet.withValues(alpha: 0.01),
                           ],
                         ),
                       ),
@@ -300,8 +300,8 @@ class RentTrendLineChart extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            AppColors.paid.withOpacity(0.15),
-                            AppColors.paid.withOpacity(0.01),
+                            AppColors.paid.withValues(alpha: 0.15),
+                            AppColors.paid.withValues(alpha: 0.01),
                           ],
                         ),
                       ),
@@ -322,7 +322,7 @@ class RentTrendLineChart extends StatelessWidget {
                           return Text(
                             value.toInt().toString(),
                             style: TextStyle(
-                              color: AppColors.textSecondary.withOpacity(0.6),
+                              color: AppColors.textSecondary.withValues(alpha: 0.6),
                               fontSize: 10,
                             ),
                           );
@@ -343,7 +343,7 @@ class RentTrendLineChart extends StatelessWidget {
                               data[idx].monthLabel,
                               style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.textSecondary.withOpacity(0.7),
+                                color: AppColors.textSecondary.withValues(alpha: 0.7),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -357,7 +357,7 @@ class RentTrendLineChart extends StatelessWidget {
                     drawVerticalLine: false,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
-                        color: AppColors.textSecondary.withOpacity(0.08),
+                        color: AppColors.textSecondary.withValues(alpha: 0.08),
                         strokeWidth: 1,
                       );
                     },
@@ -366,11 +366,11 @@ class RentTrendLineChart extends StatelessWidget {
                     show: true,
                     border: Border(
                       bottom: BorderSide(
-                        color: AppColors.textSecondary.withOpacity(0.1),
+                        color: AppColors.textSecondary.withValues(alpha: 0.1),
                         width: 1,
                       ),
                       left: BorderSide(
-                        color: AppColors.textSecondary.withOpacity(0.1),
+                        color: AppColors.textSecondary.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -441,10 +441,12 @@ class BreakdownItem {
 class RentBreakdownPieChart extends StatefulWidget {
   const RentBreakdownPieChart({
     required this.items,
+    this.monthLabel,
     super.key,
   });
 
   final List<BreakdownItem> items;
+  final String? monthLabel;
 
   @override
   State<RentBreakdownPieChart> createState() => _RentBreakdownPieChartState();
@@ -480,6 +482,17 @@ class _RentBreakdownPieChartState extends State<RentBreakdownPieChart> {
               color: headingColor,
             ),
           ),
+          if (widget.monthLabel != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              widget.monthLabel!,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: legendTextColor,
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             height: 260,

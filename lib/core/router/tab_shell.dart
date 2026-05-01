@@ -7,11 +7,6 @@ import '../../core/constants/app_tokens.dart';
 import '../../core/utils/animations.dart';
 import '../../core/constants/tenant_screens.dart';
 import '../../features/auth/providers/auth_provider.dart';
-import '../../features/dashboard/providers/dashboard_provider.dart';
-import '../../features/documents/providers/documents_provider.dart';
-import '../../features/history/providers/history_provider.dart';
-import '../../features/notifications/providers/notifications_provider.dart';
-import '../../features/payment_proof/providers/payment_proof_provider.dart';
 
 typedef _TabDef = (String path, String label, IconData icon, String? screenKey);
 
@@ -23,18 +18,10 @@ class TabShell extends ConsumerStatefulWidget {
   static const List<_TabDef> _allTabs = <_TabDef>[
     ('/dashboard', 'Dashboard', Icons.home_outlined, TenantScreens.dashboard),
     ('/history', 'History', Icons.history_outlined, TenantScreens.history),
-    ('/documents', 'Docs', Icons.description_outlined, TenantScreens.documents),
-    (
-      '/notifications',
-      'Alerts',
-      Icons.notifications_outlined,
-      TenantScreens.notifications
-    ),
-    ('/payment-page', 'Pay', Icons.payment_outlined, TenantScreens.paymentPage),
     (
       '/payment-proof',
-      'Receipt',
-      Icons.receipt_outlined,
+      'Proof',
+      Icons.verified_outlined,
       TenantScreens.paymentProof
     ),
     (
@@ -42,6 +29,13 @@ class TabShell extends ConsumerStatefulWidget {
       'Maintenance',
       Icons.build_circle_outlined,
       TenantScreens.maintenance
+    ),
+    ('/documents', 'Docs', Icons.description_outlined, TenantScreens.documents),
+    (
+      '/notifications',
+      'Alerts',
+      Icons.notifications_outlined,
+      TenantScreens.notifications
     ),
     ('/profile', 'Profile', Icons.person_outline, TenantScreens.profile),
   ];
@@ -51,25 +45,6 @@ class TabShell extends ConsumerStatefulWidget {
 }
 
 class _TabShellState extends ConsumerState<TabShell> {
-  int _refreshTick = 0;
-  String? _lastMatchedLocation;
-
-  void _refreshAll() {
-    // Invalidate tab-root data so the next watch refetches.
-    ref.invalidate(dashboardProvider);
-    ref.invalidate(activeDashboardProvider);
-    ref.invalidate(historyProvider);
-    ref.invalidate(activeHistoryProvider);
-    ref.invalidate(documentsProvider);
-    ref.invalidate(notificationsProvider);
-    ref.invalidate(paymentProofsProvider);
-  }
-
-  void _bumpRefreshTick() {
-    if (!mounted) return;
-    setState(() => _refreshTick++);
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -82,28 +57,14 @@ class _TabShellState extends ConsumerState<TabShell> {
     final location = GoRouterState.of(context).matchedLocation;
     final currentIndex = tabs.indexWhere((tab) => location.startsWith(tab.$1));
 
-    if (_lastMatchedLocation != location) {
-      _lastMatchedLocation = location;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _refreshAll();
-        _bumpRefreshTick();
-      });
-    }
-
     if (tabs.length < 2) {
       return Scaffold(
-        body: KeyedSubtree(
-          key: ValueKey<String>('tabShell:$location:$_refreshTick'),
-          child: widget.child,
-        ),
+        body: widget.child,
       );
     }
 
     return Scaffold(
-      body: KeyedSubtree(
-        key: ValueKey<String>('tabShell:$location:$_refreshTick'),
-        child: widget.child,
-      ),
+      body: widget.child,
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(
           AppSpacing.md,
@@ -163,11 +124,7 @@ class _TabShellState extends ConsumerState<TabShell> {
                         icon: entry.value.$3,
                         selected:
                             (currentIndex < 0 ? 0 : currentIndex) == entry.key,
-                        onTap: () {
-                          _refreshAll();
-                          _bumpRefreshTick();
-                          context.go(tabPath);
-                        },
+                        onTap: () => context.go(tabPath),
                       );
                     },
                   ).toList(),

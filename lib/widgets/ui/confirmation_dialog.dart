@@ -85,7 +85,7 @@ class ConfirmationDialog extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isDark
                       ? const Color(0xFF3D2F1C)
-                      : AppColors.pending.withOpacity(0.1),
+                      : AppColors.pending.withValues(alpha: 0.1),
                   border: Border.all(
                     color:
                         isDark ? const Color(0xFF5C4729) : Colors.transparent,

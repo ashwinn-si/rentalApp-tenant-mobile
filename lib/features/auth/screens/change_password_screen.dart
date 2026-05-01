@@ -42,8 +42,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       ToastService.showError('All fields are required');
       return;
     }
-    if (newPassword.length < 8) {
-      ToastService.showError('New password must be at least 8 characters');
+    if (newPassword.isEmpty) {
+      ToastService.showError('New password must be at least 1 character');
       return;
     }
     if (newPassword != confirmPassword) {
@@ -71,7 +71,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       appBar: AppBar(
         title: const Text('Change Password'),
         elevation: 4,
-        shadowColor: AppColors.violet.withOpacity(0.3),
+        shadowColor: AppColors.violet.withValues(alpha: 0.3),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -82,22 +82,22 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: AppColors.pending.withOpacity(0.08),
+                    color: AppColors.pending.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(
-                      color: AppColors.pending.withOpacity(0.2),
+                      color: AppColors.pending.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(
                         Icons.info_outline,
                         color: AppColors.pending,
                         size: 20,
                       ),
-                      const SizedBox(width: AppSpacing.md),
-                      const Expanded(
+                      SizedBox(width: AppSpacing.md),
+                      Expanded(
                         child: Text(
                           'You must change your password to continue',
                           style: TextStyle(
@@ -128,7 +128,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   obscureText: true,
                   controller: _newPasswordController,
                   prefixIcon: Icons.lock_open_outlined,
-                  helperText: 'Minimum 8 characters',
+                  helperText: 'Minimum 1 character',
                 ),
               ),
               FadeSlideTransition(

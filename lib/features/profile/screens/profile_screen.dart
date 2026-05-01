@@ -71,7 +71,15 @@ class ProfileScreen extends ConsumerWidget {
     final asyncProfile = ref.watch(profileProvider);
 
     return Scaffold(
-      appBar: buildPremiumAppBar(title: 'Profile'),
+      appBar: buildPremiumAppBar(
+        title: 'Profile',
+        actions: [
+          IconButton(
+            onPressed: () => ref.invalidate(profileProvider),
+            icon: const Icon(Icons.refresh_outlined),
+          ),
+        ],
+      ),
       body: ScreenBackground(
         child: asyncProfile.when(
           loading: () => const AppLoader(),

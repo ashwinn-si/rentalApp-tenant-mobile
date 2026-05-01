@@ -51,7 +51,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
             borderRadius: BorderRadius.circular(AppRadius.lg),
             boxShadow: [
               BoxShadow(
-                color: AppColors.violet.withOpacity(0.12),
+                color: AppColors.violet.withValues(alpha: 0.12),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -75,7 +75,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                         imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.violet.withOpacity(0.08),
+                          color: AppColors.violet.withValues(alpha: 0.08),
                           child: const Center(
                             child: Icon(
                               Icons.broken_image_outlined,
@@ -92,9 +92,9 @@ class _ImageCarouselState extends State<ImageCarousel> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black.withOpacity(0.2),
+                              Colors.black.withValues(alpha: 0.2),
                               Colors.transparent,
-                              Colors.black.withOpacity(0.2),
+                              Colors.black.withValues(alpha: 0.2),
                             ],
                           ),
                         ),
@@ -127,7 +127,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                       borderRadius: BorderRadius.circular(4),
                       color: _currentIndex == index
                           ? AppColors.violet
-                          : AppColors.violet.withOpacity(0.3),
+                          : AppColors.violet.withValues(alpha: 0.3),
                     ),
                   ),
                 ),
@@ -151,7 +151,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
       height: 160,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        color: AppColors.violet.withOpacity(0.08),
+        color: AppColors.violet.withValues(alpha: 0.08),
       ),
       child: Center(
         child: Column(
@@ -160,13 +160,13 @@ class _ImageCarouselState extends State<ImageCarousel> {
             Icon(
               Icons.image_not_supported_outlined,
               size: 48,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'No images attached',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary.withOpacity(0.6),
+                    color: AppColors.textSecondary.withValues(alpha: 0.6),
                   ),
             ),
           ],

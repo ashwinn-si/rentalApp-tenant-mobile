@@ -33,9 +33,9 @@ class NotificationCard extends StatelessWidget {
 
     final titleColor = isDark ? const Color(0xFFF8FAFC) : Colors.white;
     final messageColor =
-        isDark ? const Color(0xFFEEF2FF) : Colors.white.withOpacity(0.95);
+        isDark ? const Color(0xFFEEF2FF) : Colors.white.withValues(alpha: 0.95);
     final captionColor =
-        isDark ? const Color(0xFFD8DBFF) : Colors.white.withOpacity(0.8);
+        isDark ? const Color(0xFFD8DBFF) : Colors.white.withValues(alpha: 0.8);
 
     return Opacity(
       opacity: isExpired ? (isDark ? 0.78 : 0.6) : 1,
@@ -57,7 +57,7 @@ class NotificationCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: colors.first.withOpacity(isDark ? 0.32 : 0.25),
+              color: colors.first.withValues(alpha: isDark ? 0.32 : 0.25),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),

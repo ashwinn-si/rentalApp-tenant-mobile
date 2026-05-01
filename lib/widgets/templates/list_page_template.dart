@@ -24,6 +24,9 @@ class ListPageTemplate extends StatelessWidget {
   /// Whether to show back button
   final bool showBackButton;
 
+  /// AppBar action widgets (e.g. refresh button)
+  final List<Widget>? actions;
+
   const ListPageTemplate({
     super.key,
     required this.title,
@@ -32,6 +35,7 @@ class ListPageTemplate extends StatelessWidget {
     this.errorMessage,
     this.floatingActionButton,
     this.showBackButton = false,
+    this.actions,
   });
 
   @override
@@ -125,6 +129,7 @@ class ListPageTemplate extends StatelessWidget {
         ),
       ),
       shadowColor: Colors.transparent,
+      actions: actions,
     );
   }
 

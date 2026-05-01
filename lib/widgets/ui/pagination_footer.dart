@@ -34,12 +34,12 @@ class PaginationFooter extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: AppColors.violet.withOpacity(isDark ? 0.2 : 0.15),
+            color: AppColors.violet.withValues(alpha: isDark ? 0.2 : 0.15),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: AppColors.violet.withOpacity(isDark ? 0.1 : 0.05),
+            color: AppColors.violet.withValues(alpha: isDark ? 0.1 : 0.05),
             blurRadius: 32,
             offset: const Offset(0, 12),
           ),
@@ -57,14 +57,14 @@ class PaginationFooter extends StatelessWidget {
                   ]
                 : [
                     Colors.white,
-                    Colors.white.withOpacity(0.99),
+                    Colors.white.withValues(alpha: 0.99),
                   ],
           ),
           borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
             color: isDark
-                ? Colors.white.withOpacity(0.08)
-                : AppColors.violet.withOpacity(0.12),
+                ? Colors.white.withValues(alpha: 0.08)
+                : AppColors.violet.withValues(alpha: 0.12),
             width: 1,
           ),
         ),
@@ -92,8 +92,8 @@ class PaginationFooter extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: isDark
-                        ? Colors.white.withOpacity(0.5)
-                        : AppColors.textSecondary.withOpacity(0.6),
+                        ? Colors.white.withValues(alpha: 0.5)
+                        : AppColors.textSecondary.withValues(alpha: 0.6),
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -105,7 +105,7 @@ class PaginationFooter extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: isDark ? AppColors.violet.withOpacity(0.9) : AppColors.violet,
+                        color: isDark ? AppColors.violet.withValues(alpha: 0.9) : AppColors.violet,
                       ),
                     ),
                     Text(
@@ -114,8 +114,8 @@ class PaginationFooter extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: isDark
-                            ? Colors.white.withOpacity(0.4)
-                            : AppColors.textSecondary.withOpacity(0.5),
+                            ? Colors.white.withValues(alpha: 0.4)
+                            : AppColors.textSecondary.withValues(alpha: 0.5),
                       ),
                     ),
                   ],
@@ -147,7 +147,7 @@ class PaginationFooter extends StatelessWidget {
         boxShadow: isEnabled
             ? [
                 BoxShadow(
-                  color: AppColors.violet.withOpacity(isDark ? 0.3 : 0.2),
+                  color: AppColors.violet.withValues(alpha: isDark ? 0.3 : 0.2),
                   blurRadius: 12,
                   offset: const Offset(0, 2),
                 ),
@@ -170,23 +170,23 @@ class PaginationFooter extends StatelessWidget {
                       end: Alignment.bottomRight,
                       colors: isDark
                           ? [
-                              AppColors.violet.withOpacity(0.8),
-                              AppColors.violet.withOpacity(0.95),
+                              AppColors.violet.withValues(alpha: 0.8),
+                              AppColors.violet.withValues(alpha: 0.95),
                             ]
                           : [
-                              AppColors.violet.withOpacity(0.9),
+                              AppColors.violet.withValues(alpha: 0.9),
                               AppColors.violet,
                             ],
                     )
                   : LinearGradient(
                       colors: isDark
                           ? [
-                              Colors.white.withOpacity(0.08),
-                              Colors.white.withOpacity(0.05),
+                              Colors.white.withValues(alpha: 0.08),
+                              Colors.white.withValues(alpha: 0.05),
                             ]
                           : [
-                              AppColors.textSecondary.withOpacity(0.1),
-                              AppColors.textSecondary.withOpacity(0.08),
+                              AppColors.textSecondary.withValues(alpha: 0.1),
+                              AppColors.textSecondary.withValues(alpha: 0.08),
                             ],
                     ),
             ),
@@ -195,8 +195,8 @@ class PaginationFooter extends StatelessWidget {
               color: isEnabled
                   ? Colors.white
                   : isDark
-                      ? Colors.white.withOpacity(0.2)
-                      : AppColors.textSecondary.withOpacity(0.3),
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : AppColors.textSecondary.withValues(alpha: 0.3),
               size: 22,
             ),
           ),

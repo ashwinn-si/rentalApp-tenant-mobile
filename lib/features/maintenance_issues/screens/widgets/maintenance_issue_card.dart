@@ -3,7 +3,8 @@ import '../../../../core/constants/app_tokens.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../widgets/ui/premium_card.dart';
 import '../../../../widgets/ui/status_chip.dart';
-import '../../data/models/maintenance_issue.dart';
+import '../../data/models/maintenance_issue.dart'
+    show MaintenanceIssue, RefundDetails, AdjustmentDetails;
 
 class MaintenanceIssueCard extends StatelessWidget {
   const MaintenanceIssueCard({
@@ -70,7 +71,7 @@ class MaintenanceIssueCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: AppColors.violet.withOpacity(0.2),
+                        color: AppColors.violet.withValues(alpha: 0.2),
                       ),
                     ),
                     child: ClipRRect(
@@ -79,7 +80,7 @@ class MaintenanceIssueCard extends StatelessWidget {
                         firstImage,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.violet.withOpacity(0.08),
+                          color: AppColors.violet.withValues(alpha: 0.08),
                           child: const Center(
                             child: Icon(
                               Icons.broken_image_outlined,
@@ -172,13 +173,31 @@ class MaintenanceIssueCard extends StatelessWidget {
                     Icons.payments_outlined,
                     formatINR(issue.tenantRepairCost),
                   ),
-                if (issue.status == 'resolved' && issue.adminRepairCost > 0)
-                  _buildInfoItem(
-                    context,
-                    Icons.check_circle_outline,
-                    formatINR(issue.adminRepairCost),
-                    color: _getStatusColor(issue.status),
-                  ),
+                if (issue.status == 'resolved') ...[
+                  if (issue.refundDetails != null &&
+                      issue.refundDetails!.refundedAmount > 0)
+                    _buildInfoItem(
+                      context,
+                      Icons.verified_outlined,
+                      _refundLabel(issue.refundDetails!),
+                      color: const Color(0xFF16A34A),
+                    )
+                  else if (issue.adjustmentDetails != null &&
+                      issue.adjustmentDetails!.amount > 0)
+                    _buildInfoItem(
+                      context,
+                      Icons.verified_outlined,
+                      _adjustmentLabel(issue.adjustmentDetails!),
+                      color: const Color(0xFF16A34A),
+                    )
+                  else if (issue.adminRepairCost > 0)
+                    _buildInfoItem(
+                      context,
+                      Icons.verified_outlined,
+                      '${formatINR(issue.adminRepairCost)} off your rent',
+                      color: const Color(0xFF16A34A),
+                    ),
+                ],
               ],
             ),
 
@@ -219,8 +238,8 @@ class MaintenanceIssueCard extends StatelessWidget {
                     ),
                     if ((issue.adminComments?.split('\n').length ?? 0) > 2 ||
                         (issue.adminComments?.length ?? 0) > 100)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 4),
                         child: Text(
                           'Tap to view full response',
                           style: TextStyle(
@@ -238,19 +257,6 @@ class MaintenanceIssueCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'resolved':
-        return const Color(0xFF16A34A);
-      case 'rejected':
-        return const Color(0xFFDC2626);
-      case 'under_review':
-        return const Color(0xFFD97706);
-      default:
-        return AppColors.violet;
-    }
   }
 
   Widget _buildInfoItem(
@@ -297,5 +303,39 @@ class MaintenanceIssueCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _refundLabel(RefundDetails refund) {
+    final amount = formatINR(refund.refundedAmount);
+    if (refund.refundMonth != null && refund.refundYear != null) {
+      return '$amount refunded to your ${_monthName(refund.refundMonth!)} ${refund.refundYear} rent';
+    }
+    return '$amount refunded to your rent';
+  }
+
+  String _adjustmentLabel(AdjustmentDetails adj) {
+    final amount = formatINR(adj.amount);
+    if (adj.adjustmentMonth != null && adj.adjustmentYear != null) {
+      return '$amount off your ${_monthName(adj.adjustmentMonth!)} ${adj.adjustmentYear} rent';
+    }
+    return '$amount off your rent';
+  }
+
+  String _monthName(int month) {
+    const names = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return names[(month - 1).clamp(0, 11)];
   }
 }

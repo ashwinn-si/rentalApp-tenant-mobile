@@ -93,7 +93,7 @@ class ForceUpdateDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isDark
                     ? const Color(0xFF2C2550)
-                    : AppColors.violet.withOpacity(0.1),
+                    : AppColors.violet.withValues(alpha: 0.1),
                 border: Border.all(
                   color: isDark ? const Color(0xFF3B3267) : Colors.transparent,
                 ),

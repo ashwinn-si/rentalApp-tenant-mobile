@@ -21,6 +21,49 @@ class MaintenanceIssueImage {
   }
 }
 
+class RefundDetails {
+  const RefundDetails({
+    required this.refundedAmount,
+    this.refundMonth,
+    this.refundYear,
+  });
+
+  final num refundedAmount;
+  final int? refundMonth;
+  final int? refundYear;
+
+  factory RefundDetails.fromJson(Map<String, dynamic> json) {
+    return RefundDetails(
+      refundedAmount: (json['refundedAmount'] ?? 0) as num,
+      refundMonth: json['refundMonth'] as int?,
+      refundYear: json['refundYear'] as int?,
+    );
+  }
+}
+
+class AdjustmentDetails {
+  const AdjustmentDetails({
+    required this.amount,
+    this.adjustmentMonth,
+    this.adjustmentYear,
+    required this.addToMaintenance,
+  });
+
+  final num amount;
+  final int? adjustmentMonth;
+  final int? adjustmentYear;
+  final bool addToMaintenance;
+
+  factory AdjustmentDetails.fromJson(Map<String, dynamic> json) {
+    return AdjustmentDetails(
+      amount: (json['amount'] ?? 0) as num,
+      adjustmentMonth: json['adjustmentMonth'] as int?,
+      adjustmentYear: json['adjustmentYear'] as int?,
+      addToMaintenance: (json['addToMaintenance'] ?? false) as bool,
+    );
+  }
+}
+
 class MaintenanceIssue {
   const MaintenanceIssue({
     required this.id,
@@ -35,6 +78,8 @@ class MaintenanceIssue {
     required this.images,
     required this.createdAt,
     this.adminComments,
+    this.refundDetails,
+    this.adjustmentDetails,
   });
 
   final String id;
@@ -49,8 +94,12 @@ class MaintenanceIssue {
   final List<MaintenanceIssueImage> images;
   final DateTime createdAt;
   final String? adminComments;
+  final RefundDetails? refundDetails;
+  final AdjustmentDetails? adjustmentDetails;
 
   factory MaintenanceIssue.fromJson(Map<String, dynamic> json) {
+    final refundJson = json['refundDetails'] as Map<String, dynamic>?;
+    final adjJson = json['adjustmentDetails'] as Map<String, dynamic>?;
     return MaintenanceIssue(
       id: (json['_id'] ?? '').toString(),
       issueId: (json['issueId'] ?? '').toString(),
@@ -68,6 +117,10 @@ class MaintenanceIssue {
       createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
           DateTime.now(),
       adminComments: json['adminComments']?.toString(),
+      refundDetails:
+          refundJson != null ? RefundDetails.fromJson(refundJson) : null,
+      adjustmentDetails:
+          adjJson != null ? AdjustmentDetails.fromJson(adjJson) : null,
     );
   }
 }

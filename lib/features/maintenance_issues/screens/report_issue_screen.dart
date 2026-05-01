@@ -25,12 +25,17 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _costController = TextEditingController();
-  
+
   String _category = 'maintenance';
   String _scope = 'flat';
   String? _selectedFlatId;
   final List<XFile> _images = [];
   bool _isSaving = false;
+  String? _sizeError;
+  int _totalImageSizeBytes = 0;
+
+  static const int maxTotalSizeMb = 5;
+  static const int maxTotalSizeBytes = maxTotalSizeMb * 1024 * 1024;
 
   final List<Map<String, String>> _categories = [
     {'value': 'plumbing', 'label': 'Plumbing'},
@@ -53,21 +58,52 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
   Future<void> _pickImages() async {
     final picker = ImagePicker();
     final pickedFiles = await picker.pickMultiImage();
-    if (pickedFiles.isNotEmpty) {
-      setState(() {
-        if (_images.length + pickedFiles.length > 5) {
-          ToastService.showError('Maximum 5 images allowed');
-          _images.addAll(pickedFiles.take(5 - _images.length));
-        } else {
-          _images.addAll(pickedFiles);
-        }
-      });
+    if (pickedFiles.isEmpty) return;
+
+    setState(() => _sizeError = null);
+
+    // Calculate new total size with picked files
+    int newFilesSize = 0;
+    final fileSizes = <int>[];
+    for (final file in pickedFiles) {
+      final fileSize = await file.length();
+      newFilesSize += fileSize;
+      fileSizes.add(fileSize);
     }
+
+    final newTotalSize = _totalImageSizeBytes + newFilesSize;
+
+    if (newTotalSize > maxTotalSizeBytes) {
+      final remainingMB = ((maxTotalSizeBytes - _totalImageSizeBytes) / (1024 * 1024)).toStringAsFixed(2);
+      setState(() {
+        _sizeError = 'Cannot add these images. Total size would exceed ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
+      });
+      return;
+    }
+
+    setState(() {
+      if (_images.length + pickedFiles.length > 5) {
+        ToastService.showError('Maximum 5 images allowed');
+        final filesToAdd = pickedFiles.take(5 - _images.length).toList();
+        final sizesToAdd = fileSizes.take(5 - _images.length).toList();
+        _images.addAll(filesToAdd);
+        for (final size in sizesToAdd) {
+          _totalImageSizeBytes += size;
+        }
+      } else {
+        _images.addAll(pickedFiles);
+        _totalImageSizeBytes = newTotalSize;
+      }
+    });
   }
 
-  void _removeImage(int index) {
+  void _removeImage(int index) async {
+    final removedFile = _images[index];
+    final removedSize = await removedFile.length();
     setState(() {
       _images.removeAt(index);
+      _totalImageSizeBytes -= removedSize.toInt();
+      _sizeError = null;
     });
   }
 
@@ -84,7 +120,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
       final dashboardData = asyncDashboard.value;
       if (dashboardData == null) throw Exception('Dashboard data not loaded');
 
-      final flat = dashboardData.availableFlats.firstWhere((f) => f.id == _selectedFlatId);
+      final flat = dashboardData.availableFlats
+          .firstWhere((f) => f.id == _selectedFlatId);
 
       final repository = ref.read(maintenanceRepositoryProvider);
       final result = await repository.createIssue(
@@ -125,7 +162,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(child: Text('Error: $err')),
           data: (dashboardData) {
-            if (_selectedFlatId == null && dashboardData.availableFlats.isNotEmpty) {
+            if (_selectedFlatId == null &&
+                dashboardData.availableFlats.isNotEmpty) {
               _selectedFlatId = dashboardData.availableFlats.first.id;
             }
 
@@ -138,29 +176,35 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                   children: [
                     const Text(
                       'Describe the maintenance issue you are facing.',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                      style: TextStyle(
+                          color: AppColors.textSecondary, fontSize: 14),
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
                     // Unit Selector
-                    const Text('Unit', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Unit',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: AppSpacing.xs),
                     DropdownButtonFormField<String>(
-                      value: _selectedFlatId,
+                      initialValue: _selectedFlatId,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 12),
                       ),
                       items: dashboardData.availableFlats.map((f) {
-                        return DropdownMenuItem(value: f.id, child: Text(f.label));
+                        return DropdownMenuItem(
+                            value: f.id, child: Text(f.label));
                       }).toList(),
                       onChanged: (val) => setState(() => _selectedFlatId = val),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
                     // Scope Toggle
-                    const Text('Issue Scope', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Issue Scope',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: AppSpacing.xs),
                     Row(
                       children: [
@@ -168,7 +212,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                           child: ChoiceChip(
                             label: const Center(child: Text('My Unit Only')),
                             selected: _scope == 'flat',
-                            onSelected: (val) => setState(() => _scope = 'flat'),
+                            onSelected: (val) =>
+                                setState(() => _scope = 'flat'),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
@@ -176,7 +221,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                           child: ChoiceChip(
                             label: const Center(child: Text('Apartment-wide')),
                             selected: _scope == 'apartment',
-                            onSelected: (val) => setState(() => _scope = 'apartment'),
+                            onSelected: (val) =>
+                                setState(() => _scope = 'apartment'),
                           ),
                         ),
                       ],
@@ -184,17 +230,21 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                     const SizedBox(height: AppSpacing.md),
 
                     // Category
-                    const Text('Category', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Category',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: AppSpacing.xs),
                     DropdownButtonFormField<String>(
-                      value: _category,
+                      initialValue: _category,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 12),
                       ),
                       items: _categories.map((c) {
-                        return DropdownMenuItem(value: c['value'], child: Text(c['label']!));
+                        return DropdownMenuItem(
+                            value: c['value'], child: Text(c['label']!));
                       }).toList(),
                       onChanged: (val) => setState(() => _category = val!),
                     ),
@@ -205,7 +255,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                       label: 'Title',
                       placeholder: 'e.g. Leaking kitchen tap',
                       controller: _titleController,
-                      validator: (val) => (val?.length ?? 0) < 5 ? 'Too short' : null,
+                      validator: (val) =>
+                          (val?.length ?? 0) < 5 ? 'Too short' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -215,8 +266,9 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                       placeholder: 'Describe the issue in detail...',
                       controller: _descriptionController,
                       maxLines: 4,
-                      validator: (val) =>
-                          (val?.length ?? 0) < 10 ? 'Please provide more details' : null,
+                      validator: (val) => (val?.length ?? 0) < 10
+                          ? 'Please provide more details'
+                          : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -231,8 +283,37 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                     const SizedBox(height: AppSpacing.md),
 
                     // Images
-                    const Text('Photos (Max 5)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Photos (Max 5)',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          '${(_totalImageSizeBytes / (1024 * 1024)).toStringAsFixed(2)}MB / ${maxTotalSizeMb}MB',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: AppSpacing.sm),
+                    if (_sizeError != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEE2E2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _sizeError!,
+                          style: const TextStyle(
+                            color: Color(0xFFDC2626),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                     SizedBox(
                       height: 100,
                       child: ListView(
@@ -264,7 +345,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                         color: Colors.red,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: const Icon(Icons.close, size: 16, color: Colors.white),
+                                      child: const Icon(Icons.close,
+                                          size: 16, color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -280,13 +362,19 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+                                  border: Border.all(
+                                      color: Colors.grey.shade300,
+                                      style: BorderStyle.solid),
                                 ),
                                 child: const Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.add_a_photo_outlined, color: AppColors.textSecondary),
-                                    Text('Add Photo', style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                                    Icon(Icons.add_a_photo_outlined,
+                                        color: AppColors.textSecondary),
+                                    Text('Add Photo',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            color: AppColors.textSecondary)),
                                   ],
                                 ),
                               ),

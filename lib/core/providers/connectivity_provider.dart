@@ -6,10 +6,10 @@ final connectivityProvider = StreamProvider<bool>((ref) async* {
 
   // Check initial state
   final result = await connectivity.checkConnectivity();
-  yield result != ConnectivityResult.none;
+  yield !result.contains(ConnectivityResult.none);
 
   // Listen for changes
   await for (final result in connectivity.onConnectivityChanged) {
-    yield result != ConnectivityResult.none;
+    yield !result.contains(ConnectivityResult.none);
   }
 });

@@ -1,5 +1,25 @@
 # Tenant Mobile App — Flutter
 
+## CRITICAL: Page Creation Rules (read FIRST)
+
+**Before building any screen, widget, or page, read:**
+
+```
+readme/FEATURES/flutter-page-rules.md
+```
+
+This file is the authoritative contract for:
+- Page scaffold (`ListPageTemplate` vs `Scaffold + buildPremiumAppBar`)
+- Refresh button (mandatory on every tab page)
+- Pagination (`PaginationFooter` — never custom prev/next)
+- Cards (`PremiumCard` or the exact custom `BoxDecoration` pattern)
+- Bottom-sheet modals (structure, drag handle, safe area)
+- Action buttons (`AppButton`, FAB, `ConfirmationDialog`)
+- Empty/error states (`StateCard`)
+- Dark mode requirements
+- Animations (`StaggeredListView`, `FadeSlideTransition`)
+- New screen registration checklist
+
 ## Mandatory Style Guide
 
 Before touching any file, read `../style.md` at repo root.

@@ -41,7 +41,7 @@ class _AppTextFieldState extends State<AppTextField> {
       children: [
         Text(
           widget.label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -58,7 +58,7 @@ class _AppTextFieldState extends State<AppTextField> {
             obscureText: widget.obscureText && !_showPassword,
             validator: widget.validator,
             maxLines: widget.maxLines,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
               color: AppColors.textPrimary,
@@ -68,7 +68,7 @@ class _AppTextFieldState extends State<AppTextField> {
               helperText: widget.helperText,
               filled: true,
               fillColor: _isFocused
-                  ? AppColors.violet.withOpacity(0.03)
+                  ? AppColors.violet.withValues(alpha: 0.03)
                   : Colors.white,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -77,14 +77,14 @@ class _AppTextFieldState extends State<AppTextField> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: BorderSide(
-                  color: AppColors.violet.withOpacity(0.15),
+                  color: AppColors.violet.withValues(alpha: 0.15),
                   width: 1.5,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.md),
                 borderSide: BorderSide(
-                  color: AppColors.violet.withOpacity(0.12),
+                  color: AppColors.violet.withValues(alpha: 0.12),
                   width: 1.5,
                 ),
               ),
@@ -98,9 +98,9 @@ class _AppTextFieldState extends State<AppTextField> {
               hintStyle: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textSecondary.withOpacity(0.6),
+                color: AppColors.textSecondary.withValues(alpha: 0.6),
               ),
-              labelStyle: TextStyle(
+              labelStyle: const TextStyle(
                 color: AppColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
@@ -111,7 +111,7 @@ class _AppTextFieldState extends State<AppTextField> {
                         widget.prefixIcon,
                         color: _isFocused
                             ? AppColors.violet
-                            : AppColors.violet.withOpacity(0.5),
+                            : AppColors.violet.withValues(alpha: 0.5),
                         size: 20,
                       ),
                     )
@@ -126,7 +126,7 @@ class _AppTextFieldState extends State<AppTextField> {
                           setState(() => _showPassword = !_showPassword),
                       icon: Icon(
                         _showPassword ? Icons.visibility_off : Icons.visibility,
-                        color: AppColors.violet.withOpacity(0.6),
+                        color: AppColors.violet.withValues(alpha: 0.6),
                         size: 20,
                       ),
                     )

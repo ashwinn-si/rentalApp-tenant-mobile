@@ -6,7 +6,8 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/status_chip.dart';
-import '../data/models/maintenance_issue.dart';
+import '../data/models/maintenance_issue.dart'
+    show MaintenanceIssue, AdjustmentDetails;
 import 'widgets/image_carousel.dart';
 import 'widgets/issue_timeline.dart';
 
@@ -142,21 +143,26 @@ class IssueDetailScreen extends StatelessWidget {
                                   formatINR(issue.tenantRepairCost),
                                 ),
                               ],
-                              if (issue.adminRepairCost > 0) ...[
-                                const SizedBox(height: AppSpacing.md),
-                                const Divider(height: 1),
-                                const SizedBox(height: AppSpacing.md),
-                                _buildDetailRow(
-                                  context,
-                                  'Adjusted',
-                                  formatINR(issue.adminRepairCost),
-                                ),
-                              ],
                             ],
                           ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
+
+                      // Rent adjustment — feel-good banner
+                      if (issue.status == 'resolved') ...[
+                        if (issue.adjustmentDetails != null &&
+                            issue.adjustmentDetails!.amount > 0)
+                          _buildAdjustmentBanner(
+                              context, issue.adjustmentDetails!)
+                        else if (issue.adminRepairCost > 0)
+                          _buildSimpleAdjustmentBanner(
+                              context, issue.adminRepairCost),
+                        if ((issue.adjustmentDetails != null &&
+                                issue.adjustmentDetails!.amount > 0) ||
+                            issue.adminRepairCost > 0)
+                          const SizedBox(height: AppSpacing.lg),
+                      ],
 
                       // Timeline
                       IssueTimeline(issue: issue),
@@ -205,6 +211,100 @@ class IssueDetailScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildAdjustmentBanner(BuildContext context, AdjustmentDetails adj) {
+    final monthLabel = adj.adjustmentMonth != null && adj.adjustmentYear != null
+        ? '${_monthName(adj.adjustmentMonth!)} ${adj.adjustmentYear}'
+        : null;
+    final headline = monthLabel != null
+        ? '${formatINR(adj.amount)} deducted from your $monthLabel rent'
+        : '${formatINR(adj.amount)} deducted from your rent';
+    final sub = monthLabel != null
+        ? 'Admin applied this to your $monthLabel rent record${adj.addToMaintenance ? ' via maintenance' : ''}.'
+        : 'Admin has applied this adjustment against your rent.';
+
+    return _emeraldBanner(context, headline, sub);
+  }
+
+  Widget _buildSimpleAdjustmentBanner(BuildContext context, num amount) {
+    return _emeraldBanner(
+      context,
+      '${formatINR(amount)} deducted from your rent',
+      'Admin has applied this adjustment against your rent.',
+    );
+  }
+
+  Widget _emeraldBanner(BuildContext context, String headline, String sub) {
+    return SizedBox(
+      width: double.infinity,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0FDF4),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFBBF7D0), width: 1),
+        ),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Color(0xFFDCFCE7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.verified_outlined,
+                size: 18,
+                color: Color(0xFF16A34A),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    headline,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF14532D),
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    sub,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: const Color(0xFF166534),
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _monthName(int month) {
+    const names = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return names[(month - 1).clamp(0, 11)];
   }
 
   Widget _buildDetailRow(BuildContext context, String label, String value) {

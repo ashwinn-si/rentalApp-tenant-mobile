@@ -24,7 +24,19 @@ class NotificationsScreen extends ConsumerWidget {
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return Scaffold(
-      appBar: buildPremiumAppBar(title: 'Notifications'),
+      appBar: buildPremiumAppBar(
+        title: 'Notifications',
+        actions: [
+          IconButton(
+            onPressed: () {
+              ref.invalidate(notificationsProvider);
+              ref.invalidate(dashboardProvider);
+              ref.invalidate(activeDashboardProvider);
+            },
+            icon: const Icon(Icons.refresh_outlined),
+          ),
+        ],
+      ),
       body: ScreenBackground(
         child: asyncDashboard.when(
           loading: () => const AppLoader(),

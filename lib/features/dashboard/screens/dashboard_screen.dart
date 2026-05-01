@@ -55,6 +55,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         title: 'Dashboard',
         actions: <Widget>[
           IconButton(
+            onPressed: () {
+              ref.invalidate(dashboardProvider);
+              ref.invalidate(activeDashboardProvider);
+              ref.invalidate(historyProvider);
+              ref.invalidate(activeHistoryProvider);
+              ref.invalidate(notificationsProvider);
+            },
+            icon: const Icon(Icons.refresh_outlined),
+          ),
+          IconButton(
             onPressed: () async {
               final confirmed = await ConfirmationDialog.show(
                 context,

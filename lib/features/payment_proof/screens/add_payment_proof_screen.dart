@@ -58,6 +58,11 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   late TextEditingController paidToController;
   late List<File> selectedImages;
   bool isSubmitting = false;
+  String? sizeError;
+  int totalImageSizeBytes = 0;
+
+  static const int maxTotalSizeMb = 5;
+  static const int maxTotalSizeBytes = maxTotalSizeMb * 1024 * 1024;
 
   @override
   void initState() {
@@ -172,7 +177,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.violet.withOpacity(0.04),
+                            color: AppColors.violet.withValues(alpha: 0.04),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -207,7 +212,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                             const SizedBox(height: AppSpacing.md),
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.05),
+                                color: Colors.grey.withValues(alpha: 0.05),
                                 borderRadius:
                                     BorderRadius.circular(AppRadius.md),
                               ),
@@ -265,8 +270,8 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
                       backgroundColor: AppColors.violet,
-                      disabledBackgroundColor: AppColors.violet.withOpacity(
-                        0.35,
+                      disabledBackgroundColor: AppColors.violet.withValues(
+                        alpha: 0.35,
                       ),
                       foregroundColor: Colors.white,
                       disabledForegroundColor: Colors.white70,
@@ -332,7 +337,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.violet.withOpacity(0.04),
+            color: AppColors.violet.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -475,7 +480,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.violet.withOpacity(0.04),
+            color: AppColors.violet.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -507,19 +512,17 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                   label: Text(method['label']!),
                   selected: isSelected,
                   backgroundColor: Colors.white,
-                  selectedColor: AppColors.violet.withOpacity(0.15),
+                  selectedColor: AppColors.violet.withValues(alpha: 0.15),
                   side: BorderSide(
-                    color: isSelected
-                        ? AppColors.violet
-                        : const Color(0xFFE2E8F0),
+                    color:
+                        isSelected ? AppColors.violet : const Color(0xFFE2E8F0),
                     width: isSelected ? 1.5 : 1,
                   ),
                   onSelected: (selected) {
                     setState(() {
                       if (selected) {
                         selectedMethods.add(method['value']!);
-                        if (!amountControllers
-                            .containsKey(method['value']!)) {
+                        if (!amountControllers.containsKey(method['value']!)) {
                           amountControllers[method['value']!] =
                               TextEditingController();
                         }
@@ -552,7 +555,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.violet.withOpacity(0.04),
+            color: AppColors.violet.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -579,7 +582,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                     vertical: AppSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.violet.withOpacity(0.08),
+                    color: AppColors.violet.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: Text(
@@ -631,7 +634,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -650,7 +653,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.violet.withOpacity(0.04),
+            color: AppColors.violet.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -705,7 +708,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.violet.withOpacity(0.04),
+            color: AppColors.violet.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -726,22 +729,34 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.violet.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                  ),
-                  child: Text(
-                    '${selectedImages.length}/5',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.violet,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xs,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.violet.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Text(
+                        '${selectedImages.length}/5',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppColors.violet,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${(totalImageSizeBytes / (1024 * 1024)).toStringAsFixed(2)}MB / ${maxTotalSizeMb}MB',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -753,6 +768,22 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                   ),
             ),
             const SizedBox(height: AppSpacing.md),
+            if (sizeError != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Text(
+                  sizeError!,
+                  style: const TextStyle(
+                    color: Color(0xFFDC2626),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
             if (selectedImages.isNotEmpty)
               GridView.count(
                 crossAxisCount: 3,
@@ -775,8 +806,13 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                           top: -8,
                           right: -8,
                           child: GestureDetector(
-                            onTap: () {
-                              setState(() => selectedImages.remove(file));
+                            onTap: () async {
+                              final fileSize = await file.length();
+                              setState(() {
+                                selectedImages.remove(file);
+                                totalImageSizeBytes -= fileSize.toInt();
+                                sizeError = null;
+                              });
                             },
                             child: Container(
                               decoration: const BoxDecoration(
@@ -794,7 +830,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                         ),
                       ],
                     );
-                  }).toList(),
+                  }),
                   if (selectedImages.length < 5) _buildAddImageButton(),
                 ],
               )
@@ -829,9 +865,8 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
               Icon(
                 Icons.add_photo_alternate,
                 size: 32,
-                color: selectedImages.length < 5
-                    ? AppColors.violet
-                    : Colors.grey,
+                color:
+                    selectedImages.length < 5 ? AppColors.violet : Colors.grey,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
@@ -863,9 +898,24 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() => selectedImages.add(File(image.path)));
+    if (image == null) return;
+
+    final fileSize = await image.length();
+    final newTotalSize = totalImageSizeBytes + fileSize;
+
+    if (newTotalSize > maxTotalSizeBytes) {
+      final remainingMB = ((maxTotalSizeBytes - totalImageSizeBytes) / (1024 * 1024)).toStringAsFixed(2);
+      setState(() {
+        sizeError = 'Cannot add this image. Total size would exceed ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
+      });
+      return;
     }
+
+    setState(() {
+      selectedImages.add(File(image.path));
+      totalImageSizeBytes = newTotalSize;
+      sizeError = null;
+    });
   }
 
   bool _validateForm() {
@@ -905,6 +955,15 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
       final rent = await rentAsync;
       if (rent == null) {
         ToastService.showError('No rent record for this month');
+        setState(() => isSubmitting = false);
+        return;
+      }
+
+      final total = _calculateTotal();
+      if (total > rent.totalDue) {
+        ToastService.showError(
+          'Amount cannot exceed rent due of ₹${rent.totalDue.toStringAsFixed(2)}',
+        );
         setState(() => isSubmitting = false);
         return;
       }

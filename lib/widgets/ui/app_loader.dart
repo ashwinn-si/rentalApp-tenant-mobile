@@ -45,9 +45,9 @@ class _AppLoaderState extends State<AppLoader>
             height: 34,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.violet.withOpacity(0.20 * opacity),
+              color: AppColors.violet.withValues(alpha: 0.20 * opacity),
               border: Border.all(
-                color: AppColors.violet.withOpacity(0.60 * opacity),
+                color: AppColors.violet.withValues(alpha: 0.60 * opacity),
                 width: 2,
               ),
             ),

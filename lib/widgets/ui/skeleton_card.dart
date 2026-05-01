@@ -45,12 +45,12 @@ class _SkeletonCardState extends State<SkeletonCard>
         borderRadius: BorderRadius.circular(AppRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: AppColors.violet.withOpacity(0.06),
+            color: AppColors.violet.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
           BoxShadow(
-            color: AppColors.violet.withOpacity(0.03),
+            color: AppColors.violet.withValues(alpha: 0.03),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),

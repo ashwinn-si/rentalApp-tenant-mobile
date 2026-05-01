@@ -1,4 +1,4 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,15 +106,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 final accentController = _ensureAccentController();
                 return Transform.translate(
                   offset: Offset(
-                    20 * Math.sin(accentController.value * 2 * 3.14),
-                    20 * Math.cos(accentController.value * 2 * 3.14),
+                    20 * math.sin(accentController.value * 2 * 3.14),
+                    20 * math.cos(accentController.value * 2 * 3.14),
                   ),
                   child: Container(
                     width: 200,
                     height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.violet.withOpacity(0.08),
+                      color: AppColors.violet.withValues(alpha: 0.08),
                     ),
                   ),
                 );
@@ -133,7 +133,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 gradient: LinearGradient(
                   colors: [
                     AppColors.accentWarm,
-                    AppColors.violet.withOpacity(0.5),
+                    AppColors.violet.withValues(alpha: 0.5),
                   ],
                 ),
               ),
@@ -251,7 +251,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary.withOpacity(0.7),
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                         ],
@@ -267,7 +269,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary.withOpacity(0.68),
+                          color: AppColors.textSecondary.withValues(
+                            alpha: 0.68,
+                          ),
                         ),
                       ),
                     ),

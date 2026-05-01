@@ -29,6 +29,13 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
     totalPages = 0;
   }
 
+  List<Widget> get _refreshAction => [
+        IconButton(
+          onPressed: () => ref.invalidate(maintenanceIssuesProvider),
+          icon: const Icon(Icons.refresh_outlined, color: Colors.white),
+        ),
+      ];
+
   @override
   Widget build(BuildContext context) {
     final asyncIssues = ref.watch(
@@ -38,27 +45,27 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
       loading: () => ListPageTemplate(
         title: 'Maintenance',
         isLoading: true,
+        actions: _refreshAction,
         body: const SizedBox.shrink(),
-        floatingActionButton: FloatingActionButton.extended(
+        floatingActionButton: FloatingActionButton(
           onPressed: () => context.push('/maintenance/report'),
           backgroundColor: AppColors.violet,
           foregroundColor: Colors.white,
-          label: const Text('Report'),
-          icon: const Icon(Icons.add),
           elevation: 4,
+          child: const Icon(Icons.add),
         ),
       ),
       error: (error, _) => ListPageTemplate(
         title: 'Maintenance',
         errorMessage: error.toString(),
+        actions: _refreshAction,
         body: const SizedBox.shrink(),
-        floatingActionButton: FloatingActionButton.extended(
+        floatingActionButton: FloatingActionButton(
           onPressed: () => context.push('/maintenance/report'),
           backgroundColor: AppColors.violet,
           foregroundColor: Colors.white,
-          label: const Text('Report'),
-          icon: const Icon(Icons.add),
           elevation: 4,
+          child: const Icon(Icons.add),
         ),
       ),
       data: (response) {
@@ -68,6 +75,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
         if (response.issues.isEmpty && currentPage == 1) {
           return ListPageTemplate(
             title: 'Maintenance',
+            actions: _refreshAction,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
@@ -77,7 +85,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                     Icon(
                       Icons.history_outlined,
                       size: 64,
-                      color: AppColors.textSecondary.withOpacity(0.3),
+                      color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     const Text(
@@ -115,13 +123,12 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                 ),
               ),
             ),
-            floatingActionButton: FloatingActionButton.extended(
+            floatingActionButton: FloatingActionButton(
               onPressed: () => context.push('/maintenance/report'),
               backgroundColor: AppColors.violet,
               foregroundColor: Colors.white,
-              label: const Text('Report'),
-              icon: const Icon(Icons.add),
               elevation: 4,
+              child: const Icon(Icons.add),
             ),
           );
         }
@@ -131,6 +138,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
 
         return ListPageTemplate(
           title: 'Maintenance',
+          actions: _refreshAction,
           body: isSingleItem
               ? RefreshIndicator(
                   onRefresh: () => ref.refresh(maintenanceIssuesProvider(
@@ -209,13 +217,12 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                     },
                   ),
                 ),
-          floatingActionButton: FloatingActionButton.extended(
+          floatingActionButton: FloatingActionButton(
             onPressed: () => context.push('/maintenance/report'),
             backgroundColor: AppColors.violet,
             foregroundColor: Colors.white,
-            label: const Text('Report'),
-            icon: const Icon(Icons.add),
             elevation: 4,
+            child: const Icon(Icons.add),
           ),
         );
       },

@@ -4,6 +4,7 @@ import '../../core/constants/app_tokens.dart';
 import '../../core/utils/animations.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../features/history/data/models/history_response.dart';
+import 'issue_quick_view_modal.dart';
 
 class MaintenanceDetailWidget extends StatefulWidget {
   const MaintenanceDetailWidget({
@@ -16,7 +17,8 @@ class MaintenanceDetailWidget extends StatefulWidget {
   final num total;
 
   @override
-  State<MaintenanceDetailWidget> createState() => _MaintenanceDetailWidgetState();
+  State<MaintenanceDetailWidget> createState() =>
+      _MaintenanceDetailWidgetState();
 }
 
 class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
@@ -55,8 +57,6 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryText =
-        isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary;
     final secondaryText =
         isDark ? const Color(0xFFD1D5DB) : AppColors.textSecondary;
 
@@ -92,7 +92,7 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
                 AnimatedRotation(
                   turns: _isExpanded ? 0.5 : 0,
                   duration: AppAnimations.fast,
-                  child: Icon(
+                  child: const Icon(
                     Icons.expand_more,
                     color: AppColors.violet,
                     size: 20,
@@ -116,6 +116,7 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
                   final signColor = item.type == 'reimbursement'
                       ? AppColors.pending
                       : AppColors.paid;
+                  final hasLink = item.id != null && item.id!.isNotEmpty;
 
                   return Column(
                     children: [
@@ -143,16 +144,49 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
                                     ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(
-                                    item.type == 'reimbursement'
-                                        ? 'Reimbursement'
-                                        : 'Adjustment',
-                                    style: TextStyle(
-                                      color: secondaryText.withValues(alpha: 0.7),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w400,
+                                  if (hasLink)
+                                    GestureDetector(
+                                      onTap: () => IssueQuickViewModal.show(
+                                          context, item.id!),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            item.issueId != null
+                                                ? '#${item.issueId}'
+                                                : item.type == 'reimbursement'
+                                                    ? 'Refund'
+                                                    : 'Extra Charge',
+                                            style: const TextStyle(
+                                              color: AppColors.violet,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: AppColors.violet,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          const Icon(
+                                            Icons.open_in_new,
+                                            size: 10,
+                                            color: AppColors.violet,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  else
+                                    Text(
+                                      item.type == 'reimbursement'
+                                          ? 'Reimbursement'
+                                          : 'Adjustment',
+                                      style: TextStyle(
+                                        color: secondaryText.withValues(
+                                            alpha: 0.7),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -190,7 +224,8 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
                           ),
                           child: Divider(
                             height: 1,
-                            color: AppColors.textSecondary.withValues(alpha: 0.1),
+                            color: AppColors.textSecondary
+                                .withValues(alpha: 0.1),
                           ),
                         ),
                     ],

@@ -76,7 +76,7 @@ class ProofDetailScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: AppSpacing.md),
                             Divider(
-                              color: AppColors.textSecondary.withOpacity(0.2),
+                              color: AppColors.textSecondary.withValues(alpha: 0.2),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             _buildDetailRow('Paid To', proof.paidToName),
@@ -177,7 +177,7 @@ class ProofDetailScreen extends StatelessWidget {
                                   borderRadius:
                                       BorderRadius.circular(AppRadius.md),
                                   border: Border.all(
-                                    color: AppColors.violet.withOpacity(0.2),
+                                    color: AppColors.violet.withValues(alpha: 0.2),
                                   ),
                                 ),
                                 child: ClipRRect(
@@ -187,7 +187,7 @@ class ProofDetailScreen extends StatelessWidget {
                                     imageUrl,
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => Container(
-                                      color: AppColors.violet.withOpacity(0.1),
+                                      color: AppColors.violet.withValues(alpha: 0.1),
                                       child: const Center(
                                         child: Icon(Icons.image_not_supported),
                                       ),
@@ -207,10 +207,10 @@ class ProofDetailScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(AppSpacing.md),
                           decoration: BoxDecoration(
-                            color: AppColors.red.withOpacity(0.1),
+                            color: AppColors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(AppRadius.md),
                             border: Border.all(
-                              color: AppColors.red.withOpacity(0.3),
+                              color: AppColors.red.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Column(
@@ -276,15 +276,15 @@ class ProofDetailScreen extends StatelessWidget {
 
     switch (status) {
       case 'approved':
-        bgColor = AppColors.green.withOpacity(0.1);
+        bgColor = AppColors.green.withValues(alpha: 0.1);
         textColor = AppColors.green;
         break;
       case 'rejected':
-        bgColor = AppColors.red.withOpacity(0.1);
+        bgColor = AppColors.red.withValues(alpha: 0.1);
         textColor = AppColors.red;
         break;
       default:
-        bgColor = AppColors.orange.withOpacity(0.1);
+        bgColor = AppColors.orange.withValues(alpha: 0.1);
         textColor = AppColors.orange;
     }
 

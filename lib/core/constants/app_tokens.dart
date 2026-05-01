@@ -71,7 +71,7 @@ ThemeData buildAppTheme() {
     secondary: AppColors.violetDark,
     surface: AppColors.cardBg,
   );
-  final baseTextTheme = GoogleFonts.interTextTheme().copyWith(
+  final baseTextTheme = GoogleFonts.soraTextTheme().copyWith(
     headlineLarge: const TextStyle(
       fontSize: 24,
       fontWeight: FontWeight.w800,
@@ -205,7 +205,7 @@ ThemeData buildAppDarkTheme() {
     surface: const Color(0xFF171527),
   );
 
-  final baseTextTheme = GoogleFonts.interTextTheme(
+  final baseTextTheme = GoogleFonts.soraTextTheme(
     ThemeData.dark().textTheme,
   ).copyWith(
     headlineLarge: const TextStyle(

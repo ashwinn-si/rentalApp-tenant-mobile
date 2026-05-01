@@ -41,17 +41,17 @@ class StateCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             bgColor,
-            bgColor.withOpacity(0.7),
+            bgColor.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: textColor.withOpacity(0.2),
+          color: textColor.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: textColor.withOpacity(0.05),
+            color: textColor.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
