@@ -162,10 +162,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(child: Text('Error: $err')),
           data: (dashboardData) {
-            if (_selectedFlatId == null &&
-                dashboardData.availableFlats.isNotEmpty) {
-              _selectedFlatId = dashboardData.availableFlats.first.id;
-            }
+            final defaultFlatId = _selectedFlatId ?? dashboardData.availableFlats.firstOrNull?.id ?? '';
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -186,7 +183,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: AppSpacing.xs),
                     DropdownButtonFormField<String>(
-                      initialValue: _selectedFlatId,
+                      initialValue: defaultFlatId.isNotEmpty ? defaultFlatId : null,
                       isExpanded: true,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(

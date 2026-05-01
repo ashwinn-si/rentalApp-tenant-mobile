@@ -6,7 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
 import '../../../core/utils/app_bar_helper.dart';
+import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/screen_background.dart';
+import '../../dashboard/providers/dashboard_provider.dart';
 import '../data/models/payment_proof.dart';
 import '../providers/payment_proof_provider.dart'
     show
@@ -96,19 +98,35 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
         RentParams(month: selectedMonth, year: selectedYear),
       ),
     );
+    final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return Scaffold(
       appBar: buildPremiumAppBar(title: 'Submit Payment Proof'),
       body: ScreenBackground(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Month & Year Selector
-                _buildMonthYearSelector(),
-                const SizedBox(height: AppSpacing.lg),
+        child: asyncDashboard.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => const Center(child: Text('Error loading data')),
+          data: (dashboardData) {
+            final flatItems = dashboardData.availableFlats
+                .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                .toList();
+
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Unit Selector
+                    if (flatItems.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: FlatSelector(flats: flatItems),
+                      ),
+
+                    // Month & Year Selector
+                    _buildMonthYearSelector(),
+                    const SizedBox(height: AppSpacing.lg),
 
                 // Rent Details
                 rentAsync.when(
@@ -317,9 +335,11 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-              ],
-            ),
-          ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
