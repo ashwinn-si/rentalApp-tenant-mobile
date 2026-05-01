@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
@@ -29,7 +29,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
   String _category = 'maintenance';
   String _scope = 'flat';
   String? _selectedFlatId;
-  final List<XFile> _images = [];
+  final List<File> _images = [];
   bool _isSaving = false;
   String? _sizeError;
   int _totalImageSizeBytes = 0;
@@ -56,19 +56,23 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
   }
 
   Future<void> _pickImages() async {
-    final picker = ImagePicker();
-    final pickedFiles = await picker.pickMultiImage();
-    if (pickedFiles.isEmpty) return;
+    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+    if (result == null || result.files.isEmpty) return;
 
     setState(() => _sizeError = null);
 
     // Calculate new total size with picked files
     int newFilesSize = 0;
     final fileSizes = <int>[];
-    for (final file in pickedFiles) {
-      final fileSize = await file.length();
-      newFilesSize += fileSize;
-      fileSizes.add(fileSize);
+    final pickedFiles = <File>[];
+    for (final file in result.files) {
+      final filePath = file.path;
+      if (filePath != null) {
+        final fileSize = await File(filePath).length();
+        newFilesSize += fileSize.toInt();
+        fileSizes.add(fileSize.toInt());
+        pickedFiles.add(File(filePath));
+      }
     }
 
     final newTotalSize = _totalImageSizeBytes + newFilesSize;
@@ -76,14 +80,14 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
     if (newTotalSize > maxTotalSizeBytes) {
       final remainingMB = ((maxTotalSizeBytes - _totalImageSizeBytes) / (1024 * 1024)).toStringAsFixed(2);
       setState(() {
-        _sizeError = 'Cannot add these images. Total size would exceed ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
+        _sizeError = 'Cannot add these files. Total size would exceed ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
       });
       return;
     }
 
     setState(() {
       if (_images.length + pickedFiles.length > 5) {
-        ToastService.showError('Maximum 5 images allowed');
+        ToastService.showError('Maximum 5 files allowed');
         final filesToAdd = pickedFiles.take(5 - _images.length).toList();
         final sizesToAdd = fileSizes.take(5 - _images.length).toList();
         _images.addAll(filesToAdd);
@@ -102,7 +106,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
     final removedSize = await removedFile.length();
     setState(() {
       _images.removeAt(index);
-      _totalImageSizeBytes -= removedSize.toInt();
+      _totalImageSizeBytes -= removedSize;
       _sizeError = null;
     });
   }

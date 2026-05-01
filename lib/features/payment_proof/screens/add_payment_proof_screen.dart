@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
@@ -864,7 +864,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
 
   Widget _buildAddImageButton() {
     return GestureDetector(
-      onTap: selectedImages.length < 5 ? _pickImage : null,
+      onTap: selectedImages.length < 5 ? _pickFile : null,
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
@@ -883,14 +883,14 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.add_photo_alternate,
+                Icons.attach_file,
                 size: 32,
                 color:
                     selectedImages.length < 5 ? AppColors.violet : Colors.grey,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Add Image',
+                'Add File',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: selectedImages.length < 5
                           ? AppColors.violet
@@ -915,24 +915,27 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
     return total;
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image == null) return;
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result == null || result.files.isEmpty) return;
 
-    final fileSize = await image.length();
+    final file = result.files.first;
+    final filePath = file.path;
+    if (filePath == null) return;
+
+    final fileSize = await File(filePath).length();
     final newTotalSize = totalImageSizeBytes + fileSize;
 
     if (newTotalSize > maxTotalSizeBytes) {
       final remainingMB = ((maxTotalSizeBytes - totalImageSizeBytes) / (1024 * 1024)).toStringAsFixed(2);
       setState(() {
-        sizeError = 'Cannot add this image. Total size would exceed ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
+        sizeError = 'Cannot add this file. Total size would exceed ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
       });
       return;
     }
 
     setState(() {
-      selectedImages.add(File(image.path));
+      selectedImages.add(File(filePath));
       totalImageSizeBytes = newTotalSize;
       sizeError = null;
     });
