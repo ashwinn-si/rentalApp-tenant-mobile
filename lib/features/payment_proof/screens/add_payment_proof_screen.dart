@@ -6,7 +6,6 @@ import 'package:file_picker/file_picker.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
 import '../../../core/utils/app_bar_helper.dart';
-import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../data/models/payment_proof.dart';
@@ -107,23 +106,12 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => const Center(child: Text('Error loading data')),
           data: (dashboardData) {
-            final flatItems = dashboardData.availableFlats
-                .map((flat) => FlatModel(id: flat.id, label: flat.label))
-                .toList();
-
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Unit Selector
-                    if (flatItems.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                        child: FlatSelector(flats: flatItems),
-                      ),
-
                     // Month & Year Selector
                     _buildMonthYearSelector(),
                     const SizedBox(height: AppSpacing.lg),
@@ -184,6 +172,9 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                         ),
                       );
                     }
+
+                    final calculatedTotalDue = rent.totalDue;
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: AppSpacing.md),
                       decoration: BoxDecoration(
@@ -218,7 +209,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              formatINR(rent.totalDue),
+                              formatINR(calculatedTotalDue),
                               style: Theme.of(context)
                                   .textTheme
                                   .headlineSmall

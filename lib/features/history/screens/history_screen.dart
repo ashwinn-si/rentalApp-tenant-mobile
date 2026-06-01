@@ -97,28 +97,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 )
                 .toList();
 
-            final currentMonthRent = dashboardData.recentRents
-                .where((r) => r.isCurrentMonth)
-                .firstOrNull;
-            final currentMonthBreakdown = currentMonthRent != null
-                ? <BreakdownItem>[
-                    BreakdownItem(
-                      label: 'Base Rent',
-                      amount: currentMonthRent.baseRent,
-                      color: const Color(0xFF7C3AED),
-                    ),
-                    BreakdownItem(
-                      label: 'Utility Bill',
-                      amount: currentMonthRent.utilityBill,
-                      color: const Color(0xFF06B6D4),
-                    ),
-                    BreakdownItem(
-                      label: 'Maintenance',
-                      amount: currentMonthRent.maintenanceShare,
-                      color: const Color(0xFFF59E0B),
-                    ),
-                  ]
-                : <BreakdownItem>[];
 
             return ListPageTemplate(
               title: 'History',
@@ -137,16 +115,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
                           child: FlatSelector(flats: flatItems),
-                        ),
-                      if (currentMonthBreakdown.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                          child: PremiumCard(
-                            child: RentBreakdownPieChart(
-                              items: currentMonthBreakdown,
-                              monthLabel: currentMonthRent?.monthLabel,
-                            ),
-                          ),
                         ),
                       if (recentBarData.isNotEmpty)
                         Padding(
@@ -169,7 +137,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                     ),
                                   ),
                                 ),
-                                RentStackedBarChart(data: recentBarData),
+                                RentPercentageTable(data: recentBarData),
                               ],
                             ),
                           ),

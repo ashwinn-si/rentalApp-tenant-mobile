@@ -7,6 +7,7 @@ import '../../../services/fcm_service.dart';
 import '../data/auth_repository.dart';
 import '../data/models/login_request.dart';
 import '../data/models/login_response.dart';
+import '../../dashboard/data/dashboard_repository.dart';
 
 class AuthState {
   const AuthState({
@@ -117,6 +118,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await prefs.setBool('mustChangePassword', loginData.mustChangePassword);
     await prefs.setStringList('enabledScreens', loginData.enabledScreens);
 
+    // Auto-select first available flat
+    String? firstFlatId;
+    try {
+      final dashboardRepo = DashboardRepository();
+      final dashboardResult = await dashboardRepo.getDashboard(flatId: null);
+      if (dashboardResult.isSuccess && dashboardResult.data != null) {
+        final flats = dashboardResult.data!.availableFlats;
+        if (flats.isNotEmpty) {
+          firstFlatId = flats.first.id;
+          await prefs.setString('activeFlatId', firstFlatId);
+        }
+      }
+    } catch (_) {
+      // Ignore dashboard fetch errors
+    }
+
     state = state.copyWith(
       isLoading: false,
       token: accessToken,
@@ -124,6 +141,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       tenantKey: loginData.user.tenantKey,
       mustChangePassword: loginData.mustChangePassword,
       enabledScreens: loginData.enabledScreens,
+      activeFlatId: firstFlatId,
       error: null,
     );
 

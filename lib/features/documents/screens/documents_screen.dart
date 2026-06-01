@@ -7,7 +7,6 @@ import '../../../core/services/toast_service.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/animations.dart';
 import '../../../core/utils/app_bar_helper.dart';
-import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
@@ -91,10 +90,6 @@ class DocumentsScreen extends ConsumerWidget {
           loading: () => const AppLoader(),
           error: (_, __) => const AppLoader(),
           data: (dashboardData) {
-            final flatItems = dashboardData.availableFlats
-                .map((flat) => FlatModel(id: flat.id, label: flat.label))
-                .toList();
-
             return asyncDocuments.when(
               loading: () => const AppLoader(),
               error: (_, __) => const Padding(
@@ -105,17 +100,11 @@ class DocumentsScreen extends ConsumerWidget {
               ),
               data: (documents) {
                 if (documents.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                  return const Padding(
+                    padding: EdgeInsets.all(AppSpacing.md),
                     child: Column(
                       children: <Widget>[
-                        if (flatItems.isNotEmpty)
-                          FadeSlideTransition(
-                            child: FlatSelector(flats: flatItems),
-                          ),
-                        if (flatItems.isNotEmpty)
-                          const SizedBox(height: AppSpacing.md),
-                        const Expanded(
+                        Expanded(
                           child: StateCard(message: 'No documents available'),
                         ),
                       ],
@@ -128,21 +117,16 @@ class DocumentsScreen extends ConsumerWidget {
                   children: [
                     StaggeredListView(
                       children: [
-                        if (flatItems.isNotEmpty)
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: AppSpacing.md),
-                            child: FlatSelector(flats: flatItems),
-                          ),
                         ...documents.map((doc) {
                           final hasUrl = doc.url.trim().isNotEmpty;
-                          final activeFlatId =
-                              ref.watch(authProvider.select((state) => state.activeFlatId));
+                          final activeFlatId = ref.watch(authProvider
+                              .select((state) => state.activeFlatId));
                           final currentFlat = dashboardData.availableFlats
                               .where((f) => f.id == activeFlatId)
                               .firstOrNull;
                           final flatLabel = currentFlat?.label ?? 'Unit';
-                          final apartmentName = currentFlat?.apartmentName ?? '';
+                          final apartmentName =
+                              currentFlat?.apartmentName ?? '';
 
                           return PremiumCard(
                             child: Padding(
@@ -154,7 +138,8 @@ class DocumentsScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(AppSpacing.xs),
+                                    padding:
+                                        const EdgeInsets.all(AppSpacing.xs),
                                     decoration: BoxDecoration(
                                       color: iconTileBg,
                                       border: Border.all(
@@ -217,8 +202,7 @@ class DocumentsScreen extends ConsumerWidget {
                                               child: Text(
                                                 flatLabel,
                                                 maxLines: 1,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 11,
                                                   color: secondaryText
@@ -233,8 +217,8 @@ class DocumentsScreen extends ConsumerWidget {
                                           formatDate(doc.uploadedAt),
                                           style: TextStyle(
                                             fontSize: 10,
-                                            color: secondaryText
-                                                .withValues(alpha: 0.7),
+                                            color: secondaryText.withValues(
+                                                alpha: 0.7),
                                           ),
                                         ),
                                       ],

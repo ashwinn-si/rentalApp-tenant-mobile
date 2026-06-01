@@ -39,159 +39,149 @@ class RentLineItem {
   final num paid;
 }
 
-class RentStackedBarChart extends StatelessWidget {
-  const RentStackedBarChart({required this.data, super.key});
+class RentPercentageTable extends StatelessWidget {
+  const RentPercentageTable({required this.data, super.key});
 
   final List<RentBarItem> data;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final axisTextColor =
-        isDark ? const Color(0xFFCBD5E1) : AppColors.textSecondary;
-    final gridColor = isDark
-        ? Colors.white.withValues(alpha: 0.08)
-        : AppColors.textSecondary.withValues(alpha: 0.08);
-    final borderColor = isDark
-        ? const Color(0xFF2A2540)
-        : AppColors.textSecondary.withValues(alpha: 0.1);
-    final baseColor = isDark ? _lighten(AppColors.violet) : AppColors.violet;
-    final utilityColor =
-        isDark ? _lighten(const Color(0xFF06B6D4)) : const Color(0xFF06B6D4);
-    final maintenanceColor =
-        isDark ? _lighten(const Color(0xFFF59E0B)) : const Color(0xFFF59E0B);
+    final textColor = isDark ? Colors.white : AppColors.textPrimary;
+    final headerColor = isDark ? const Color(0xFFE5E7EB) : AppColors.textSecondary;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textSecondary.withValues(alpha: 0.1);
 
     if (data.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return ScaleInAnimation(
-      child: SizedBox(
-        height: 300,
-        child: BarChart(
-          BarChartData(
-            barGroups: data
-                .asMap()
-                .entries
-                .map(
-                  (entry) => BarChartGroupData(
-                    x: entry.key,
-                    barRods: <BarChartRodData>[
-                      BarChartRodData(
-                        toY: entry.value.total,
-                        width: 22,
-                        color: Colors.transparent,
-                        rodStackItems: [
-                          BarChartRodStackItem(
-                            0,
-                            entry.value.baseRent.toDouble(),
-                            baseColor,
-                          ),
-                          BarChartRodStackItem(
-                            entry.value.baseRent.toDouble(),
-                            entry.value.baseRent.toDouble() +
-                                entry.value.utilityBill.toDouble(),
-                            utilityColor,
-                          ),
-                          BarChartRodStackItem(
-                            entry.value.baseRent.toDouble() +
-                                entry.value.utilityBill.toDouble(),
-                            entry.value.total,
-                            maintenanceColor,
-                          ),
-                        ],
-                        borderSide: BorderSide(
-                          color: isDark
-                              ? const Color(0xFF17142A)
-                              : Colors.transparent,
-                          width: isDark ? 1.2 : 0,
-                        ),
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(6),
-                        ),
-                        backDrawRodData: BackgroundBarChartRodData(
-                          show: true,
-                          toY: _getMaxValue(),
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.05)
-                              : AppColors.violet.withValues(alpha: 0.05),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                .toList(),
-            titlesData: FlTitlesData(
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 46,
-                  getTitlesWidget: (value, meta) {
-                    return Text(
-                      value.toInt().toString(),
-                      style: TextStyle(
-                        color: axisTextColor.withValues(alpha: 0.78),
-                        fontSize: 11,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 34,
-                  getTitlesWidget: (value, _) {
-                    final idx = value.toInt();
-                    if (idx < 0 || idx >= data.length) {
-                      return const SizedBox.shrink();
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.sm),
-                      child: Text(
-                        _compactMonthLabel(data[idx].monthLabel),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: axisTextColor.withValues(alpha: 0.86),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: _getMaxValue() / 4,
-              getDrawingHorizontalLine: (value) {
-                return FlLine(
-                  color: gridColor,
-                  strokeWidth: 1,
-                );
-              },
-            ),
-            borderData: FlBorderData(
-              show: true,
-              border: Border(
-                bottom: BorderSide(
-                  color: borderColor,
-                  width: 1,
-                ),
-                left: BorderSide(
-                  color: borderColor,
-                  width: 1,
-                ),
-              ),
-            ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          headingRowColor: WidgetStateColor.resolveWith(
+            (_) => isDark ? const Color(0xFF2A2540) : AppColors.violet.withValues(alpha: 0.08),
           ),
+          headingRowHeight: 48,
+          dataRowHeight: 52,
+          columnSpacing: AppSpacing.lg,
+          border: TableBorder(
+            horizontalInside: BorderSide(color: borderColor, width: 0.5),
+            bottom: BorderSide(color: borderColor, width: 0.5),
+          ),
+          columns: [
+            DataColumn(
+              label: Text(
+                'Month',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: headerColor,
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Rent',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: headerColor,
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Base Rent',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: headerColor,
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Utility Bill',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: headerColor,
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Maintenance',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: headerColor,
+                ),
+              ),
+            ),
+          ],
+          rows: data.map((item) {
+            final total = item.total;
+            final baseRentPct = total > 0 ? ((item.baseRent.toDouble() / total) * 100).toStringAsFixed(1) : '0.0';
+            final utilityPct = total > 0 ? ((item.utilityBill.toDouble() / total) * 100).toStringAsFixed(1) : '0.0';
+            final maintenancePct = total > 0 ? ((item.maintenance.toDouble() / total) * 100).toStringAsFixed(1) : '0.0';
+
+            return DataRow(
+              cells: [
+                DataCell(
+                  Text(
+                    _compactMonthLabel(item.monthLabel),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                    ),
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    formatINR(item.total),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    '$baseRentPct%',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF7C3AED),
+                    ),
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    '$utilityPct%',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF06B6D4),
+                    ),
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    '$maintenancePct%',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
         ),
       ),
     );
@@ -206,15 +196,6 @@ class RentStackedBarChart extends StatelessWidget {
     return '$shortMonth $year';
   }
 
-  double _getMaxValue() {
-    if (data.isEmpty) {
-      return 0;
-    }
-    return data
-            .map((item) => item.total.toDouble())
-            .reduce((a, b) => a > b ? a : b) *
-        1.2;
-  }
 }
 
 class RentTrendLineChart extends StatelessWidget {

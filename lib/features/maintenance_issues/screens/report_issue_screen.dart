@@ -187,8 +187,9 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: AppSpacing.xs),
                     DropdownButtonFormField<String>(
-                      initialValue: defaultFlatId.isNotEmpty ? defaultFlatId : null,
+                      initialValue: _selectedFlatId ?? (defaultFlatId.isNotEmpty ? defaultFlatId : null),
                       isExpanded: true,
+                      hint: const Text('Select a unit'),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12)),
