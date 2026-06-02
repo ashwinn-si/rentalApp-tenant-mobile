@@ -9,13 +9,27 @@ import 'models/rent_record.dart';
 class PaymentProofRepository {
   final DioClient _client = DioClient.instance;
 
+  Future<Map<String, dynamic>> getActiveRentMonth() async {
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiPaths.activeRentMonth,
+      fromJson: (json) => json as Map<String, dynamic>,
+    );
+
+    if (!response.isSuccess) {
+      throw Exception(response.message);
+    }
+
+    final rawData = response.data ?? {};
+    return (rawData['data'] as Map<String, dynamic>?) ?? rawData;
+  }
+
   Future<RentRecord?> getRentByMonthYear({
     required int month,
     required int year,
     String? flatId,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
-      ApiPaths.rentByMonthYear,
+      '${ApiPaths.paymentProofs}/rent-detail',
       fromJson: (json) => json as Map<String, dynamic>,
       queryParams: {
         'month': month,

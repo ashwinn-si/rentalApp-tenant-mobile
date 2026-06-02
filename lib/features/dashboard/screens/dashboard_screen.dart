@@ -42,6 +42,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
   }
 
+  String _getMonthYearLabel(Map<String, dynamic>? data) {
+    if (data == null) return '';
+    final month = data['rentMonth'] as int?;
+    final year = data['rentYear'] as int?;
+    if (month == null || year == null) return '';
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return '${monthNames[month - 1]} $year';
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncDashboard = ref.watch(activeDashboardProvider);
@@ -158,22 +170,69 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        'Total Outstanding',
-                        style: TextStyle(
-                          color: secondaryText,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.xs,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.info,
+                              size: 14,
+                              color: Color(0xFFEF4444),
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'OUTSTANDING',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFEF4444),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: AppSpacing.md),
                       Text(
                         formatINR(data.totalOutstanding),
                         style: const TextStyle(
-                          fontSize: 28,
+                          fontSize: 32,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.violet,
+                          color: AppColors.textPrimary,
                         ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (data.currentDue != null)
+                            Text(
+                              _getMonthYearLabel(data.currentDue),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: secondaryText,
+                              ),
+                            )
+                          else
+                            const SizedBox.shrink(),
+                          Text(
+                            formatINR(data.totalOutstanding),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

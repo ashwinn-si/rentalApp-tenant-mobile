@@ -10,7 +10,7 @@ class DashboardRepository {
 
   Future<ApiResponse<DashboardResponse>> getDashboard({String? flatId}) {
     return _client.get<DashboardResponse>(
-      ApiPaths.dashboard,
+      '${ApiPaths.dashboard}/current',
       queryParams: flatId == null ? null : <String, dynamic>{'flatId': flatId},
       fromJson: (json) {
         developer.log('[Dashboard] Raw API Response: $json');

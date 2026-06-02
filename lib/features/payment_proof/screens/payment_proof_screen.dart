@@ -88,7 +88,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
                       'No payment proofs yet',
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -183,6 +183,10 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
   }
 
   Widget _buildProofCard(PaymentProof proof) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF171527) : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0);
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
@@ -194,10 +198,10 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
-            color: const Color(0xFFE2E8F0),
+            color: borderColor,
             width: 1,
           ),
           boxShadow: [
@@ -248,7 +252,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Submitted: ${proof.submittedAt != null ? proof.submittedAt!.toLocal().toString().split('.')[0] : '—'}',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppColors.textSecondary,
                     ),
               ),
@@ -335,24 +339,25 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
   }
 
   Widget _buildStatusBadge(String status) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     Color bgColor;
     Color textColor;
     String label;
 
     switch (status) {
       case 'approved':
-        bgColor = const Color(0xFFDCFCE7); // Soft Mint
-        textColor = const Color(0xFF166534); // Dark Green
+        bgColor = isDark ? const Color(0xFF166534).withValues(alpha: 0.3) : const Color(0xFFDCFCE7);
+        textColor = isDark ? const Color(0xFF86EFAC) : const Color(0xFF166534);
         label = 'APPROVED';
         break;
       case 'rejected':
-        bgColor = const Color(0xFFFEE2E2); // Soft Rose
-        textColor = const Color(0xFF991B1B); // Dark Red
+        bgColor = isDark ? const Color(0xFF991B1B).withValues(alpha: 0.3) : const Color(0xFFFEE2E2);
+        textColor = isDark ? const Color(0xFFFCA5A5) : const Color(0xFF991B1B);
         label = 'REJECTED';
         break;
       default:
-        bgColor = const Color(0xFFFEF3C7); // Soft Gold
-        textColor = const Color(0xFF78350F); // Dark Brown
+        bgColor = isDark ? const Color(0xFF78350F).withValues(alpha: 0.3) : const Color(0xFFFEF3C7);
+        textColor = isDark ? const Color(0xFFFCD34D) : const Color(0xFF78350F);
         label = 'PENDING';
     }
 
@@ -371,7 +376,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: textColor,
               fontWeight: FontWeight.w600,
               fontSize: 11,

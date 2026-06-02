@@ -92,7 +92,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                       'No issues reported yet',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
                     ),

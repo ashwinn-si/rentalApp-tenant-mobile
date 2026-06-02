@@ -44,4 +44,42 @@ class HistoryRepository {
       return result;
     });
   }
+
+  Future<ApiResponse<HistoryItem>> getHistoryMonth({
+    required int month,
+    required int year,
+    String? flatId,
+  }) {
+    final query = <String, dynamic>{};
+    if (flatId != null && flatId.isNotEmpty && flatId != 'all') {
+      query['flatId'] = flatId;
+    }
+
+    developer.log('[History] Fetching month: month=$month, year=$year, flatId=$flatId');
+
+    return _client.get<HistoryItem>(
+      '${ ApiPaths.history}/month/$month/$year',
+      queryParams: query.isNotEmpty ? query : null,
+      fromJson: (json) {
+        developer.log('[History] Month Raw API Response: $json');
+
+        final root = json as Map<String, dynamic>;
+        final payload = (root['data'] as Map<String, dynamic>?) ?? root;
+
+        developer.log('[History] Month Extracted Payload: $payload');
+
+        try {
+          final response = HistoryItem.fromJson(payload);
+          developer.log('[History] Month Parsed Response: month=${response.monthLabel}, maintenanceBreakdownCount=${response.maintenanceBreakdownItems.length}');
+          return response;
+        } catch (e, stack) {
+          developer.log('[History] Month Parsing Error: $e\n$stack');
+          rethrow;
+        }
+      },
+    ).then((result) {
+      developer.log('[History] Month Final Result - isSuccess=${result.isSuccess}, hasData=${result.data != null}, error=${result.error}');
+      return result;
+    });
+  }
 }

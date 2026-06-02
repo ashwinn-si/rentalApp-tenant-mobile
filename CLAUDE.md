@@ -1,6 +1,23 @@
 # Tenant Mobile App — Flutter
 
-## CRITICAL: Page Creation Rules (read FIRST)
+## CRITICAL: Design Rules (read BEFORE ANYTHING)
+
+**Always read the design system guide first:**
+
+```
+tenant-mobile/design_rules.md
+```
+
+This is the living document for all design decisions in this app. Reference it for:
+- Color system (AppColors constants, hex values, usage intent)
+- Typography scale (sizes, weights, theme keys — no inline styling)
+- Dark mode mandatory pattern (isDark check + color variables)
+- Card styling pattern (PremiumCard vs BoxDecoration)
+- Spacing and radius tokens
+- Anti-patterns (FontWeight.bold, hardcoded Colors.grey, off-scale sizes, raw hex)
+- Page creation checklist
+
+## CRITICAL: Page Creation Rules (read SECOND)
 
 **Before building any screen, widget, or page, read:**
 

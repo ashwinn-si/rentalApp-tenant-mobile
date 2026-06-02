@@ -64,7 +64,7 @@ class ProofDetailScreen extends StatelessWidget {
                                       formatINR(proof.totalAmount),
                                       style: Theme.of(context)
                                           .textTheme
-                                          .headlineSmall
+                                          .headlineMedium
                                           ?.copyWith(
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -79,9 +79,10 @@ class ProofDetailScreen extends StatelessWidget {
                               color: AppColors.textSecondary.withValues(alpha: 0.2),
                             ),
                             const SizedBox(height: AppSpacing.md),
-                            _buildDetailRow('Paid To', proof.paidToName),
+                            _buildDetailRow(context, 'Paid To', proof.paidToName),
                             const SizedBox(height: AppSpacing.md),
                             _buildDetailRow(
+                              context,
                               'Submitted',
                               proof.submittedAt != null
                                   ? proof.submittedAt!
@@ -251,20 +252,22 @@ class ProofDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
         ),
       ],
     );

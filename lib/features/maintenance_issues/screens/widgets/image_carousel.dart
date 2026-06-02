@@ -137,7 +137,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
           const SizedBox(height: AppSpacing.sm),
           Text(
             '${_currentIndex + 1} of ${validImages.length}',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),
           ),

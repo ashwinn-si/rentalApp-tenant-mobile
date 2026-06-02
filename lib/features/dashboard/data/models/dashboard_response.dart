@@ -67,26 +67,44 @@ class DashboardResponse {
     required this.availableFlats,
     required this.totalOutstanding,
     required this.recentRents,
+    this.currentDue,
+    this.previousMonthPayment,
+    this.analytics,
   });
 
   final List<FlatDto> availableFlats;
   final num totalOutstanding;
   final List<RecentRentDto> recentRents;
+  final Map<String, dynamic>? currentDue;
+  final Map<String, dynamic>? previousMonthPayment;
+  final Map<String, dynamic>? analytics;
 
   factory DashboardResponse.fromJson(Map<String, dynamic> json) {
     final rawFlats = (json['availableFlats'] as List<dynamic>? ?? <dynamic>[])
         .cast<Map<String, dynamic>>();
     final analytics = (json['analytics'] as Map<String, dynamic>?) ??
         const <String, dynamic>{};
-    final rawRecentRents =
-        (json['recentRents'] as List<dynamic>? ?? <dynamic>[])
-            .cast<Map<String, dynamic>>();
+    final currentDue = json['currentDue'] as Map<String, dynamic>?;
+    final previousMonthPayment =
+        json['previousMonthPayment'] as Map<String, dynamic>?;
+
+    final rawRecentRents = (json['recentRents'] as List<dynamic>?) ?? <dynamic>[];
+    final recentRentsData = rawRecentRents
+        .whereType<Map<String, dynamic>>()
+        .map(RecentRentDto.fromJson)
+        .toList();
+
+    final totalOutstanding = (json['totalOutstanding'] ??
+        analytics['totalOutstanding'] ??
+        0) as num;
+
     return DashboardResponse(
       availableFlats: rawFlats.map(FlatDto.fromJson).toList(),
-      totalOutstanding: (json['totalOutstanding'] ??
-          analytics['totalOutstanding'] ??
-          0) as num,
-      recentRents: rawRecentRents.map(RecentRentDto.fromJson).toList(),
+      totalOutstanding: totalOutstanding,
+      recentRents: recentRentsData,
+      currentDue: currentDue,
+      previousMonthPayment: previousMonthPayment,
+      analytics: analytics.isNotEmpty ? analytics : null,
     );
   }
 

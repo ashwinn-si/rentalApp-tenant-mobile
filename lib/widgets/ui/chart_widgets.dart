@@ -152,10 +152,10 @@ class RentPercentageTable extends StatelessWidget {
                 DataCell(
                   Text(
                     '$baseRentPct%',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF7C3AED),
+                      color: AppColors.violet,
                     ),
                   ),
                 ),

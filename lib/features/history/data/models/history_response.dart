@@ -114,7 +114,7 @@ class HistoryItem {
       rawLabel: json['monthLabel'],
     );
 
-    // Parse maintenance breakdown items with proper signs
+    // Parse maintenance breakdown items (already included in maintenanceShare, don't recalculate)
     final maintenanceBreakdown = (breakdown['maintenanceBreakdown'] as List<dynamic>?) ?? <dynamic>[];
     final breakdownItems = <MaintenanceBreakdownItem>[];
     num maintenanceTotal = (json['maintenance'] ?? breakdown['maintenanceShare'] ?? 0) as num;
@@ -123,12 +123,6 @@ class HistoryItem {
       if (item is Map<String, dynamic>) {
         final breakdownItem = MaintenanceBreakdownItem.fromJson(item);
         breakdownItems.add(breakdownItem);
-        // Apply signs: reimbursement subtracts, adjustment adds
-        if (breakdownItem.type == 'reimbursement') {
-          maintenanceTotal -= breakdownItem.amount;
-        } else {
-          maintenanceTotal += breakdownItem.amount;
-        }
       }
     }
 

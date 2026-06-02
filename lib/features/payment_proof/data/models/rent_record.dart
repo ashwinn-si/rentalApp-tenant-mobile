@@ -64,14 +64,19 @@ class RentRecord {
             .toList() ??
         [];
 
+    final baseRent = (json['baseRent'] ?? 0).toDouble();
+    final electricityBill = (json['electricityBill'] ?? 0).toDouble();
+    final maintenanceShare = (json['maintenanceShare'] ?? 0).toDouble();
+    final totalDue = (json['totalDue'] ?? 0).toDouble();
+
     return RentRecord(
       id: json['_id'] ?? '',
       rentMonth: json['rentMonth'] ?? 0,
       rentYear: json['rentYear'] ?? 0,
-      baseRent: (json['baseRent'] ?? 0).toDouble(),
-      electricityBill: (json['electricityBill'] ?? 0).toDouble(),
-      maintenanceShare: (json['maintenanceShare'] ?? 0).toDouble(),
-      totalDue: (json['totalDue'] ?? 0).toDouble(),
+      baseRent: baseRent,
+      electricityBill: electricityBill,
+      maintenanceShare: maintenanceShare,
+      totalDue: totalDue,
       paidAmount: (json['paidAmount'] ?? 0).toDouble(),
       status: json['status'] ?? 'unpaid',
       maintenanceBreakdown: breakdownList,

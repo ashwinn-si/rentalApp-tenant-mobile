@@ -7,6 +7,7 @@ class ApiPaths {
   static const String login = '/auth/tenant-mobile';
   static const String changePassword = '$tenantMobilePrefix/change-password';
   static const String fcmToken = '$tenantMobilePrefix/fcm-token';
+  static const String activeRentMonth = '$tenantMobilePrefix/portal/active-month';
   static const String dashboard = '$tenantMobilePrefix/dashboard';
   static const String history = '$tenantMobilePrefix/history';
   static const String notifications = '$tenantMobilePrefix/notifications';
@@ -16,7 +17,6 @@ class ApiPaths {
       '$tenantMobilePrefix/app-version/current';
   static const String maintenanceIssues =
       '$tenantMobilePrefix/maintenance-issues';
-  static const String rentByMonthYear = '$tenantPrefix/rent';
-  static const String paymentProofs = '$tenantPrefix/payment-proofs';
-  static const String s3UploadUrls = '$tenantPrefix/s3-upload-urls';
+  static const String paymentProofs = '$tenantMobilePrefix/payment-proofs';
+  static const String s3UploadUrls = '$tenantMobilePrefix/s3-upload-urls';
 }

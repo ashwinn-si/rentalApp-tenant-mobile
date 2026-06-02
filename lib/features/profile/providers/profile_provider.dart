@@ -11,3 +11,24 @@ final profileProvider = FutureProvider<TenantProfile>((ref) async {
   }
   return result.data!;
 });
+
+final changePasswordProvider = FutureProvider.family<void, ChangePasswordParams>((ref, params) async {
+  final repository = ProfileRepository();
+  final result = await repository.changePassword(
+    currentPassword: params.currentPassword,
+    newPassword: params.newPassword,
+  );
+  if (!result.isSuccess) {
+    throw Exception(result.error ?? 'Failed to change password');
+  }
+});
+
+class ChangePasswordParams {
+  final String currentPassword;
+  final String newPassword;
+
+  ChangePasswordParams({
+    required this.currentPassword,
+    required this.newPassword,
+  });
+}

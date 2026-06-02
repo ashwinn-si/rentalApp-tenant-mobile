@@ -15,6 +15,27 @@ import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/history_provider.dart';
 
+extension _BreakdownBuilder on RentBarItem {
+  List<BreakdownItem> toBreakdownItems() => [
+        BreakdownItem(
+          label: 'Base Rent',
+          amount: baseRent,
+          color: AppColors.violet,
+        ),
+        BreakdownItem(
+          label: 'Utility Bill',
+          amount: utilityBill,
+          color: const Color(0xFF06B6D4),
+        ),
+        if (maintenance > 0)
+          BreakdownItem(
+            label: 'Maintenance',
+            amount: maintenance,
+            color: const Color(0xFFF59E0B),
+          ),
+      ];
+}
+
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
@@ -119,27 +140,38 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       if (recentBarData.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                          child: PremiumCard(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(
-                                    left: AppSpacing.xs,
-                                    bottom: AppSpacing.sm,
-                                  ),
-                                  child: Text(
-                                    'This Month',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                      color: AppColors.textPrimary,
+                          child: Column(
+                            children: [
+                              PremiumCard(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.only(
+                                        left: AppSpacing.xs,
+                                        bottom: AppSpacing.sm,
+                                      ),
+                                      child: Text(
+                                        'Recent Rent Breakdown',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    RentPercentageTable(data: recentBarData),
+                                  ],
                                 ),
-                                RentPercentageTable(data: recentBarData),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              PremiumCard(
+                                child: RentBreakdownPieChart(
+                                  items: recentBarData.first.toBreakdownItems(),
+                                  monthLabel: recentBarData.first.monthLabel,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ...history.items.map(

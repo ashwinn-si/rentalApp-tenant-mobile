@@ -44,7 +44,7 @@ class StatusChip extends StatelessWidget {
         bg = const Color(0xFFFFF4DE);
         defaultLabel = 'Pending';
       case RentStatus.error:
-        fg = Colors.red.shade700;
+        fg = AppColors.red;
         bg = const Color(0xFFFEF2F2);
         defaultLabel = 'Error';
     }

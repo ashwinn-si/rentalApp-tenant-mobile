@@ -176,7 +176,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           'Welcome Back',
                           style: TextStyle(
                             fontSize: 32,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
                             height: 1.2,
                           ),

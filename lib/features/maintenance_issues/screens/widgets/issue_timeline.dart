@@ -77,7 +77,7 @@ class IssueTimeline extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         event['timestamp'] as String,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppColors.textSecondary,
                             ),
                       ),
@@ -153,8 +153,3 @@ class IssueTimeline extends StatelessWidget {
   }
 }
 
-extension AppColorsExtension on AppColors {
-  static const orange = Color(0xFFD97706);
-  static const emerald = Color(0xFF16A34A);
-  static const red = Color(0xFFDC2626);
-}

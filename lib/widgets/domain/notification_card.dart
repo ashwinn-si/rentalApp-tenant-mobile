@@ -29,7 +29,7 @@ class NotificationCard extends StatelessWidget {
             : <Color>[const Color(0xFF6B7280), const Color(0xFF4B5563)])
         : (isDark
             ? <Color>[const Color(0xFF8B3DFF), const Color(0xFF6B2BD8)]
-            : <Color>[const Color(0xFF7C3AED), const Color(0xFF6D28D9)]);
+            : <Color>[AppColors.violet, AppColors.violetDark]);
 
     final titleColor = isDark ? const Color(0xFFF8FAFC) : Colors.white;
     final messageColor =

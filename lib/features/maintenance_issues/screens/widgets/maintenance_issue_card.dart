@@ -45,7 +45,7 @@ class MaintenanceIssueCard extends StatelessWidget {
                     '#${issue.issueId}',
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: secondaryText,
                       letterSpacing: 0.5,
                     ),
@@ -101,7 +101,7 @@ class MaintenanceIssueCard extends StatelessWidget {
                           issue.title,
                           style: const TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary,
                           ),
                           maxLines: 2,
@@ -130,7 +130,7 @@ class MaintenanceIssueCard extends StatelessWidget {
                     issue.title,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
                     ),
                     maxLines: 2,
@@ -222,7 +222,7 @@ class MaintenanceIssueCard extends StatelessWidget {
                       'ADMIN RESPONSE',
                       style: TextStyle(
                         fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                         color: secondaryText,
                       ),
                     ),

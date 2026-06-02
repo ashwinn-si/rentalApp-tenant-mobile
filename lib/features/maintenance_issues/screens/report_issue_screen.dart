@@ -113,10 +113,6 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedFlatId == null) {
-      ToastService.showError('Please select a unit');
-      return;
-    }
 
     setState(() => _isSaving = true);
     try {
@@ -166,6 +162,11 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(child: Text('Error: $err')),
           data: (dashboardData) {
+            if (_selectedFlatId == null && dashboardData.availableFlats.isNotEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() => _selectedFlatId = dashboardData.availableFlats.first.id);
+              });
+            }
             final defaultFlatId = _selectedFlatId ?? dashboardData.availableFlats.firstOrNull?.id ?? '';
 
             return SingleChildScrollView(
@@ -184,7 +185,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
 
                     // Unit Selector
                     const Text('Unit',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: AppSpacing.xs),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedFlatId ?? (defaultFlatId.isNotEmpty ? defaultFlatId : null),
@@ -201,12 +202,13 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                             value: f.id, child: Text(f.label));
                       }).toList(),
                       onChanged: (val) => setState(() => _selectedFlatId = val),
+                      validator: (val) => (val == null || val.isEmpty) ? 'Please select a unit' : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
 
                     // Scope Toggle
                     const Text('Issue Scope',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: AppSpacing.xs),
                     Row(
                       children: [
@@ -233,7 +235,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
 
                     // Category
                     const Text('Category',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: AppSpacing.xs),
                     DropdownButtonFormField<String>(
                       initialValue: _category,
@@ -289,7 +291,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Photos (Max 5)',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
                         Text(
                           '${(_totalImageSizeBytes / (1024 * 1024)).toStringAsFixed(2)}MB / ${maxTotalSizeMb}MB',
                           style: const TextStyle(
@@ -311,7 +313,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                         child: Text(
                           _sizeError!,
                           style: const TextStyle(
-                            color: Color(0xFFDC2626),
+                            color: AppColors.red,
                             fontSize: 12,
                           ),
                         ),
@@ -344,7 +346,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.all(2),
                                       decoration: const BoxDecoration(
-                                        color: Colors.red,
+                                        color: AppColors.red,
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(Icons.close,
@@ -362,10 +364,10 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                 width: 100,
                                 height: 100,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
+                                  color: AppColors.screenBg,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                      color: Colors.grey.shade300,
+                                      color: AppColors.textSecondary.withValues(alpha: 0.2),
                                       style: BorderStyle.solid),
                                 ),
                                 child: const Column(
@@ -375,7 +377,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                         color: AppColors.textSecondary),
                                     Text('Add Photo',
                                         style: TextStyle(
-                                            fontSize: 10,
+                                            fontSize: 12,
                                             color: AppColors.textSecondary)),
                                   ],
                                 ),

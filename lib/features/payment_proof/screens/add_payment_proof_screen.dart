@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -75,6 +76,22 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
     amountControllers = {'cash': TextEditingController()};
     paidToController = TextEditingController();
     selectedImages = [];
+    _loadActiveMonth();
+  }
+
+  Future<void> _loadActiveMonth() async {
+    try {
+      final repo = ref.read(paymentProofRepositoryProvider);
+      final response = await repo.getActiveRentMonth();
+      if (mounted) {
+        setState(() {
+          selectedMonth = response['currentRentMonth'] as int? ?? now.month;
+          selectedYear = response['currentRentYear'] as int? ?? now.year;
+        });
+      }
+    } catch (e) {
+      developer.log('[AddPaymentProofScreen] Failed to load active month: $e');
+    }
   }
 
   @override
@@ -90,8 +107,13 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
     return '₹${value.toStringAsFixed(2)}';
   }
 
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF171527) : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0);
+
     final rentAsync = ref.watch(
       activeRentProvider(
         RentParams(month: selectedMonth, year: selectedYear),
@@ -121,10 +143,10 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                   loading: () => Container(
                     margin: const EdgeInsets.only(bottom: AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardBg,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                       border: Border.all(
-                        color: const Color(0xFFE2E8F0),
+                        color: borderColor,
                         width: 1,
                       ),
                     ),
@@ -140,10 +162,10 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                   error: (_, __) => Container(
                     margin: const EdgeInsets.only(bottom: AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: cardBg,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                       border: Border.all(
-                        color: const Color(0xFFE2E8F0),
+                        color: borderColor,
                         width: 1,
                       ),
                     ),
@@ -158,10 +180,10 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                       return Container(
                         margin: const EdgeInsets.only(bottom: AppSpacing.md),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cardBg,
                           borderRadius: BorderRadius.circular(AppRadius.lg),
                           border: Border.all(
-                            color: const Color(0xFFE2E8F0),
+                            color: borderColor,
                             width: 1,
                           ),
                         ),
@@ -175,13 +197,16 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
 
                     final calculatedTotalDue = rent.totalDue;
 
+                    final isPaid = rent.paidAmount >= calculatedTotalDue;
+                    final amountDueToPay = isPaid ? 0.0 : (calculatedTotalDue - rent.paidAmount);
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: AppSpacing.md),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: cardBg,
                         borderRadius: BorderRadius.circular(AppRadius.lg),
                         border: Border.all(
-                          color: const Color(0xFFE2E8F0),
+                          color: borderColor,
                           width: 1,
                         ),
                         boxShadow: [
@@ -197,48 +222,153 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Total Due
                             Text(
-                              'Balance Due',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
+                              'Total Due',
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: AppColors.textSecondary,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.8,
                                   ),
                             ),
-                            const SizedBox(height: AppSpacing.xs),
+                            const SizedBox(height: AppSpacing.sm),
                             Text(
                               formatINR(calculatedTotalDue),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.violet,
+                                    color: AppColors.textPrimary,
                                   ),
                             ),
-                            const SizedBox(height: AppSpacing.md),
+                            const SizedBox(height: AppSpacing.lg),
+                            // Breakdown
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.grey.withValues(alpha: 0.05),
-                                borderRadius:
-                                    BorderRadius.circular(AppRadius.md),
+                                borderRadius: BorderRadius.circular(AppRadius.md),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.md,
-                                vertical: AppSpacing.sm,
-                              ),
+                              padding: const EdgeInsets.all(AppSpacing.md),
                               child: Column(
                                 children: [
-                                  _buildRentBreakdownRow(
-                                      'Base Rent', rent.baseRent),
-                                  const Divider(height: 12),
-                                  _buildRentBreakdownRow(
-                                      'Electricity', rent.electricityBill),
-                                  const Divider(height: 12),
-                                  _buildRentBreakdownRow(
-                                      'Maintenance', rent.maintenanceShare),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Base Rent',
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              color: AppColors.textSecondary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                      Text(
+                                        formatINR(rent.baseRent),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Divider(color: AppColors.textSecondary.withValues(alpha: 0.15)),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Electricity',
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              color: AppColors.textSecondary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                      Text(
+                                        formatINR(rent.electricityBill),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Divider(color: AppColors.textSecondary.withValues(alpha: 0.15)),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        rent.maintenanceShare < 0 ? 'Maintenance Credit' : 'Maintenance',
+                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              color: AppColors.textSecondary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                      Text(
+                                        formatINR(rent.maintenanceShare),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: rent.maintenanceShare < 0 ? AppColors.paid : AppColors.textPrimary,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            // Already Paid
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Already Paid',
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: AppColors.paid,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.5,
+                                      ),
+                                ),
+                                Text(
+                                  formatINR(rent.paidAmount),
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.paid,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            Divider(
+                              height: 1,
+                              color: AppColors.textSecondary.withValues(alpha: 0.2),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            // Amount Due to Pay
+                            Container(
+                              decoration: BoxDecoration(
+                                color: isPaid
+                                    ? AppColors.paid.withValues(alpha: 0.08)
+                                    : AppColors.pending.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(AppRadius.md),
+                              ),
+                              padding: const EdgeInsets.all(AppSpacing.md),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Amount Due to Pay',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: isPaid ? AppColors.paid : AppColors.pending,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                  Text(
+                                    formatINR(amountDueToPay),
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: isPaid ? AppColors.paid : AppColors.pending,
+                                        ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -337,13 +467,17 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   }
 
   Widget _buildMonthYearSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF171527) : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0);
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: borderColor,
           width: 1,
         ),
         boxShadow: [
@@ -376,7 +510,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: const Color(0xFFE2E8F0),
+                        color: borderColor,
                         width: 1,
                       ),
                       borderRadius: BorderRadius.circular(AppRadius.md),
@@ -408,7 +542,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: const Color(0xFFE2E8F0),
+                        color: borderColor,
                         width: 1,
                       ),
                       borderRadius: BorderRadius.circular(AppRadius.md),
@@ -441,26 +575,6 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
     );
   }
 
-  Widget _buildRentBreakdownRow(String label, double amount) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-        ),
-        Text(
-          formatINR(amount),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-        ),
-      ],
-    );
-  }
 
   IconData _getPaymentMethodIcon(String method) {
     switch (method) {
@@ -480,13 +594,17 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   }
 
   Widget _buildPaymentMethodsSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF171527) : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0);
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: borderColor,
           width: 1,
         ),
         boxShadow: [
@@ -510,40 +628,61 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                   ),
             ),
             const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: AppSpacing.md,
+              crossAxisSpacing: AppSpacing.md,
               children: paymentMethods.map((method) {
                 final isSelected = selectedMethods.contains(method['value']);
-                return FilterChip(
-                  avatar: Icon(
-                    _getPaymentMethodIcon(method['value']!),
-                    size: 16,
-                  ),
-                  label: Text(method['label']!),
-                  selected: isSelected,
-                  backgroundColor: Colors.white,
-                  selectedColor: AppColors.violet.withValues(alpha: 0.15),
-                  side: BorderSide(
-                    color:
-                        isSelected ? AppColors.violet : const Color(0xFFE2E8F0),
-                    width: isSelected ? 1.5 : 1,
-                  ),
-                  onSelected: (selected) {
+                return GestureDetector(
+                  onTap: () {
                     setState(() {
-                      if (selected) {
+                      if (isSelected) {
+                        selectedMethods.remove(method['value']!);
+                        amountControllers[method['value']!]?.dispose();
+                        amountControllers.remove(method['value']!);
+                      } else {
                         selectedMethods.add(method['value']!);
                         if (!amountControllers.containsKey(method['value']!)) {
                           amountControllers[method['value']!] =
                               TextEditingController();
                         }
-                      } else {
-                        selectedMethods.remove(method['value']!);
-                        amountControllers[method['value']!]?.dispose();
-                        amountControllers.remove(method['value']!);
                       }
                     });
                   },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.violet.withValues(alpha: 0.08)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: isSelected ? AppColors.violet : borderColor,
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _getPaymentMethodIcon(method['value']!),
+                          size: 28,
+                          color: isSelected ? AppColors.violet : AppColors.textSecondary,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          method['label']!,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: isSelected ? AppColors.violet : AppColors.textSecondary,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               }).toList(),
             ),
@@ -554,14 +693,19 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   }
 
   Widget _buildAmountInputs() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF171527) : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0);
+    final inputFillColor = isDark ? const Color(0xFF2A2540) : Colors.white;
+
     final total = _calculateTotal();
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: borderColor,
           width: 1,
         ),
         boxShadow: [
@@ -621,15 +765,15 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                     prefixText: '₹ ',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.md),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFE2E8F0),
+                      borderSide: BorderSide(
+                        color: borderColor,
                         width: 1,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.md),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFE2E8F0),
+                      borderSide: BorderSide(
+                        color: borderColor,
                         width: 1,
                       ),
                     ),
@@ -641,7 +785,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                       ),
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: inputFillColor,
                   ),
                 ),
               );
@@ -653,13 +797,18 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   }
 
   Widget _buildPaidToInput() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF171527) : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0);
+    final inputFillColor = isDark ? const Color(0xFF2A2540) : Colors.white;
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: borderColor,
           width: 1,
         ),
         boxShadow: [
@@ -680,15 +829,15 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
             prefixIcon: const Icon(Icons.person),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
+              borderSide: BorderSide(
+                color: borderColor,
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
+              borderSide: BorderSide(
+                color: borderColor,
                 width: 1,
               ),
             ),
@@ -700,7 +849,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
               ),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: inputFillColor,
           ),
         ),
       ),
@@ -708,13 +857,17 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   }
 
   Widget _buildImageUploader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF171527) : Colors.white;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0);
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: borderColor,
           width: 1,
         ),
         boxShadow: [
@@ -754,7 +907,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                       ),
                       child: Text(
                         '${selectedImages.length}/5',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppColors.violet,
                               fontWeight: FontWeight.w600,
                             ),
@@ -763,7 +916,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '${(totalImageSizeBytes / (1024 * 1024)).toStringAsFixed(2)}MB / ${maxTotalSizeMb}MB',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.textSecondary,
                           ),
                     ),
@@ -790,7 +943,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                 child: Text(
                   sizeError!,
                   style: const TextStyle(
-                    color: Color(0xFFDC2626),
+                    color: AppColors.red,
                     fontSize: 12,
                   ),
                 ),

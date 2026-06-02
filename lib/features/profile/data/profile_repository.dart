@@ -16,4 +16,21 @@ class ProfileRepository {
       },
     );
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) {
+    return _client.post<Map<String, dynamic>>(
+      '/tenant-mobile/auth/change-password',
+      data: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      },
+      fromJson: (json) {
+        final root = json as Map<String, dynamic>;
+        return (root['data'] as Map<String, dynamic>?) ?? {};
+      },
+    );
+  }
 }
