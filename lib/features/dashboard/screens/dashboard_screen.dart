@@ -44,6 +44,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   String _getMonthYearLabel(Map<String, dynamic>? data) {
     if (data == null) return '';
+    // Use outstandingFrom when available — points to oldest unpaid month
+    final outstandingFrom = data['outstandingFrom'] as Map<String, dynamic>?;
+    if (outstandingFrom != null) {
+      final label = outstandingFrom['monthLabel']?.toString();
+      if (label != null && label.isNotEmpty) return label;
+    }
     final month = data['rentMonth'] as int?;
     final year = data['rentYear'] as int?;
     if (month == null || year == null) return '';

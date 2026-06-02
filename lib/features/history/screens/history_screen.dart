@@ -177,6 +177,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       ...history.items.map(
                         (item) => RentBreakdownCard(
                           monthLabel: item.monthLabel,
+                          flatLabel: item.flatLabel,
                           status: item.status,
                           baseRent: item.baseRent,
                           utilityBill: item.utilityBill,
@@ -184,8 +185,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           previousDues: item.previousDues,
                           totalDue: item.totalDue,
                           paidAmount: item.paidAmount,
-                          maintenanceBreakdownItems:
-                              item.maintenanceBreakdownItems,
+                          maintenanceBreakdownItems: item.maintenanceBreakdownItems,
                         ),
                       ),
                       if (history.totalPages > 1)

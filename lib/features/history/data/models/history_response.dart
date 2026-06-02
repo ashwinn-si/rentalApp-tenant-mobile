@@ -1,28 +1,27 @@
 class MaintenanceBreakdownItem {
   const MaintenanceBreakdownItem({
     required this.name,
-    required this.amount,
+    required this.yourShare,
+    required this.totalCost,
     required this.type,
     this.id,
     this.issueId,
   });
 
   final String name;
-  final num amount;
-  final String type; // 'reimbursement', 'adjustment', or null
-  final String? id;      // MongoDB _id — used to fetch issue details
-  final String? issueId; // Human-readable issue ID (e.g. "MAINT-001")
+  final num yourShare;
+  final num totalCost;
+  final String type; // 'reimbursement', 'adjustment'
+  final String? id;
+  final String? issueId;
 
   factory MaintenanceBreakdownItem.fromJson(Map<String, dynamic> json) {
-    final yourShare = (json['yourShare'] ?? 0) as num;
-    final issueType = (json['issueType'] ?? 'adjustment').toString();
-    final name = (json['name'] ?? '').toString();
-
     return MaintenanceBreakdownItem(
-      name: name,
-      amount: yourShare,
-      type: issueType,
-      id: json['_id']?.toString(),
+      name: (json['name'] ?? '').toString(),
+      yourShare: (json['yourShare'] ?? json['amount'] ?? 0) as num,
+      totalCost: (json['totalCost'] ?? 0) as num,
+      type: (json['type'] ?? json['issueType'] ?? 'adjustment').toString(),
+      id: json['id']?.toString() ?? json['_id']?.toString(),
       issueId: json['issueId']?.toString(),
     );
   }
@@ -39,6 +38,9 @@ class HistoryItem {
     required this.totalDue,
     required this.paidAmount,
     required this.flatId,
+    required this.flatLabel,
+    required this.flatNumber,
+    required this.apartmentName,
     this.maintenanceBreakdownItems = const <MaintenanceBreakdownItem>[],
   });
 
@@ -51,25 +53,17 @@ class HistoryItem {
   final num totalDue;
   final num paidAmount;
   final String flatId;
+  final String flatLabel;
+  final String flatNumber;
+  final String apartmentName;
   final List<MaintenanceBreakdownItem> maintenanceBreakdownItems;
 
   static const List<String> _monthNames = <String>[
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
-  static String _formatMonthLabel(
-      {dynamic month, dynamic year, dynamic rawLabel}) {
+  static String _formatMonthLabel({dynamic month, dynamic year, dynamic rawLabel}) {
     int? monthValue;
     int? yearValue;
 
@@ -80,10 +74,7 @@ class HistoryItem {
       yearValue = year is int ? year : int.tryParse('$year');
     }
 
-    if (monthValue != null &&
-        yearValue != null &&
-        monthValue >= 1 &&
-        monthValue <= 12) {
+    if (monthValue != null && yearValue != null && monthValue >= 1 && monthValue <= 12) {
       return '${_monthNames[monthValue - 1]} $yearValue';
     }
 
@@ -92,10 +83,7 @@ class HistoryItem {
     if (slashParts.length == 2) {
       final parsedMonth = int.tryParse(slashParts[0].trim());
       final parsedYear = int.tryParse(slashParts[1].trim());
-      if (parsedMonth != null &&
-          parsedYear != null &&
-          parsedMonth >= 1 &&
-          parsedMonth <= 12) {
+      if (parsedMonth != null && parsedYear != null && parsedMonth >= 1 && parsedMonth <= 12) {
         return '${_monthNames[parsedMonth - 1]} $parsedYear';
       }
     }
@@ -104,48 +92,44 @@ class HistoryItem {
   }
 
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
-    final breakdown = (json['breakdown'] as Map<String, dynamic>?) ??
-        const <String, dynamic>{};
-    final month = json['month'];
-    final year = json['year'];
+    // Support both flat (new) and nested breakdown (legacy) response shapes
+    final breakdown = (json['breakdown'] as Map<String, dynamic>?) ?? const <String, dynamic>{};
+
     final monthLabel = _formatMonthLabel(
-      month: month,
-      year: year,
+      month: json['month'],
+      year: json['year'],
       rawLabel: json['monthLabel'],
     );
 
-    // Parse maintenance breakdown items (already included in maintenanceShare, don't recalculate)
-    final maintenanceBreakdown = (breakdown['maintenanceBreakdown'] as List<dynamic>?) ?? <dynamic>[];
-    final breakdownItems = <MaintenanceBreakdownItem>[];
-    num maintenanceTotal = (json['maintenance'] ?? breakdown['maintenanceShare'] ?? 0) as num;
+    final rawBreakdown = (json['maintenanceBreakdown'] as List<dynamic>?) ??
+        (breakdown['maintenanceBreakdown'] as List<dynamic>?) ??
+        <dynamic>[];
 
-    for (final item in maintenanceBreakdown) {
-      if (item is Map<String, dynamic>) {
-        final breakdownItem = MaintenanceBreakdownItem.fromJson(item);
-        breakdownItems.add(breakdownItem);
-      }
-    }
+    final breakdownItems = rawBreakdown
+        .whereType<Map<String, dynamic>>()
+        .map(MaintenanceBreakdownItem.fromJson)
+        .toList();
 
     return HistoryItem(
       monthLabel: monthLabel,
       status: (json['status'] ?? 'pending').toString(),
       baseRent: (json['baseRent'] ?? breakdown['baseRent'] ?? 0) as num,
-      utilityBill:
-          (json['utilityBill'] ?? breakdown['utilityBill'] ?? 0) as num,
-      maintenance: maintenanceTotal,
-      previousDues:
-          (json['previousDues'] ?? breakdown['previousDues'] ?? 0) as num,
+      utilityBill: (json['utilityBill'] ?? breakdown['utilityBill'] ?? 0) as num,
+      maintenance: (json['maintenance'] ?? breakdown['maintenanceShare'] ?? 0) as num,
+      previousDues: (json['previousDues'] ?? breakdown['previousDues'] ?? 0) as num,
       totalDue: (json['totalDue'] ?? breakdown['totalDue'] ?? 0) as num,
       paidAmount: (json['paidAmount'] ?? 0) as num,
       flatId: (json['flatId'] ?? '').toString(),
+      flatLabel: (json['flatLabel'] ?? '').toString(),
+      flatNumber: (json['flatNumber'] ?? '').toString(),
+      apartmentName: (json['apartmentName'] ?? '').toString(),
       maintenanceBreakdownItems: breakdownItems,
     );
   }
 }
 
 class HistoryResponse {
-  const HistoryResponse(
-      {required this.items, required this.page, required this.totalPages});
+  const HistoryResponse({required this.items, required this.page, required this.totalPages});
 
   final List<HistoryItem> items;
   final int page;
@@ -154,8 +138,7 @@ class HistoryResponse {
   factory HistoryResponse.fromJson(Map<String, dynamic> json) {
     final rawItems = (json['items'] as List<dynamic>? ?? <dynamic>[])
         .cast<Map<String, dynamic>>();
-    final pagination = (json['pagination'] as Map<String, dynamic>?) ??
-        const <String, dynamic>{};
+    final pagination = (json['pagination'] as Map<String, dynamic>?) ?? const <String, dynamic>{};
 
     final pageValue = json['page'] ?? pagination['page'] ?? 1;
     final totalPagesValue = json['totalPages'] ?? pagination['totalPages'] ?? 1;
@@ -163,14 +146,11 @@ class HistoryResponse {
     return HistoryResponse(
       items: rawItems.map(HistoryItem.fromJson).toList(),
       page: pageValue is int ? pageValue : int.tryParse('$pageValue') ?? 1,
-      totalPages: totalPagesValue is int
-          ? totalPagesValue
-          : int.tryParse('$totalPagesValue') ?? 1,
+      totalPages: totalPagesValue is int ? totalPagesValue : int.tryParse('$totalPagesValue') ?? 1,
     );
   }
 
   factory HistoryResponse.empty() {
-    return const HistoryResponse(
-        items: <HistoryItem>[], page: 1, totalPages: 1);
+    return const HistoryResponse(items: <HistoryItem>[], page: 1, totalPages: 1);
   }
 }
