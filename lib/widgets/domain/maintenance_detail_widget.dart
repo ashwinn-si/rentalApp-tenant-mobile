@@ -4,7 +4,7 @@ import '../../core/constants/app_tokens.dart';
 import '../../core/utils/animations.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../features/history/data/models/history_response.dart';
-import 'issue_quick_view_modal.dart';
+import '../../features/maintenance_issues/screens/issue_detail_by_id_screen.dart';
 
 class MaintenanceDetailWidget extends StatefulWidget {
   const MaintenanceDetailWidget({
@@ -116,7 +116,7 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
                   final signColor = item.type == 'reimbursement'
                       ? AppColors.pending
                       : AppColors.paid;
-                  final hasLink = item.id != null && item.id!.isNotEmpty;
+                  final hasLink = item.issueId != null && item.issueId!.isNotEmpty;
 
                   return Column(
                     children: [
@@ -146,17 +146,19 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
                                   const SizedBox(height: 2),
                                   if (hasLink)
                                     GestureDetector(
-                                      onTap: () => IssueQuickViewModal.show(
-                                          context, item.id!),
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute<void>(
+                                          builder: (_) => IssueDetailByIdScreen(
+                                            issueId: item.issueId!,
+                                          ),
+                                        ),
+                                      ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            item.issueId != null
-                                                ? '#${item.issueId}'
-                                                : item.type == 'reimbursement'
-                                                    ? 'Refund'
-                                                    : 'Extra Charge',
+                                            '#${item.issueId}',
                                             style: const TextStyle(
                                               color: AppColors.violet,
                                               fontSize: 11,
