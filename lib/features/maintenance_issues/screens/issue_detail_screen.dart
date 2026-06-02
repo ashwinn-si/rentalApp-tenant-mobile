@@ -9,7 +9,6 @@ import '../../../widgets/ui/status_chip.dart';
 import '../data/models/maintenance_issue.dart'
     show MaintenanceIssue, AdjustmentDetails;
 import 'widgets/image_carousel.dart';
-import 'widgets/issue_timeline.dart';
 
 class IssueDetailScreen extends StatelessWidget {
   const IssueDetailScreen({
@@ -62,7 +61,7 @@ class IssueDetailScreen extends StatelessWidget {
                                     '#${issue.issueId}',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .labelSmall
+                                        .bodySmall
                                         ?.copyWith(
                                           color: AppColors.textSecondary,
                                           fontWeight: FontWeight.w700,
@@ -164,10 +163,6 @@ class IssueDetailScreen extends StatelessWidget {
                           const SizedBox(height: AppSpacing.lg),
                       ],
 
-                      // Timeline
-                      IssueTimeline(issue: issue),
-                      const SizedBox(height: AppSpacing.lg),
-
                       // Admin Response (if exists)
                       if (issue.adminComments != null &&
                           issue.adminComments!.trim().isNotEmpty)
@@ -236,13 +231,21 @@ class IssueDetailScreen extends StatelessWidget {
   }
 
   Widget _emeraldBanner(BuildContext context, String headline, String sub) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bannerBg = isDark ? const Color(0xFF064E3B).withValues(alpha: 0.3) : const Color(0xFFF0FDF4);
+    final borderColor = isDark ? const Color(0xFF059669).withValues(alpha: 0.4) : const Color(0xFFBBF7D0);
+    final iconBgColor = isDark ? const Color(0xFF059669).withValues(alpha: 0.2) : const Color(0xFFDCFCE7);
+    final iconColor = isDark ? const Color(0xFF6EE7B7) : const Color(0xFF16A34A);
+    final headlineColor = isDark ? const Color(0xFF6EE7B7) : const Color(0xFF14532D);
+    final subColor = isDark ? const Color(0xFFA7F3D0) : const Color(0xFF166534);
+
     return SizedBox(
       width: double.infinity,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF0FDF4),
+          color: bannerBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFBBF7D0), width: 1),
+          border: Border.all(color: borderColor, width: 1),
         ),
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
@@ -251,14 +254,14 @@ class IssueDetailScreen extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: const BoxDecoration(
-                color: Color(0xFFDCFCE7),
+              decoration: BoxDecoration(
+                color: iconBgColor,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.verified_outlined,
                 size: 18,
-                color: Color(0xFF16A34A),
+                color: iconColor,
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -269,7 +272,7 @@ class IssueDetailScreen extends StatelessWidget {
                   Text(
                     headline,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: const Color(0xFF14532D),
+                          color: headlineColor,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
@@ -277,7 +280,7 @@ class IssueDetailScreen extends StatelessWidget {
                   Text(
                     sub,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: const Color(0xFF166534),
+                          color: subColor,
                         ),
                   ),
                 ],
