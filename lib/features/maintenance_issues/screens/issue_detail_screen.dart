@@ -7,7 +7,7 @@ import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/status_chip.dart';
 import '../data/models/maintenance_issue.dart'
-    show MaintenanceIssue, AdjustmentDetails;
+    show MaintenanceIssue, AdjustmentDetails, RefundDetails;
 import 'widgets/image_carousel.dart';
 
 class IssueDetailScreen extends StatelessWidget {
@@ -150,6 +150,9 @@ class IssueDetailScreen extends StatelessWidget {
 
                       // Rent adjustment — feel-good banner
                       if (issue.status == 'resolved') ...[
+                        if (issue.refundDetails != null &&
+                            issue.refundDetails!.refundedAmount > 0)
+                          _buildRefundBanner(context, issue.refundDetails!),
                         if (issue.adjustmentDetails != null &&
                             issue.adjustmentDetails!.amount > 0)
                           _buildAdjustmentBanner(
@@ -157,7 +160,9 @@ class IssueDetailScreen extends StatelessWidget {
                         else if (issue.adminRepairCost > 0)
                           _buildSimpleAdjustmentBanner(
                               context, issue.adminRepairCost),
-                        if ((issue.adjustmentDetails != null &&
+                        if ((issue.refundDetails != null &&
+                                issue.refundDetails!.refundedAmount > 0) ||
+                            (issue.adjustmentDetails != null &&
                                 issue.adjustmentDetails!.amount > 0) ||
                             issue.adminRepairCost > 0)
                           const SizedBox(height: AppSpacing.lg),
@@ -208,16 +213,30 @@ class IssueDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildRefundBanner(BuildContext context, RefundDetails refund) {
+    final monthLabel = refund.refundMonth != null && refund.refundYear != null
+        ? '${_monthName(refund.refundMonth!)} ${refund.refundYear}'
+        : null;
+    final headline = monthLabel != null
+        ? '${formatINR(refund.refundedAmount)} subtracted from $monthLabel rent'
+        : '${formatINR(refund.refundedAmount)} subtracted from rent';
+    final sub = monthLabel != null
+        ? 'Amount refunded to your $monthLabel rent record.'
+        : 'Amount has been refunded to your rent.';
+
+    return _emeraldBanner(context, headline, sub);
+  }
+
   Widget _buildAdjustmentBanner(BuildContext context, AdjustmentDetails adj) {
     final monthLabel = adj.adjustmentMonth != null && adj.adjustmentYear != null
         ? '${_monthName(adj.adjustmentMonth!)} ${adj.adjustmentYear}'
         : null;
     final headline = monthLabel != null
-        ? '${formatINR(adj.amount)} deducted from your $monthLabel rent'
-        : '${formatINR(adj.amount)} deducted from your rent';
+        ? '${formatINR(adj.amount)} added to $monthLabel'
+        : '${formatINR(adj.amount)} added';
     final sub = monthLabel != null
-        ? 'Admin applied this to your $monthLabel rent record${adj.addToMaintenance ? ' via maintenance' : ''}.'
-        : 'Admin has applied this adjustment against your rent.';
+        ? 'Admin charged this to your $monthLabel rent record${adj.addToMaintenance ? ' and split across all units in maintenance fee' : ''}.'
+        : 'Admin has charged this to your rent.';
 
     return _emeraldBanner(context, headline, sub);
   }

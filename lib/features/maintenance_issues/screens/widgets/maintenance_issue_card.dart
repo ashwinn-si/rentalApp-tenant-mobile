@@ -181,20 +181,32 @@ class MaintenanceIssueCard extends StatelessWidget {
                       Icons.verified_outlined,
                       _refundLabel(issue.refundDetails!),
                       color: const Color(0xFF16A34A),
-                    )
-                  else if (issue.adjustmentDetails != null &&
-                      issue.adjustmentDetails!.amount > 0)
+                    ),
+                  if (issue.adjustmentDetails != null &&
+                      issue.adjustmentDetails!.amount > 0) ...[
                     _buildInfoItem(
                       context,
                       Icons.verified_outlined,
                       _adjustmentLabel(issue.adjustmentDetails!),
                       color: const Color(0xFF16A34A),
-                    )
-                  else if (issue.adminRepairCost > 0)
+                    ),
+                    if (issue.adjustmentDetails!.addToMaintenance)
+                      _buildInfoItem(
+                        context,
+                        Icons.info_outlined,
+                        'Added to maintenance fee',
+                        color: const Color(0xFF16A34A),
+                      ),
+                  ],
+                  if ((issue.refundDetails == null ||
+                          issue.refundDetails!.refundedAmount == 0) &&
+                      (issue.adjustmentDetails == null ||
+                          issue.adjustmentDetails!.amount == 0) &&
+                      issue.adminRepairCost > 0)
                     _buildInfoItem(
                       context,
                       Icons.verified_outlined,
-                      '${formatINR(issue.adminRepairCost)} off your rent',
+                      '${formatINR(issue.adminRepairCost)} added',
                       color: const Color(0xFF16A34A),
                     ),
                 ],
@@ -308,17 +320,17 @@ class MaintenanceIssueCard extends StatelessWidget {
   String _refundLabel(RefundDetails refund) {
     final amount = formatINR(refund.refundedAmount);
     if (refund.refundMonth != null && refund.refundYear != null) {
-      return '$amount refunded to your ${_monthName(refund.refundMonth!)} ${refund.refundYear} rent';
+      return '$amount subtracted from ${_monthName(refund.refundMonth!)} ${refund.refundYear} rent';
     }
-    return '$amount refunded to your rent';
+    return '$amount subtracted from rent';
   }
 
   String _adjustmentLabel(AdjustmentDetails adj) {
     final amount = formatINR(adj.amount);
     if (adj.adjustmentMonth != null && adj.adjustmentYear != null) {
-      return '$amount off your ${_monthName(adj.adjustmentMonth!)} ${adj.adjustmentYear} rent';
+      return '$amount added to ${_monthName(adj.adjustmentMonth!)} ${adj.adjustmentYear}';
     }
-    return '$amount off your rent';
+    return '$amount added';
   }
 
   String _monthName(int month) {
