@@ -35,6 +35,7 @@ class RentRecord {
   final double electricityBill;
   final double maintenanceShare;
   final List<MaintenanceBreakdownItem> maintenanceBreakdown;
+  final double extra;
   final double previousDues;
   final double totalDue;
   final double paidAmount;
@@ -53,6 +54,7 @@ class RentRecord {
     required this.paidAmount,
     required this.status,
     this.maintenanceBreakdown = const [],
+    this.extra = 0,
     this.previousDues = 0,
     this.paymentProofStatus,
     this.paymentProofId,
@@ -67,6 +69,7 @@ class RentRecord {
     final baseRent = (json['baseRent'] ?? 0).toDouble();
     final electricityBill = (json['electricityBill'] ?? 0).toDouble();
     final maintenanceShare = (json['maintenanceShare'] ?? 0).toDouble();
+    final extra = (json['extra'] ?? 0).toDouble();
     final totalDue = (json['totalDue'] ?? 0).toDouble();
 
     return RentRecord(
@@ -80,6 +83,7 @@ class RentRecord {
       paidAmount: (json['paidAmount'] ?? 0).toDouble(),
       status: json['status'] ?? 'unpaid',
       maintenanceBreakdown: breakdownList,
+      extra: extra,
       previousDues: (json['previousDues'] ?? 0).toDouble(),
       paymentProofStatus: json['paymentProofStatus'],
       paymentProofId: json['paymentProofId'],

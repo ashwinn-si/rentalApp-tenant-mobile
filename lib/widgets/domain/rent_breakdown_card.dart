@@ -19,6 +19,7 @@ class RentBreakdownCard extends StatefulWidget {
     required this.totalDue,
     super.key,
     this.flatLabel = '',
+    this.extra = 0,
     this.paidAmount = 0,
     this.maintenanceBreakdownItems = const <MaintenanceBreakdownItem>[],
   });
@@ -29,6 +30,7 @@ class RentBreakdownCard extends StatefulWidget {
   final num baseRent;
   final num utilityBill;
   final num maintenance;
+  final num extra;
   final num previousDues;
   final num totalDue;
   final num paidAmount;
@@ -98,6 +100,15 @@ class _RentBreakdownCardState extends State<RentBreakdownCard> {
           _lineRow('Base Rent', widget.baseRent, secondaryText: secondaryText, primaryText: primaryText),
           _lineRow('Electricity / Water', widget.utilityBill, secondaryText: secondaryText, primaryText: primaryText),
           _maintenanceRow(secondaryText: secondaryText, primaryText: primaryText, dividerColor: dividerColor),
+
+          if (widget.extra != 0)
+            _lineRow(
+              'Extra',
+              widget.extra,
+              secondaryText: secondaryText,
+              primaryText: primaryText,
+              amountColor: widget.extra < 0 ? AppColors.paid : AppColors.pending,
+            ),
 
           if (widget.previousDues > 0)
             _lineRow(

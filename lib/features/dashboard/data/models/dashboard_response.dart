@@ -33,6 +33,7 @@ class RecentRentDto {
     required this.baseRent,
     required this.utilityBill,
     required this.maintenanceShare,
+    required this.extra,
     required this.totalDue,
     required this.paidAmount,
   });
@@ -44,6 +45,7 @@ class RecentRentDto {
   final num baseRent;
   final num utilityBill;
   final num maintenanceShare;
+  final num extra;
   final num totalDue;
   final num paidAmount;
 
@@ -56,6 +58,7 @@ class RecentRentDto {
       baseRent: (json['baseRent'] as num?) ?? 0,
       utilityBill: (json['utilityBill'] as num?) ?? 0,
       maintenanceShare: (json['maintenanceShare'] as num?) ?? 0,
+      extra: (json['extra'] as num?) ?? 0,
       totalDue: (json['totalDue'] as num?) ?? 0,
       paidAmount: (json['paidAmount'] as num?) ?? 0,
     );
