@@ -84,9 +84,15 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       ),
       error: (error, __) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          final errorStr = error.toString();
-          if (errorStr.contains('403') || errorStr.contains('Platform') || errorStr.contains('disabled')) {
-            developer.log('[HistoryScreen] Access denied (403) - logging out');
+          final errorStr = error.toString().toLowerCase();
+          developer.log('[HistoryScreen] Dashboard error: $errorStr');
+
+          if (errorStr.contains('403') ||
+              errorStr.contains('platform') ||
+              errorStr.contains('disabled') ||
+              errorStr.contains('access denied') ||
+              errorStr.contains('currently disabled')) {
+            developer.log('[HistoryScreen] Detected 403 error - logging out and redirecting to login');
             ref.read(authProvider.notifier).logout();
           }
         });
@@ -111,9 +117,15 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
           error: (error, __) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              final errorStr = error.toString();
-              if (errorStr.contains('403') || errorStr.contains('Platform') || errorStr.contains('disabled')) {
-                developer.log('[HistoryScreen] Access denied (403) - logging out');
+              final errorStr = error.toString().toLowerCase();
+              developer.log('[HistoryScreen] History error: $errorStr');
+
+              if (errorStr.contains('403') ||
+                  errorStr.contains('platform') ||
+                  errorStr.contains('disabled') ||
+                  errorStr.contains('access denied') ||
+                  errorStr.contains('currently disabled')) {
+                developer.log('[HistoryScreen] Detected 403 error - logging out and redirecting to login');
                 ref.read(authProvider.notifier).logout();
               }
             });
