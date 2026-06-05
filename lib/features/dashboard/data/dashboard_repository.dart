@@ -38,7 +38,7 @@ class DashboardRepository {
 
   Future<ApiResponse<OutstandingDueResponse>> getOutstandingDue({String? flatId}) {
     return _client.get<OutstandingDueResponse>(
-      '${ApiPaths.dashboard}/outstanding-due',
+      '/tenant-mobile/outstanding-due',
       queryParams: flatId == null ? null : <String, dynamic>{'flatId': flatId},
       fromJson: (json) {
         final root = json as Map<String, dynamic>;
