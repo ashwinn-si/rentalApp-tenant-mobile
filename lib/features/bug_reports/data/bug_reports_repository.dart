@@ -1,11 +1,16 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
 import '../../../core/constants/api_paths.dart';
 import '../../../core/network/api_response.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/utils/image_utils.dart';
 import 'models/bug_reports_model.dart';
+
+const _uploadSendTimeout = Duration(seconds: 120);
+const _uploadReceiveTimeout = Duration(seconds: 120);
 
 class BugReportsRepository {
   final DioClient _client = DioClient.instance;
@@ -41,18 +46,29 @@ class BugReportsRepository {
     required String type,
     required List<File> images,
   }) async {
-    final formData = FormData.fromMap({
-      'title': title,
-      'description': description,
-      'type': type,
-      'images': images
-          .map((file) => MultipartFile.fromFileSync(file.path))
-          .toList(),
-    });
+    final formData = FormData();
+    formData.fields.addAll([
+      MapEntry('title', title),
+      MapEntry('description', description),
+      MapEntry('type', type),
+    ]);
+
+    for (final file in images) {
+      final raw = await file.readAsBytes();
+      final Uint8List finalBytes = ImageUtils.isCompressible(file.path)
+          ? await ImageUtils.compressBytes(raw)
+          : raw;
+      formData.files.add(MapEntry(
+        'images',
+        MultipartFile.fromBytes(finalBytes, filename: file.path.split('/').last),
+      ));
+    }
 
     return _client.post<BugReport>(
       ApiPaths.bugReports,
       data: formData,
+      sendTimeout: _uploadSendTimeout,
+      receiveTimeout: _uploadReceiveTimeout,
       fromJson: (json) {
         final root = json as Map<String, dynamic>;
         final payload = (root['data'] as Map<String, dynamic>?) ?? root;
