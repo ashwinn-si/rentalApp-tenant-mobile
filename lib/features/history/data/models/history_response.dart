@@ -41,6 +41,7 @@ class HistoryItem {
     required this.flatLabel,
     required this.flatNumber,
     required this.apartmentName,
+    this.extra = 0,
     this.maintenanceBreakdownItems = const <MaintenanceBreakdownItem>[],
   });
 
@@ -49,6 +50,7 @@ class HistoryItem {
   final num baseRent;
   final num utilityBill;
   final num maintenance;
+  final num extra;
   final num previousDues;
   final num totalDue;
   final num paidAmount;
@@ -116,6 +118,7 @@ class HistoryItem {
       baseRent: (json['baseRent'] ?? breakdown['baseRent'] ?? 0) as num,
       utilityBill: (json['utilityBill'] ?? breakdown['utilityBill'] ?? 0) as num,
       maintenance: (json['maintenance'] ?? breakdown['maintenanceShare'] ?? 0) as num,
+      extra: (json['extra'] ?? breakdown['extra'] ?? 0) as num,
       previousDues: (json['previousDues'] ?? breakdown['previousDues'] ?? 0) as num,
       totalDue: (json['totalDue'] ?? breakdown['totalDue'] ?? 0) as num,
       paidAmount: (json['paidAmount'] ?? 0) as num,

@@ -193,6 +193,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           baseRent: item.baseRent,
                           utilityBill: item.utilityBill,
                           maintenance: item.maintenance,
+                          extra: item.extra,
                           previousDues: item.previousDues,
                           totalDue: item.totalDue,
                           paidAmount: item.paidAmount,
