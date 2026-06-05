@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_tokens.dart';
+import '../../../core/providers/error_handler_provider.dart';
 import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/ui/app_button.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
-import '../../auth/providers/auth_provider.dart';
 import '../data/models/bug_reports_model.dart';
 import '../providers/bug_reports_provider.dart';
 
@@ -47,15 +47,7 @@ class BugReportsScreen extends ConsumerWidget {
           loading: () => const Center(child: AppLoader()),
           error: (error, stack) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (error.toString().contains('403')) {
-                ref.read(authProvider.notifier).logout();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Your access has been revoked. Please log in again.'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
+              ApiErrorHandler.handleAccessDenied(error, ref);
             });
             return Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
