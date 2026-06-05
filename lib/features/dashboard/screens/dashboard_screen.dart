@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_tokens.dart';
+import '../../../core/providers/error_handler_provider.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/animations.dart';
 import '../../../core/utils/app_bar_helper.dart';
@@ -104,17 +105,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           loading: () => const AppLoader(),
           error: (error, stack) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              final errorStr = error.toString().toLowerCase();
-              developer.log('[DashboardScreen] Error: $errorStr');
-
-              if (errorStr.contains('403') ||
-                  errorStr.contains('platform') ||
-                  errorStr.contains('disabled') ||
-                  errorStr.contains('access denied') ||
-                  errorStr.contains('currently disabled')) {
-                developer.log('[DashboardScreen] Detected 403 error - logging out and redirecting to login');
-                ref.read(authProvider.notifier).logout();
-              }
+              ApiErrorHandler.handleAccessDenied(error, ref);
             });
             return const Padding(
               padding: EdgeInsets.all(AppSpacing.md),

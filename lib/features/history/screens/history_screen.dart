@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_tokens.dart';
+import '../../../core/providers/error_handler_provider.dart';
 import '../../../core/utils/animations.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/domain/rent_breakdown_card.dart';
@@ -84,17 +85,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       ),
       error: (error, __) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          final errorStr = error.toString().toLowerCase();
-          developer.log('[HistoryScreen] Dashboard error: $errorStr');
-
-          if (errorStr.contains('403') ||
-              errorStr.contains('platform') ||
-              errorStr.contains('disabled') ||
-              errorStr.contains('access denied') ||
-              errorStr.contains('currently disabled')) {
-            developer.log('[HistoryScreen] Detected 403 error - logging out and redirecting to login');
-            ref.read(authProvider.notifier).logout();
-          }
+          ApiErrorHandler.handleAccessDenied(error, ref);
         });
         return ListPageTemplate(
           title: 'History',
@@ -117,17 +108,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
           error: (error, __) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              final errorStr = error.toString().toLowerCase();
-              developer.log('[HistoryScreen] History error: $errorStr');
-
-              if (errorStr.contains('403') ||
-                  errorStr.contains('platform') ||
-                  errorStr.contains('disabled') ||
-                  errorStr.contains('access denied') ||
-                  errorStr.contains('currently disabled')) {
-                developer.log('[HistoryScreen] Detected 403 error - logging out and redirecting to login');
-                ref.read(authProvider.notifier).logout();
-              }
+              ApiErrorHandler.handleAccessDenied(error, ref);
             });
             return ListPageTemplate(
               title: 'History',
