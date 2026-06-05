@@ -102,13 +102,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: ScreenBackground(
         child: asyncDashboard.when(
           loading: () => const AppLoader(),
-          error: (error, stack) => const Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: StateCard(
-              message: 'Failed to load dashboard',
-              variant: StateCardVariant.error,
-            ),
-          ),
+          error: (error, stack) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final errorStr = error.toString().toLowerCase();
+              developer.log('[DashboardScreen] Error: $errorStr');
+
+              if (errorStr.contains('403') ||
+                  errorStr.contains('platform') ||
+                  errorStr.contains('disabled') ||
+                  errorStr.contains('access denied') ||
+                  errorStr.contains('currently disabled')) {
+                developer.log('[DashboardScreen] Detected 403 error - logging out and redirecting to login');
+                ref.read(authProvider.notifier).logout();
+              }
+            });
+            return const Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: StateCard(
+                message: 'Failed to load dashboard',
+                variant: StateCardVariant.error,
+              ),
+            );
+          },
           data: (data) {
             final isDark = Theme.of(context).brightness == Brightness.dark;
             final secondaryText =
