@@ -19,4 +19,6 @@ class ApiPaths {
       '$tenantMobilePrefix/maintenance-issues';
   static const String paymentProofs = '$tenantMobilePrefix/payment-proofs';
   static const String s3UploadUrls = '$tenantMobilePrefix/s3-upload-urls';
+  static const String flatDetails = '$tenantMobilePrefix/flat-details';
+  static const String bugReports = '$tenantMobilePrefix/bug-reports';
 }

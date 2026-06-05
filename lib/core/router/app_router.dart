@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/change_password_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
+import '../../features/bug_reports/screens/bug_reports_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/documents/screens/documents_screen.dart';
+import '../../features/flat_details/screens/flat_details_screen.dart';
 import '../../features/history/screens/history_screen.dart';
 import '../../features/notifications/screens/enable_notifications_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
@@ -182,6 +184,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => _buildTransitionPage(
               key: state.pageKey,
               child: const PaymentProofScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/flat-details',
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: const FlatDetailsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/bug-reports',
+            pageBuilder: (context, state) => _buildTransitionPage(
+              key: state.pageKey,
+              child: const BugReportsScreen(),
             ),
           ),
         ],

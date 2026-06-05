@@ -12,4 +12,6 @@ class TenantScreens {
   static const String paymentPage = 'PAYMENT_PAGE';
   static const String maintenance = 'MAINTENANCE';
   static const String paymentProof = 'PAYMENT_PROOF_SUBMISSION';
+  static const String flatDetails = 'FLAT_DETAILS';
+  static const String bugReports = 'BUG_REPORTS';
 }

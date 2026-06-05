@@ -30,12 +30,19 @@ class TabShell extends ConsumerStatefulWidget {
       Icons.build_circle_outlined,
       TenantScreens.maintenance
     ),
+    ('/flat-details', 'Flat', Icons.apartment_outlined, TenantScreens.flatDetails),
     ('/documents', 'Docs', Icons.description_outlined, TenantScreens.documents),
     (
       '/notifications',
       'Alerts',
       Icons.notifications_outlined,
       TenantScreens.notifications
+    ),
+    (
+      '/bug-reports',
+      'Bugs',
+      Icons.bug_report_outlined,
+      TenantScreens.bugReports
     ),
     ('/profile', 'Profile', Icons.person_outline, TenantScreens.profile),
   ];
