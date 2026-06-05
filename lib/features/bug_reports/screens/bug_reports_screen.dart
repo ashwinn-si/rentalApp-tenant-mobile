@@ -477,14 +477,23 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
   Future<void> _pickImages() async {
     final picker = ImagePicker();
     final images = await picker.pickMultiImage();
+    if (images.isEmpty) return;
 
-    if (images.isNotEmpty) {
+    final remaining = 5 - _selectedImages.length;
+    for (final img in images.take(remaining)) {
+      final file = File(img.path);
+      final size = await file.length();
+      if (_totalImageSizeBytes + size > _maxTotalSizeBytes) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Total image size exceeds ${_maxTotalSizeMb}MB limit')),
+          );
+        }
+        break;
+      }
       setState(() {
-        final newImages = images.map((img) => File(img.path)).toList();
-        _selectedImages = [
-          ..._selectedImages,
-          ...newImages,
-        ].take(5).toList();
+        _selectedImages.add(file);
+        _totalImageSizeBytes += size;
       });
     }
   }
