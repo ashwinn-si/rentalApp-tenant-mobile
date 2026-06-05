@@ -298,6 +298,10 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
   BugType _selectedType = BugType.uiBug;
   List<File> _selectedImages = [];
   bool _isSubmitting = false;
+  int _totalImageSizeBytes = 0;
+
+  static const int _maxTotalSizeMb = 15;
+  static const int _maxTotalSizeBytes = _maxTotalSizeMb * 1024 * 1024;
 
   @override
   void initState() {

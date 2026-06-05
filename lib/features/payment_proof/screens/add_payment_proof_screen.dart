@@ -1060,29 +1060,34 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   }
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
+    final remaining = 5 - selectedImages.length;
+    if (remaining <= 0) return;
+
+    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
     if (result == null || result.files.isEmpty) return;
 
-    final file = result.files.first;
-    final filePath = file.path;
-    if (filePath == null) return;
+    setState(() => sizeError = null);
 
-    final fileSize = await File(filePath).length();
-    final newTotalSize = totalImageSizeBytes + fileSize;
+    for (final file in result.files.take(remaining)) {
+      final filePath = file.path;
+      if (filePath == null) continue;
 
-    if (newTotalSize > maxTotalSizeBytes) {
-      final remainingMB = ((maxTotalSizeBytes - totalImageSizeBytes) / (1024 * 1024)).toStringAsFixed(2);
+      final fileSize = await File(filePath).length();
+      final newTotalSize = totalImageSizeBytes + fileSize;
+
+      if (newTotalSize > maxTotalSizeBytes) {
+        final remainingMB = ((maxTotalSizeBytes - totalImageSizeBytes) / (1024 * 1024)).toStringAsFixed(2);
+        setState(() {
+          sizeError = 'Cannot add more files. Total size exceeds ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
+        });
+        break;
+      }
+
       setState(() {
-        sizeError = 'Cannot add this file. Total size would exceed ${maxTotalSizeMb}MB. You can add ${remainingMB}MB more.';
+        selectedImages.add(File(filePath));
+        totalImageSizeBytes = newTotalSize;
       });
-      return;
     }
-
-    setState(() {
-      selectedImages.add(File(filePath));
-      totalImageSizeBytes = newTotalSize;
-      sizeError = null;
-    });
   }
 
   bool _validateForm() {
