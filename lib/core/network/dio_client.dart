@@ -47,9 +47,22 @@ class DioClient {
             final token = (_sessionToken?.isNotEmpty ?? false)
                 ? _sessionToken
                 : storedToken?.trim();
+
+            developer.log(
+              '[DioClient.onRequest] Token check: '
+              'hasSessionToken=${_sessionToken?.isNotEmpty}, '
+              'hasStoredToken=${storedToken?.isNotEmpty}, '
+              'finalToken=${token?.isNotEmpty}, '
+              'path=${options.path}',
+            );
+
             if (token != null && token.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $token';
+              developer.log('[DioClient.onRequest] ✅ Authorization header set for ${options.path}');
+            } else {
+              developer.log('[DioClient.onRequest] ⚠️  NO TOKEN for ${options.path} - request will fail auth');
             }
+
             handler.next(options);
           },
           onResponse: (response, handler) async {
