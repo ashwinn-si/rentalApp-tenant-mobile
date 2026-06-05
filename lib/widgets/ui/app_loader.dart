@@ -44,7 +44,9 @@ class _AppLoaderState extends State<AppLoader>
     super.dispose();
   }
 
-  Widget _buildLoaderContent() {
+  Widget _buildLoaderContent({required bool isDark}) {
+    final trackOpacity = isDark ? 0.25 : 0.12;
+    final shimmerPeak = isDark ? 0.9 : 0.7;
     return SizedBox(
       width: 72,
       height: 72,
@@ -65,7 +67,7 @@ class _AppLoaderState extends State<AppLoader>
                     endAngle: (_shimmerController.value + 1) * 2 * math.pi,
                     colors: [
                       AppColors.violet.withValues(alpha: 0.0),
-                      AppColors.violet.withValues(alpha: 0.7),
+                      AppColors.violet.withValues(alpha: shimmerPeak),
                       AppColors.violet.withValues(alpha: 0.0),
                     ],
                   ),
@@ -87,7 +89,7 @@ class _AppLoaderState extends State<AppLoader>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.violet.withValues(alpha: 0.12),
+                color: AppColors.violet.withValues(alpha: trackOpacity),
                 width: 2,
               ),
             ),
@@ -157,8 +159,8 @@ class _AppLoaderState extends State<AppLoader>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (widget.fullScreen) {
-      final isDark = Theme.of(context).brightness == Brightness.dark;
       return Scaffold(
         body: Container(
           decoration: BoxDecoration(
@@ -170,14 +172,14 @@ class _AppLoaderState extends State<AppLoader>
                   : const [AppColors.screenBg, Colors.white],
             ),
           ),
-          child: Center(child: _buildLoaderContent()),
+          child: Center(child: _buildLoaderContent(isDark: isDark)),
         ),
       );
     }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        child: _buildLoaderContent(),
+        child: _buildLoaderContent(isDark: isDark),
       ),
     );
   }

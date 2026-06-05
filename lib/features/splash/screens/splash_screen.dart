@@ -129,22 +129,29 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background gradient
+          // Background gradient — deeper in dark mode
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF3B1FA8),
-                  AppColors.violet,
-                  Color(0xFF7C3AED),
-                ],
-                stops: [0.0, 0.5, 1.0],
+                colors: isDark
+                    ? const [
+                        Color(0xFF0D0826),
+                        Color(0xFF1A0E52),
+                        Color(0xFF2D1A8A),
+                      ]
+                    : const [
+                        Color(0xFF3B1FA8),
+                        AppColors.violet,
+                        Color(0xFF7C3AED),
+                      ],
+                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),

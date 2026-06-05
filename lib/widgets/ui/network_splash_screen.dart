@@ -231,7 +231,9 @@ class _OfflineScreenState extends State<_OfflineScreen>
                             height: 96,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.red.withValues(alpha: 0.06),
+                              color: AppColors.red.withValues(
+                                alpha: isDark ? 0.14 : 0.06,
+                              ),
                             ),
                           ),
                           Container(
@@ -239,9 +241,13 @@ class _OfflineScreenState extends State<_OfflineScreen>
                             height: 72,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.red.withValues(alpha: 0.10),
+                              color: AppColors.red.withValues(
+                                alpha: isDark ? 0.20 : 0.10,
+                              ),
                               border: Border.all(
-                                color: AppColors.red.withValues(alpha: 0.20),
+                                color: AppColors.red.withValues(
+                                  alpha: isDark ? 0.40 : 0.20,
+                                ),
                                 width: 1.5,
                               ),
                             ),
@@ -288,9 +294,13 @@ class _OfflineScreenState extends State<_OfflineScreen>
                         ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(100),
-                          color: AppColors.red.withValues(alpha: 0.08),
+                          color: AppColors.red.withValues(
+                            alpha: isDark ? 0.18 : 0.08,
+                          ),
                           border: Border.all(
-                            color: AppColors.red.withValues(alpha: 0.18),
+                            color: AppColors.red.withValues(
+                              alpha: isDark ? 0.35 : 0.18,
+                            ),
                             width: 1,
                           ),
                         ),
@@ -302,7 +312,9 @@ class _OfflineScreenState extends State<_OfflineScreen>
                               height: 7,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.red.withValues(alpha: 0.8),
+                                color: AppColors.red.withValues(
+                                  alpha: isDark ? 1.0 : 0.8,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -311,7 +323,9 @@ class _OfflineScreenState extends State<_OfflineScreen>
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.red.withValues(alpha: 0.85),
+                                color: isDark
+                                    ? const Color(0xFFFC8181)
+                                    : AppColors.red.withValues(alpha: 0.85),
                               ),
                             ),
                           ],
