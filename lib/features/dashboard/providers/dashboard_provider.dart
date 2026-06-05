@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../data/dashboard_repository.dart';
 import '../data/models/dashboard_response.dart';
+import '../data/models/outstanding_due_response.dart';
 
 final dashboardProvider = FutureProvider.family<DashboardResponse, String?>((ref, flatId) async {
   developer.log('[DashboardProvider] Loading dashboard for flatId=$flatId');
@@ -33,4 +34,25 @@ final activeDashboardProvider = FutureProvider<DashboardResponse>((ref) {
   final flatId = ref.watch(authProvider.select((state) => state.activeFlatId));
   developer.log('[ActiveDashboardProvider] Watching dashboard for activeFlatId=$flatId');
   return ref.watch(dashboardProvider(flatId).future);
+});
+
+final outstandingDueProvider = FutureProvider.family<OutstandingDueResponse, String?>((ref, flatId) async {
+  try {
+    final repository = DashboardRepository();
+    final result = await repository.getOutstandingDue(flatId: flatId);
+
+    if (!result.isSuccess || result.data == null) {
+      throw Exception(result.error ?? 'Unable to load outstanding due');
+    }
+
+    return result.data!;
+  } catch (e) {
+    developer.log('[OutstandingDueProvider] Error: $e');
+    rethrow;
+  }
+});
+
+final activeOutstandingDueProvider = FutureProvider<OutstandingDueResponse>((ref) {
+  final flatId = ref.watch(authProvider.select((state) => state.activeFlatId));
+  return ref.watch(outstandingDueProvider(flatId).future);
 });

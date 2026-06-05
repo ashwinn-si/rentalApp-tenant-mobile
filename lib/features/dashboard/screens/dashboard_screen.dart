@@ -223,29 +223,42 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (data.currentDue != null)
-                            Text(
-                              _getMonthYearLabel(data.currentDue),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: secondaryText,
+                      ref.watch(activeOutstandingDueProvider).when(
+                        data: (due) => due.months.isEmpty
+                            ? const SizedBox.shrink()
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Divider(height: 1, color: dividerColor),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  ...due.months.map((month) => Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 6),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              month.name,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w400,
+                                                color: secondaryText,
+                                              ),
+                                            ),
+                                            Text(
+                                              formatINR(month.amount),
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFFEF4444),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )),
+                                ],
                               ),
-                            )
-                          else
-                            const SizedBox.shrink(),
-                          Text(
-                            formatINR(data.totalOutstanding),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
                       ),
                     ],
                   ),
