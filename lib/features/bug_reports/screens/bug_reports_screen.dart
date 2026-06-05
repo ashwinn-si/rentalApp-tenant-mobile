@@ -29,7 +29,10 @@ class BugReportsScreen extends ConsumerWidget {
           title: 'Bug Reports',
           actions: [
             IconButton(
-              onPressed: () => ref.refresh(bugReportsListProvider.future),
+              onPressed: () {
+                debugPrint('[BugReportsScreen] Refresh clicked');
+                ref.invalidate(bugReportsListProvider);
+              },
               icon: const Icon(Icons.refresh_outlined),
               tooltip: 'Refresh',
             ),
@@ -68,7 +71,11 @@ class BugReportsScreen extends ConsumerWidget {
             }
 
             return RefreshIndicator(
-              onRefresh: () => ref.refresh(bugReportsListProvider.future),
+              onRefresh: () async {
+                debugPrint('[BugReportsScreen] Pull-to-refresh triggered');
+                ref.invalidate(bugReportsListProvider);
+                await ref.watch(bugReportsListProvider.future);
+              },
               child: ListView.builder(
                 padding: const EdgeInsets.only(
                   left: AppSpacing.md,

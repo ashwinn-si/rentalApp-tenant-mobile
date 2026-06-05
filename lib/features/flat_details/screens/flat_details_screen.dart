@@ -33,8 +33,10 @@ class FlatDetailsScreen extends ConsumerWidget {
           title: 'Flat Details',
           actions: [
             IconButton(
-              onPressed: () =>
-                  ref.refresh(flatDetailsProvider(activeFlatId).future),
+              onPressed: () {
+                developer.log('[FlatDetailsScreen] Refresh clicked, activeFlatId=$activeFlatId');
+                ref.invalidate(flatDetailsProvider(activeFlatId));
+              },
               icon: const Icon(Icons.refresh_outlined),
               tooltip: 'Refresh',
             ),
@@ -73,8 +75,11 @@ class FlatDetailsScreen extends ConsumerWidget {
             final details = response.details!;
 
             return RefreshIndicator(
-              onRefresh: () =>
-                  ref.refresh(flatDetailsProvider(activeFlatId).future),
+              onRefresh: () async {
+                developer.log('[FlatDetailsScreen] Pull-to-refresh triggered');
+                ref.invalidate(flatDetailsProvider(activeFlatId));
+                await ref.watch(flatDetailsProvider(activeFlatId).future);
+              },
               child: ListView(
                 padding: const EdgeInsets.only(
                   left: AppSpacing.md,
