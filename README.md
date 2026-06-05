@@ -2927,6 +2927,53 @@ String monthYear(int month, int year) =>
 - [ ] Android: status bar color matches AppBar
 - [ ] iOS: safe area insets respected (top notch, bottom home bar)
 - [ ] iOS: `flutter_secure_storage` uses Keychain correctly
+
+---
+
+## 14. Global Error Handling (403 Access Denied)
+
+### Pattern: ApiErrorHandler
+
+When super admin disables a platform, backend returns `403 Forbidden`. Mobile must auto-logout.
+
+**Global handler:**
+
+```dart
+// lib/core/providers/error_handler_provider.dart
+class ApiErrorHandler {
+  static bool handleAccessDenied(Object error, WidgetRef ref) {
+    final errorStr = error.toString().toLowerCase();
+    if (errorStr.contains('403') ||
+        errorStr.contains('platform') ||
+        errorStr.contains('disabled') ||
+        errorStr.contains('access denied') ||
+        errorStr.contains('currently disabled')) {
+      ref.read(authProvider.notifier).logout();
+      return true;
+    }
+    return false;
+  }
+}
+```
+
+**Using in screens:**
+
+```dart
+error: (error, stack) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ApiErrorHandler.handleAccessDenied(error, ref);
+  });
+  return StateCard(message: 'Failed to load', variant: StateCardVariant.error);
+}
+```
+
+**Why this pattern:**
+- Centralized: one place to update 403 detection logic
+- Reusable: copy-paste same error handler into any screen
+- Safe: `addPostFrameCallback` prevents setState-after-dispose errors
+- Automatic: logout triggers router guard → redirects to login
+
+See `readme/FEATURES/platform-access-control.md` for full flow and testing checklist.
 - [ ] Tablet (768px+): consider adaptive layout (two-column) in dashboard
 
 ---

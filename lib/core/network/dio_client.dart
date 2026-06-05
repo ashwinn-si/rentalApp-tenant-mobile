@@ -112,6 +112,8 @@ class DioClient {
     T Function(dynamic json)? fromJson,
     Object? data,
     Map<String, dynamic>? queryParams,
+    Duration? sendTimeout,
+    Duration? receiveTimeout,
   }) async {
     developer.log(
         '[DioClient.request] START - method=$method, path=$path, hasFromJson=${fromJson != null}, queryParams=$queryParams, dataType=${data.runtimeType}');
@@ -120,7 +122,11 @@ class DioClient {
       developer.log('[DioClient.request] Making HTTP request...');
       final response = await _dio.request<dynamic>(
         path,
-        options: Options(method: method),
+        options: Options(
+          method: method,
+          sendTimeout: sendTimeout,
+          receiveTimeout: receiveTimeout,
+        ),
         data: data,
         queryParameters: queryParams,
       );
@@ -208,12 +214,16 @@ class DioClient {
     String path, {
     T Function(dynamic json)? fromJson,
     Object? data,
+    Duration? sendTimeout,
+    Duration? receiveTimeout,
   }) {
     return request<T>(
       method: 'POST',
       path: path,
       fromJson: fromJson,
       data: data,
+      sendTimeout: sendTimeout,
+      receiveTimeout: receiveTimeout,
     );
   }
 
