@@ -50,7 +50,24 @@ class _RentBreakdownCardState extends State<RentBreakdownCard> {
     final secondaryText = isDark ? const Color(0xFFD1D5DB) : AppColors.textSecondary;
     final dividerColor = AppColors.textSecondary.withValues(alpha: 0.12);
 
-    final balanceDue = (widget.totalDue - widget.paidAmount).clamp(0, double.infinity) as num;
+    // Calculate maintenance with itemized adjustments
+    var maintenanceTotal = widget.maintenance;
+    if (widget.maintenanceBreakdownItems.isNotEmpty) {
+      maintenanceTotal = 0;
+      for (final item in widget.maintenanceBreakdownItems) {
+        final amount = item.yourShare;
+        if (item.type == 'reimbursement') {
+          maintenanceTotal -= amount;
+        } else {
+          maintenanceTotal += amount;
+        }
+      }
+    }
+    final isMaintenanceCredit = maintenanceTotal < 0;
+
+    // Recalculate totalDue from components (consistent with tenant-website)
+    final calculatedTotalDue = widget.baseRent + widget.utilityBill + maintenanceTotal + widget.extra;
+    final balanceDue = (calculatedTotalDue - widget.paidAmount).clamp(0, double.infinity) as num;
     final isFullyPaid = balanceDue == 0;
 
     return PremiumCard(
@@ -132,7 +149,7 @@ class _RentBreakdownCardState extends State<RentBreakdownCard> {
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: primaryText),
               ),
               Text(
-                formatINR(widget.totalDue),
+                formatINR(calculatedTotalDue),
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.violet),
               ),
             ],

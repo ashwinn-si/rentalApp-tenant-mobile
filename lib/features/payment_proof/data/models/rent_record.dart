@@ -69,7 +69,7 @@ class RentRecord {
     final baseRent = (json['baseRent'] ?? 0).toDouble();
     final electricityBill = (json['electricityBill'] ?? 0).toDouble();
     final maintenanceShare = (json['maintenanceShare'] ?? 0).toDouble();
-    final extra = (json['extra'] ?? 0).toDouble();
+    final extra = (json['extra'] ?? json['extraMaintenance'] ?? 0).toDouble();
     final totalDue = (json['totalDue'] ?? 0).toDouble();
 
     return RentRecord(
