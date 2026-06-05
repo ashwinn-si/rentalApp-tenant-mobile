@@ -7,6 +7,7 @@ import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../providers/flat_details_provider.dart';
 
 class FlatDetailsScreen extends ConsumerWidget {
@@ -33,13 +34,26 @@ class FlatDetailsScreen extends ConsumerWidget {
         ),
         body: flatDetailsAsync.when(
           loading: () => const Center(child: AppLoader()),
-          error: (error, stack) => Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: StateCard(
-              message: 'Failed to load flat details',
-              variant: StateCardVariant.error,
-            ),
-          ),
+          error: (error, stack) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (error.toString().contains('403')) {
+                ref.read(authProvider.notifier).logout();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Your access has been revoked. Please log in again.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            });
+            return Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: StateCard(
+                message: 'Failed to load flat details',
+                variant: StateCardVariant.error,
+              ),
+            );
+          },
           data: (response) {
             if (response.details == null) {
               return const Padding(

@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../storage/secure_storage.dart';
 import 'api_response.dart';
@@ -26,6 +27,10 @@ String _resolveBaseUrl() {
 }
 
 class DioClient {
+  static final _navigatorKey = GlobalKey<NavigatorState>();
+
+  static GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
+
   DioClient._() {
     _dio = Dio(
       BaseOptions(
@@ -35,7 +40,7 @@ class DioClient {
         validateStatus: (_) => true,
         headers: <String, dynamic>{'Content-Type': 'application/json'},
       ),
-    )..interceptors.add(
+    )..interceptors.addAll([
         InterceptorsWrapper(
           onRequest: (options, handler) async {
             final storedToken = await SecureStorageService.getToken();
@@ -47,8 +52,25 @@ class DioClient {
             }
             handler.next(options);
           },
+          onResponse: (response, handler) async {
+            if (response.statusCode == 403) {
+              final responseData = response.data;
+              final message = (responseData is Map<String, dynamic>
+                      ? responseData['message'] as String?
+                      : null) ??
+                  'Access denied';
+
+              developer.log(
+                '[DioClient] 403 Response - message: $message, auto-logging out',
+              );
+
+              handler.resolve(response);
+              return;
+            }
+            handler.next(response);
+          },
         ),
-      );
+      ]);
   }
 
   static final DioClient instance = DioClient._();

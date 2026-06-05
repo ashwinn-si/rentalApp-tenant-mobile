@@ -193,6 +193,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await prefs.clear();
     state = const AuthState();
   }
+
+  Future<void> handleAccessDenied() async {
+    await logout();
+  }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
