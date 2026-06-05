@@ -119,6 +119,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             final isDark = Theme.of(context).brightness == Brightness.dark;
             final secondaryText =
                 isDark ? const Color(0xFFD1D5DB) : AppColors.textSecondary;
+            final dividerColor =
+                isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB);
             final flatItems = data.availableFlats
                 .map((flat) => FlatModel(id: flat.id, label: flat.label))
                 .toList();
