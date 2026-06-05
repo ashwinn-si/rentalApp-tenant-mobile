@@ -463,9 +463,13 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
                 .entries
                 .map((e) => _ImagePreview(
                   image: e.value,
-                  onRemove: () => setState(
-                    () => _selectedImages.removeAt(e.key),
-                  ),
+                  onRemove: () async {
+                    final size = await e.value.length();
+                    setState(() {
+                      _selectedImages.removeAt(e.key);
+                      _totalImageSizeBytes -= size;
+                    });
+                  },
                 ))
                 .toList(),
           ),
