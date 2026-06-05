@@ -82,12 +82,21 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         actions: _refreshAction,
         body: const SizedBox.shrink(),
       ),
-      error: (_, __) => ListPageTemplate(
-        title: 'History',
-        errorMessage: 'Unable to load history',
-        actions: _refreshAction,
-        body: const SizedBox.shrink(),
-      ),
+      error: (error, __) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final errorStr = error.toString();
+          if (errorStr.contains('403') || errorStr.contains('Platform') || errorStr.contains('disabled')) {
+            developer.log('[HistoryScreen] Access denied (403) - logging out');
+            ref.read(authProvider.notifier).logout();
+          }
+        });
+        return ListPageTemplate(
+          title: 'History',
+          errorMessage: 'Unable to load history',
+          actions: _refreshAction,
+          body: const SizedBox.shrink(),
+        );
+      },
       data: (dashboardData) {
         final flatItems = dashboardData.availableFlats
             .map((flat) => FlatModel(id: flat.id, label: flat.label))
@@ -100,12 +109,21 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             actions: _refreshAction,
             body: const SizedBox.shrink(),
           ),
-          error: (_, __) => ListPageTemplate(
-            title: 'History',
-            errorMessage: 'Unable to load history',
-            actions: _refreshAction,
-            body: const SizedBox.shrink(),
-          ),
+          error: (error, __) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final errorStr = error.toString();
+              if (errorStr.contains('403') || errorStr.contains('Platform') || errorStr.contains('disabled')) {
+                developer.log('[HistoryScreen] Access denied (403) - logging out');
+                ref.read(authProvider.notifier).logout();
+              }
+            });
+            return ListPageTemplate(
+              title: 'History',
+              errorMessage: 'Unable to load history',
+              actions: _refreshAction,
+              body: const SizedBox.shrink(),
+            );
+          },
           data: (history) {
             final recentBarData = dashboardData.recentRents
                 .map(

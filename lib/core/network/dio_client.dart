@@ -66,20 +66,30 @@ class DioClient {
             handler.next(options);
           },
           onResponse: (response, handler) async {
-            if (response.statusCode == 403) {
+            final statusCode = response.statusCode;
+
+            // Handle 403 Forbidden (platform/screen disabled)
+            if (statusCode == 403) {
               final responseData = response.data;
               final message = (responseData is Map<String, dynamic>
                       ? responseData['message'] as String?
                       : null) ??
                   'Access denied';
 
-              developer.log(
-                '[DioClient] 403 Response - message: $message, auto-logging out',
-              );
+              developer.log('[DioClient] 403 FORBIDDEN - $message');
 
               handler.resolve(response);
               return;
             }
+
+            // Handle 401 Unauthorized (token expired/invalid)
+            if (statusCode == 401) {
+              developer.log('[DioClient] 401 UNAUTHORIZED - session expired');
+
+              handler.resolve(response);
+              return;
+            }
+
             handler.next(response);
           },
         ),
