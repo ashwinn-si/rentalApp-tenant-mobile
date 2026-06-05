@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +17,12 @@ class FlatDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    developer.log('[FlatDetailsScreen] Auth state: ${authState.toString()}');
+    developer.log('[FlatDetailsScreen] Token: ${authState.token}');
+    developer.log('[FlatDetailsScreen] UserId: ${authState.userId}');
+    developer.log('[FlatDetailsScreen] TenantKey: ${authState.tenantKey}');
+
     final activeFlatId = ref.watch(activeFlatIdProvider);
     final flatDetailsAsync = ref.watch(flatDetailsProvider(activeFlatId));
 
