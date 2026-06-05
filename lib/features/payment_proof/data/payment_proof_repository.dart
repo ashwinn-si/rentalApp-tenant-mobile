@@ -1,10 +1,16 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import '../../../core/constants/api_paths.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/utils/image_utils.dart';
 import 'models/payment_proof.dart';
 import 'models/rent_record.dart';
+
+const _uploadSendTimeout = Duration(seconds: 120);
+const _uploadReceiveTimeout = Duration(seconds: 120);
 
 class PaymentProofRepository {
   final DioClient _client = DioClient.instance;
@@ -148,11 +154,13 @@ class PaymentProofRepository {
     ));
 
     for (int i = 0; i < fileBytes.length; i++) {
+      final raw = Uint8List.fromList(fileBytes[i]);
+      final name = fileNames[i];
+      final Uint8List finalBytes = ImageUtils.isCompressible(name)
+          ? await ImageUtils.compressBytes(raw)
+          : raw;
       formData.files.add(
-        MapEntry(
-          'proofImages',
-          MultipartFile.fromBytes(fileBytes[i], filename: fileNames[i]),
-        ),
+        MapEntry('proofImages', MultipartFile.fromBytes(finalBytes, filename: name)),
       );
     }
 
@@ -160,6 +168,8 @@ class PaymentProofRepository {
       '${ApiPaths.paymentProofs}/with-files',
       fromJson: (json) => json as Map<String, dynamic>,
       data: formData,
+      sendTimeout: _uploadSendTimeout,
+      receiveTimeout: _uploadReceiveTimeout,
     );
 
     if (!response.isSuccess) {

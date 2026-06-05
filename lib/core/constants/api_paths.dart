@@ -5,7 +5,7 @@ class ApiPaths {
   static const String tenantPrefix = '/tenant';
 
   static const String login = '/auth/tenant-mobile';
-  static const String changePassword = '$tenantMobilePrefix/change-password';
+  static const String changePassword = '$tenantMobilePrefix/auth/change-password';
   static const String fcmToken = '$tenantMobilePrefix/fcm-token';
   static const String activeRentMonth = '$tenantMobilePrefix/portal/active-month';
   static const String dashboard = '$tenantMobilePrefix/dashboard';
