@@ -20,7 +20,7 @@ class DashboardNotificationCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF7C3AED) : AppColors.violet;
     final cardBg = isDark ? bgColor.withValues(alpha: 0.95) : bgColor;
-    final textColor = Colors.white;
+    const textColor = Colors.white;
     final subTextColor = Colors.white.withValues(alpha: 0.9);
 
     return GestureDetector(
@@ -57,7 +57,7 @@ class DashboardNotificationCard extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.notifications_outlined,
                     color: textColor,
                     size: 20,
@@ -66,7 +66,7 @@ class DashboardNotificationCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    '$notificationCount notification${notificationCount > 1 ? 's' : ''}',
+                    '$notificationCount Alert${notificationCount > 1 ? 's' : ''}',
                     style: TextStyle(
                       color: subTextColor,
                       fontSize: 13,
@@ -84,7 +84,7 @@ class DashboardNotificationCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             Text(
               latestTitle,
-              style: TextStyle(
+              style: const TextStyle(
                 color: textColor,
                 fontWeight: FontWeight.w700,
                 fontSize: 14,

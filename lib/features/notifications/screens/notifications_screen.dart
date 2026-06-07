@@ -19,7 +19,7 @@ class NotificationsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: buildPremiumAppBar(
-        title: 'Notifications',
+        title: 'Alerts',
         actions: [
           IconButton(
             onPressed: () {
