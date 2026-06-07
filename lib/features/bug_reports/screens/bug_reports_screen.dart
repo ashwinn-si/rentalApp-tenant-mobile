@@ -38,10 +38,12 @@ class BugReportsScreen extends ConsumerWidget {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton.extended(
+        floatingActionButton: FloatingActionButton(
           onPressed: () => _showReportDialog(context, ref),
-          label: const Text('Report Bug'),
-          icon: const Icon(Icons.bug_report),
+          backgroundColor: AppColors.violet,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          child: const Icon(Icons.bug_report),
         ),
         body: bugReportsAsync.when(
           loading: () => const Center(child: AppLoader()),
