@@ -294,31 +294,35 @@ class _ApartmentCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Row(
+          Column(
             children: [
-              Expanded(
-                child: _LocationTile(
-                  label: 'City',
-                  value: apartment.city,
-                  icon: Icons.location_city,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: _LocationTile(
+                      label: 'City',
+                      value: apartment.city,
+                      icon: Icons.location_city,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: _LocationTile(
+                      label: 'State',
+                      value: apartment.state,
+                      icon: Icons.map,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: _LocationTile(
-                  label: 'State',
-                  value: apartment.state,
-                  icon: Icons.map,
-                ),
+              const SizedBox(height: AppSpacing.md),
+              _LocationTile(
+                label: 'Pincode',
+                value: apartment.pincode,
+                icon: Icons.pin,
+                fullWidth: true,
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _LocationTile(
-            label: 'Pincode',
-            value: apartment.pincode,
-            icon: Icons.pin,
-            fullWidth: true,
           ),
         ],
       ),
