@@ -7,6 +7,7 @@ import '../../../core/constants/app_tokens.dart';
 import '../../../core/providers/error_handler_provider.dart';
 import '../../../core/utils/app_bar_helper.dart';
 import '../../../core/utils/animations.dart';
+import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
@@ -85,12 +86,10 @@ class FlatDetailsScreen extends ConsumerWidget {
                   if (response.availableFlats.isNotEmpty)
                     FadeSlideTransition(
                       duration: AppAnimations.normal,
-                      child: _FlatSelector(
-                        flats: response.availableFlats,
-                        selectedFlatId: activeFlatId ?? response.activeFlatId,
-                        onChanged: (flatId) => ref
-                            .read(activeFlatIdProvider.notifier)
-                            .state = flatId,
+                      child: FlatSelector(
+                        flats: response.availableFlats
+                            .map((flat) => FlatModel(id: flat.flatId, label: flat.label))
+                            .toList(),
                       ),
                     ),
                   if (response.availableFlats.isNotEmpty)
@@ -121,77 +120,6 @@ class FlatDetailsScreen extends ConsumerWidget {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _FlatSelector extends StatelessWidget {
-  const _FlatSelector({
-    required this.flats,
-    required this.selectedFlatId,
-    required this.onChanged,
-  });
-
-  final List<dynamic> flats;
-  final String? selectedFlatId;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return PremiumCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.apartment, color: AppColors.violet, size: 20),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                'Your Flat',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(
-                color: AppColors.violet.withOpacity(0.2),
-                width: 1,
-              ),
-              color: isDark
-                  ? AppColors.violet.withOpacity(0.05)
-                  : AppColors.violet.withOpacity(0.03),
-            ),
-            child: DropdownButton<String>(
-              value: selectedFlatId,
-              isExpanded: true,
-              underline: const SizedBox(),
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              items: flats
-                  .map(
-                    (flat) => DropdownMenuItem<String>(
-                      value: flat.flatId,
-                      child: Text(flat.label),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (flatId) {
-                if (flatId != null) onChanged(flatId);
-              },
-            ),
-          ),
-        ],
       ),
     );
   }
