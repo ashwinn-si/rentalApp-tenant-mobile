@@ -73,7 +73,7 @@ final rentCardsProvider = FutureProvider.family<RentCardsResponse, String?>((ref
       throw Exception(error);
     }
 
-    developer.log('[RentCardsProvider] SUCCESS - cards=${result.data!.cards.length}');
+    developer.log('[RentCardsProvider] SUCCESS - items=${result.data!.items.length}');
     return result.data!;
   } catch (e, stack) {
     developer.log('[RentCardsProvider] CAUGHT EXCEPTION: $e\n$stack');

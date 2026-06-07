@@ -37,6 +37,39 @@ This file is the authoritative contract for:
 - Animations (`StaggeredListView`, `FadeSlideTransition`)
 - New screen registration checklist
 
+## Data Models & API Separation
+
+**CRITICAL: Dashboard and History have SEPARATE endpoints and data models.**
+
+### Dashboard Data Models
+- **Location:** `lib/features/dashboard/data/models/rent_cards_response.dart`
+- **Models:** `RentCard`, `MaintenanceItem`, `RentCardsResponse`
+- **Purpose:** Dashboard-specific UI display with status indicators, quick summaries
+- **Used by:** `RentBreakdownCard` widget in dashboard, displays cards with color-coded status
+- **Why separate:** Dashboard filters by status (unpaid/partial) + last 3 months, optimized for quick view
+
+### History Data Models  
+- **Location:** `lib/features/history/data/models/history_response.dart`
+- **Models:** `HistoryItem`, `MaintenanceBreakdownItem`, `HistoryResponse`
+- **Purpose:** Detailed paginated history with sorting, filtering, full audit trail
+- **Used by:** History screen, detailed breakdown cards with extensive breakdown items
+- **Why separate:** History filters by date range, supports pagination, focuses on detailed records
+
+### Key Difference
+```
+Dashboard Cards:           History Items:
+├─ Last 3 months         ├─ Paginated list (date range)
+├─ All unpaid/partial    ├─ Sorted by date
+├─ Status colors         ├─ Full detail breakdown
+└─ Quick view            └─ Audit trail focus
+```
+
+**DO NOT:**
+- Share data models between dashboard and history
+- Use HistoryItem in dashboard screens
+- Use RentCard in history screens
+- Merge their endpoints into one
+
 ## Mandatory Style Guide
 
 Before touching any file, read `../style.md` at repo root.

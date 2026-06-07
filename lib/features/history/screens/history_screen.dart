@@ -8,7 +8,6 @@ import '../../../core/providers/error_handler_provider.dart';
 import '../../../core/utils/animations.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/domain/rent_breakdown_card.dart';
-import '../../../widgets/domain/last_3_months_table.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/chart_widgets.dart';
 import '../../../widgets/ui/pagination_footer.dart';
@@ -17,8 +16,6 @@ import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
-import '../data/models/history_response.dart';
-import '../data/models/history_cards_response.dart';
 import '../providers/history_provider.dart';
 
 extension _BreakdownBuilder on RentBarItem {
@@ -77,6 +74,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     final asyncHistory = ref.watch(activeHistoryProvider(_page));
     final asyncDashboard = ref.watch(activeDashboardProvider);
+    final asyncLast3Months = ref.watch(last3MonthsComparisonProvider);
 
     developer.log(
         '[HistoryScreen] Build - asyncHistory: ${asyncHistory.runtimeType}, page=$_page, value: ${asyncHistory.valueOrNull}, error: ${asyncHistory.error}');
@@ -123,16 +121,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             );
           },
           data: (history) {
-            final recentBarData = dashboardData.recentRents
-                .map(
-                  (r) => RentBarItem(
-                    monthLabel: r.isCurrentMonth ? 'This Month' : r.monthLabel,
-                    baseRent: r.baseRent,
-                    utilityBill: r.utilityBill,
-                    maintenance: r.maintenanceShare,
-                  ),
-                )
-                .toList();
+            final recentBarData = asyncLast3Months.when(
+              loading: () => <RentBarItem>[],
+              error: (_, __) => <RentBarItem>[],
+              data: (last3Data) => last3Data.items
+                  .map(
+                    (item) => RentBarItem(
+                      monthLabel: item.monthLabel,
+                      baseRent: item.baseRent,
+                      utilityBill: item.utility,
+                      maintenance: item.maintenance,
+                    ),
+                  )
+                  .toList(),
+            );
 
             // Empty state
             if (history.items.isEmpty && recentBarData.isEmpty) {
@@ -168,11 +170,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
                           child: FlatSelector(flats: flatItems),
                         ),
-                      _Last3MonthsSection(
-                        activeFlatId: dashboardData.availableFlats.isNotEmpty
-                            ? dashboardData.availableFlats.first.id
-                            : null,
-                      ),
                       if (recentBarData.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -221,50 +218,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               ),
             );
           },
-        );
-      },
-    );
-  }
-}
-
-class _Last3MonthsSection extends ConsumerWidget {
-  const _Last3MonthsSection({
-    required this.activeFlatId,
-  });
-
-  final String? activeFlatId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asyncData = ref.watch(last3MonthsComparisonProvider);
-
-    return asyncData.when(
-      loading: () => Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.md),
-        child: const AppLoader(),
-      ),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (data) {
-        if (data.items.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.md),
-          child: Last3MonthsTable(
-            items: data.items
-                .map((item) => Last3MonthsTableItem(
-                      monthLabel: item.monthLabel,
-                      baseRent: item.baseRent,
-                      utility: item.utility,
-                      maintenance: item.maintenance,
-                      totalDue: item.totalDue,
-                      paidAmount: item.paidAmount,
-                      pendingAmount: item.pendingAmount,
-                      status: item.status,
-                    ))
-                .toList(),
-          ),
         );
       },
     );

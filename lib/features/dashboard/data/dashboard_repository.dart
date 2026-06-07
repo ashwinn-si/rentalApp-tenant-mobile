@@ -64,7 +64,7 @@ class DashboardRepository {
 
         try {
           final response = RentCardsResponse.fromJson(payload);
-          developer.log('[RentCards] Parsed Response: cards=${response.cards.length}');
+          developer.log('[RentCards] Parsed Response: items=${response.items.length}');
           return response;
         } catch (e, stack) {
           developer.log('[RentCards] Parsing Error: $e\n$stack');

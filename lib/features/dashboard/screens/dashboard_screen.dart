@@ -18,10 +18,10 @@ import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../app_version/services/app_update_checker.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../history/data/models/history_response.dart';
 import '../../history/providers/history_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
 import '../providers/dashboard_provider.dart';
-import '../widgets/rent_card_item.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -179,16 +179,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               loading: () => const AppLoader(),
               error: (_, __) => null,
               data: (rentCardsData) {
-                if (rentCardsData.cards.isEmpty) {
+                if (rentCardsData.items.isEmpty) {
                   return null;
                 }
 
                 return StaggeredListView(
-                  children: rentCardsData.cards
+                  children: rentCardsData.items
                       .map(
-                        (card) => RentCardItem(
-                          card: card,
-                          isLast3Months: card.isLast3Months,
+                        (card) => RentBreakdownCard(
+                          monthLabel: card.monthLabel,
+                          status: card.status,
+                          baseRent: card.baseRent,
+                          utilityBill: card.utilityBill,
+                          maintenance: card.maintenance,
+                          extra: card.extra,
+                          previousDues: card.previousDues,
+                          totalDue: card.totalDue,
+                          paidAmount: card.paidAmount,
+                          flatLabel: card.flatLabel,
+                          maintenanceBreakdownItems: card.maintenanceBreakdown
+                              .map((item) => MaintenanceBreakdownItem(
+                                    name: item.name,
+                                    yourShare: item.yourShare,
+                                    totalCost: item.totalCost,
+                                    type: item.type,
+                                    id: item.id,
+                                    issueId: item.issueId,
+                                  ))
+                              .toList(),
                         ),
                       )
                       .toList(),
