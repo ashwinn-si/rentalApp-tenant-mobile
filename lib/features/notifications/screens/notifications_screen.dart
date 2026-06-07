@@ -32,20 +32,28 @@ class NotificationsScreen extends ConsumerWidget {
       body: ScreenBackground(
         child: asyncNotifications.when(
           loading: () => const AppLoader(),
-          error: (_, __) => const Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: EmptyStateCard(
-              type: EmptyStateType.notifications,
-              title: 'Unable to Load',
-              message: 'Failed to load notifications. Please try again.',
+          error: (_, __) => Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Center(
+                child: EmptyStateCard(
+                  type: EmptyStateType.notifications,
+                  title: 'Unable to Load',
+                  message: 'Failed to load notifications. Please try again.',
+                ),
+              ),
             ),
           ),
           data: (items) {
             if (items.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.all(AppSpacing.md),
-                child: EmptyStateCard(
-                  type: EmptyStateType.notifications,
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Center(
+                    child: EmptyStateCard(
+                      type: EmptyStateType.notifications,
+                    ),
+                  ),
                 ),
               );
             }

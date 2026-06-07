@@ -91,9 +91,12 @@ class EmptyStateCard extends StatelessWidget {
     final messageColor =
         isDark ? const Color(0xFFA3A3A3) : AppColors.textSecondary;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
         // Decorative icon container
         Container(
           width: 80,
@@ -158,6 +161,7 @@ class EmptyStateCard extends StatelessWidget {
           ),
         ],
       ],
-    );
+        ),
+      );
   }
 }

@@ -92,20 +92,28 @@ class DocumentsScreen extends ConsumerWidget {
           data: (dashboardData) {
             return asyncDocuments.when(
               loading: () => const AppLoader(),
-              error: (_, __) => const Padding(
-                padding: EdgeInsets.all(AppSpacing.md),
-                child: EmptyStateCard(
-                  type: EmptyStateType.documents,
-                  title: 'Unable to Load',
-                  message: 'Failed to load documents. Please try again.',
+              error: (_, __) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Center(
+                    child: EmptyStateCard(
+                      type: EmptyStateType.documents,
+                      title: 'Unable to Load',
+                      message: 'Failed to load documents. Please try again.',
+                    ),
+                  ),
                 ),
               ),
               data: (documents) {
                 if (documents.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(AppSpacing.md),
-                    child: EmptyStateCard(
-                      type: EmptyStateType.documents,
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Center(
+                        child: EmptyStateCard(
+                          type: EmptyStateType.documents,
+                        ),
+                      ),
                     ),
                   );
                 }
