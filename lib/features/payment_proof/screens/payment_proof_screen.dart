@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_tokens.dart';
+import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/pagination_footer.dart';
 import '../../../widgets/ui/empty_state_card.dart';
+import '../../dashboard/providers/dashboard_provider.dart';
 import '../data/models/payment_proof.dart';
 import '../providers/payment_proof_provider.dart';
 import 'proof_detail_screen.dart';
@@ -35,8 +37,22 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
   @override
   Widget build(BuildContext context) {
     final proofsAsync = ref.watch(paymentProofsProvider);
+    final asyncDashboard = ref.watch(activeDashboardProvider);
 
-    return proofsAsync.when(
+    return asyncDashboard.when(
+      loading: () => ListPageTemplate(
+        title: 'Payment Proofs',
+        isLoading: true,
+        actions: _refreshAction,
+        body: const SizedBox.shrink(),
+      ),
+      error: (_, __) => ListPageTemplate(
+        title: 'Payment Proofs',
+        errorMessage: 'Error loading data',
+        actions: _refreshAction,
+        body: const SizedBox.shrink(),
+      ),
+      data: (dashboardData) => proofsAsync.when(
       loading: () => ListPageTemplate(
         title: 'Payment Proofs',
         isLoading: true,
@@ -129,6 +145,15 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          if (dashboardData.availableFlats.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                              child: FlatSelector(
+                                flats: dashboardData.availableFlats
+                                    .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                                    .toList(),
+                              ),
+                            ),
                           ...pageProofs.map((proof) => _buildProofCard(proof)),
                         ],
                       ),
@@ -145,6 +170,15 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
                     ),
                     child: Column(
                       children: [
+                        if (dashboardData.availableFlats.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                            child: FlatSelector(
+                              flats: dashboardData.availableFlats
+                                  .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                                  .toList(),
+                            ),
+                          ),
                         ...pageProofs.map((proof) => _buildProofCard(proof)),
                         if (totalPages > 1) ...[
                           const SizedBox(height: AppSpacing.md),
@@ -176,6 +210,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
           ),
         );
       },
+      ),
     );
   }
 
