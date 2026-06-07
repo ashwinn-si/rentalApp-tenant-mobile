@@ -203,7 +203,58 @@ Each type has default title, message, and icon. Override with custom `title` and
 - Centered layout with icon + text
 - Optional action button (add new item, navigate, etc.)
 - Consistent spacing and typography
-- Border styling matches card system
+- Button: FilledButton with light violet background (`alpha: 0.15`) + violet text
+
+### Page Creation Requirements
+
+When creating any list-based page, follow this pattern:
+
+**1. Empty State (MANDATORY)**
+```dart
+if (items.isEmpty) {
+  return Center(
+    child: Padding(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: EmptyStateCard(
+        type: EmptyStateType.maintenance, // or appropriate type
+        actionLabel: 'Add Item', // optional
+        onActionPressed: () { /* navigate */ },
+      ),
+    ),
+  );
+}
+```
+
+**2. Floating Action Button (if page needs "Add" action)**
+```dart
+floatingActionButton: FloatingActionButton(
+  onPressed: () => _showDialog(context),
+  backgroundColor: AppColors.violet,
+  foregroundColor: Colors.white,
+  elevation: 4,
+  child: const Icon(Icons.add), // or appropriate icon
+),
+```
+
+**3. Error State (MANDATORY)**
+```dart
+error: (error, _) => Center(
+  child: Padding(
+    padding: const EdgeInsets.all(AppSpacing.md),
+    child: EmptyStateCard(
+      type: EmptyStateType.generic,
+      title: 'Unable to Load',
+      message: 'Failed to load items. Please try again.',
+    ),
+  ),
+),
+```
+
+**Never:**
+- Create custom empty state UI (use EmptyStateCard only)
+- Use ElevatedButton in empty states (use FilledButton via EmptyStateCard)
+- Use FloatingActionButton.extended (use regular FloatingActionButton with icon only)
+- Hardcode colors in buttons (use AppColors.violet + Colors.white)
 
 ### Chart Styling Pattern
 
