@@ -43,7 +43,7 @@ class BugReportsScreen extends ConsumerWidget {
           backgroundColor: AppColors.violet,
           foregroundColor: Colors.white,
           elevation: 4,
-          child: const Icon(Icons.bug_report),
+          child: const Icon(Icons.add),
         ),
         body: bugReportsAsync.when(
           loading: () => const Center(child: AppLoader()),
@@ -51,9 +51,9 @@ class BugReportsScreen extends ConsumerWidget {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ApiErrorHandler.handleAccessDenied(error, ref);
             });
-            return Center(
+            return const Center(
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: EdgeInsets.all(AppSpacing.md),
                 child: EmptyStateCard(
                   type: EmptyStateType.generic,
                   title: 'Unable to Load',
@@ -94,7 +94,8 @@ class BugReportsScreen extends ConsumerWidget {
                 itemCount: bugReports.length,
                 itemBuilder: (context, index) => _BugReportCard(
                   bugReport: bugReports[index],
-                  onTap: () => _showDetailDialog(context, ref, bugReports[index].id),
+                  onTap: () =>
+                      _showDetailDialog(context, ref, bugReports[index].id),
                 ),
               ),
             );
@@ -112,7 +113,8 @@ class BugReportsScreen extends ConsumerWidget {
     );
   }
 
-  void _showDetailDialog(BuildContext context, WidgetRef ref, String bugReportId) {
+  void _showDetailDialog(
+      BuildContext context, WidgetRef ref, String bugReportId) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -275,7 +277,7 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   BugType _selectedType = BugType.uiBug;
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   bool _isSubmitting = false;
   int _totalImageSizeBytes = 0;
 
@@ -338,7 +340,8 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: _isSubmitting ? null : () => Navigator.pop(context),
+                  onPressed:
+                      _isSubmitting ? null : () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -428,9 +431,8 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
         AppButton(
           label: 'Pick Images',
           isLoading: false,
-          onPressed: _isSubmitting || _selectedImages.length >= 5
-              ? null
-              : _pickImages,
+          onPressed:
+              _isSubmitting || _selectedImages.length >= 5 ? null : _pickImages,
         ),
         if (_selectedImages.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
@@ -441,15 +443,15 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
                 .asMap()
                 .entries
                 .map((e) => _ImagePreview(
-                  image: e.value,
-                  onRemove: () async {
-                    final size = await e.value.length();
-                    setState(() {
-                      _selectedImages.removeAt(e.key);
-                      _totalImageSizeBytes -= size;
-                    });
-                  },
-                ))
+                      image: e.value,
+                      onRemove: () async {
+                        final size = await e.value.length();
+                        setState(() {
+                          _selectedImages.removeAt(e.key);
+                          _totalImageSizeBytes -= size;
+                        });
+                      },
+                    ))
                 .toList(),
           ),
         ],
@@ -469,7 +471,9 @@ class _ReportBugSheetState extends ConsumerState<_ReportBugSheet> {
       if (_totalImageSizeBytes + size > _maxTotalSizeBytes) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Total image size exceeds ${_maxTotalSizeMb}MB limit')),
+            const SnackBar(
+                content: Text(
+                    'Total image size exceeds ${_maxTotalSizeMb}MB limit')),
           );
         }
         break;
@@ -544,7 +548,7 @@ class _BugReportDetailSheet extends ConsumerWidget {
 
     return bugReportAsync.when(
       loading: () => const Center(child: AppLoader()),
-      error: (error, stack) => Center(
+      error: (error, stack) => const Center(
         child: EmptyStateCard(
           type: EmptyStateType.generic,
           title: 'Unable to Load',
@@ -567,9 +571,10 @@ class _BugReportDetailSheet extends ConsumerWidget {
                       children: [
                         Text(
                           bugReport.bugId,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
@@ -649,7 +654,7 @@ class _BugReportDetailSheet extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.check_circle,
                             color: AppColors.emerald,
                             size: 20,
@@ -657,7 +662,10 @@ class _BugReportDetailSheet extends ConsumerWidget {
                           const SizedBox(width: AppSpacing.sm),
                           Text(
                             'Resolved',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
                                   color: AppColors.emerald,
                                 ),
                           ),
