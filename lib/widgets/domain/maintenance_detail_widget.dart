@@ -207,7 +207,7 @@ class _MaintenanceDetailWidgetState extends State<MaintenanceDetailWidget>
                                 ),
                                 const SizedBox(width: 2),
                                 Text(
-                                  formatINR(item.amount),
+                                  formatINR(item.yourShare),
                                   style: TextStyle(
                                     color: signColor,
                                     fontSize: 13,
