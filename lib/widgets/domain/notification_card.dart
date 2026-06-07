@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_tokens.dart';
-import '../../core/utils/date_formatter.dart';
 
 class NotificationCard extends StatelessWidget {
   const NotificationCard({
@@ -19,82 +18,94 @@ class NotificationCard extends StatelessWidget {
   final String expiresAt;
   final bool isExpired;
 
+  Widget _buildBadge(bool isDark) {
+    final isPersonal = targetType == 'tenant';
+    final badgeColor = isPersonal
+        ? (isDark ? const Color(0xFFEC4899) : const Color(0xFFDB2777))
+        : (isDark ? const Color(0xFFFB923C) : const Color(0xFFF97316));
+    final badgeLabel = isPersonal ? 'Personal' : 'Apartment';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: badgeColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: badgeColor.withValues(alpha: 0.4), width: 1),
+      ),
+      child: Text(
+        badgeLabel,
+        style: TextStyle(
+          color: badgeColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final colors = isExpired
-        ? (isDark
-            ? <Color>[const Color(0xFF525A73), const Color(0xFF3C4357)]
-            : <Color>[const Color(0xFF6B7280), const Color(0xFF4B5563)])
-        : (isDark
-            ? <Color>[const Color(0xFF8B3DFF), const Color(0xFF6B2BD8)]
-            : <Color>[AppColors.violet, AppColors.violetDark]);
-
-    final titleColor = isDark ? const Color(0xFFF8FAFC) : Colors.white;
+    final bgColor = isDark ? const Color(0xFF1F2937) : Colors.white;
+    final borderColor = isDark
+        ? const Color(0xFF374151).withValues(alpha: 0.5)
+        : const Color(0xFFE5E7EB);
+    final titleColor = isDark ? const Color(0xFFF3F4F6) : const Color(0xFF111827);
     final messageColor =
-        isDark ? const Color(0xFFEEF2FF) : Colors.white.withValues(alpha: 0.95);
-    final captionColor =
-        isDark ? const Color(0xFFD8DBFF) : Colors.white.withValues(alpha: 0.8);
+        isDark ? const Color(0xFFD1D5DB) : const Color(0xFF4B5563);
 
-    return Opacity(
-      opacity: isExpired ? (isDark ? 0.78 : 0.6) : 1,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.md),
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: colors,
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.transparent,
-            width: 1,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              _buildBadge(isDark),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.first.withValues(alpha: isDark ? 0.32 : 0.25),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            message,
+            style: TextStyle(
+              color: messageColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              height: 1.5,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              title,
-              style: TextStyle(
-                color: titleColor,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              message,
-              style: TextStyle(
-                color: messageColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Expires: ${formatDate(expiresAt)}',
-              style: TextStyle(
-                color: captionColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

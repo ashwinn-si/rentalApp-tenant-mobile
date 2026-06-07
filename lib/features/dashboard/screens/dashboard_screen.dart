@@ -8,7 +8,7 @@ import '../../../core/providers/error_handler_provider.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/animations.dart';
 import '../../../core/utils/app_bar_helper.dart';
-import '../../../widgets/domain/notification_card.dart';
+import '../../../widgets/domain/dashboard_notification_card.dart';
 import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_loader.dart';
@@ -126,21 +126,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 .toList();
             final notificationSection = asyncNotifications.when<Widget?>(
               loading: () => const AppLoader(),
-              error: (_, __) =>
-                  const StateCard(message: 'Notifications unavailable'),
+              error: (_, __) => null,
               data: (items) {
-                final activeItems =
-                    items.where((item) => !item.isExpired).toList();
-                if (activeItems.isEmpty) {
+                if (items.isEmpty) {
                   return null;
                 }
 
-                final latest = activeItems.first;
-                return NotificationCard(
-                  title: latest.title,
-                  message: latest.message,
-                  targetType: latest.targetType,
-                  expiresAt: latest.expiresAt,
+                final latest = items.first;
+                return DashboardNotificationCard(
+                  notificationCount: items.length,
+                  latestTitle: latest.title,
+                  latestMessage: latest.message,
                 );
               },
             );
