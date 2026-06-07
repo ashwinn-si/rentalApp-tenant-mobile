@@ -136,11 +136,11 @@ class EmptyStateCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: FilledButton(
               onPressed: onActionPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.violet,
-                foregroundColor: Colors.white,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.violet.withValues(alpha: 0.15),
+                foregroundColor: AppColors.violet,
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
                   vertical: 14,
@@ -148,7 +148,6 @@ class EmptyStateCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppRadius.lg),
                 ),
-                elevation: 2,
               ),
               child: Text(
                 actionLabel!,
