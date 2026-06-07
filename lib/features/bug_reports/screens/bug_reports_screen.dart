@@ -11,7 +11,7 @@ import '../../../widgets/ui/app_button.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
-import '../../../widgets/ui/state_card.dart';
+import '../../../widgets/ui/empty_state_card.dart';
 import '../data/models/bug_reports_model.dart';
 import '../providers/bug_reports_provider.dart';
 
@@ -49,17 +49,31 @@ class BugReportsScreen extends ConsumerWidget {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ApiErrorHandler.handleAccessDenied(error, ref);
             });
-            return Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: StateCard(
-                message: 'Failed to load bug reports',
-                variant: StateCardVariant.error,
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: EmptyStateCard(
+                  type: EmptyStateType.generic,
+                  title: 'Unable to Load',
+                  message: 'Failed to load bug reports. Please try again.',
+                ),
               ),
             );
           },
           data: (bugReports) {
             if (bugReports.isEmpty) {
-              return _EmptyState(onReportBug: () => _showReportDialog(context, ref));
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: EmptyStateCard(
+                    type: EmptyStateType.generic,
+                    title: 'No bug reports yet',
+                    message: 'Help us improve the app',
+                    actionLabel: 'Report Your First Bug',
+                    onActionPressed: () => _showReportDialog(context, ref),
+                  ),
+                ),
+              );
             }
 
             return RefreshIndicator(
@@ -101,43 +115,6 @@ class BugReportsScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       builder: (_) => _BugReportDetailSheet(bugReportId: bugReportId),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onReportBug});
-
-  final VoidCallback onReportBug;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.bug_report_outlined,
-            size: 64,
-            color: AppColors.textSecondary.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'No bug reports yet',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Help us improve the app',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          AppButton(
-            label: 'Report Your First Bug',
-            onPressed: onReportBug,
-          ),
-        ],
-      ),
     );
   }
 }
@@ -566,9 +543,10 @@ class _BugReportDetailSheet extends ConsumerWidget {
     return bugReportAsync.when(
       loading: () => const Center(child: AppLoader()),
       error: (error, stack) => Center(
-        child: StateCard(
-          message: 'Failed to load bug report',
-          variant: StateCardVariant.error,
+        child: EmptyStateCard(
+          type: EmptyStateType.generic,
+          title: 'Unable to Load',
+          message: 'Failed to load bug report. Please try again.',
         ),
       ),
       data: (bugReport) => SingleChildScrollView(
