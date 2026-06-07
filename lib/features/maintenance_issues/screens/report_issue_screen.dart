@@ -7,9 +7,11 @@ import 'package:file_picker/file_picker.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
 import '../../../core/utils/app_bar_helper.dart';
+import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_button.dart';
 import '../../../widgets/ui/app_text_field.dart';
 import '../../../widgets/ui/screen_background.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/maintenance_provider.dart';
 
@@ -28,7 +30,6 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
 
   String _category = 'maintenance';
   String _scope = 'flat';
-  String? _selectedFlatId;
   final List<File> _images = [];
   bool _isSaving = false;
   String? _sizeError;
@@ -116,17 +117,21 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
 
     setState(() => _isSaving = true);
     try {
+      final authState = ref.read(authProvider);
+      final activeFlatId = authState.activeFlatId;
+      if (activeFlatId == null) throw Exception('No flat selected');
+
       final asyncDashboard = ref.read(activeDashboardProvider);
       final dashboardData = asyncDashboard.value;
       if (dashboardData == null) throw Exception('Dashboard data not loaded');
 
       final flat = dashboardData.availableFlats
-          .firstWhere((f) => f.id == _selectedFlatId);
+          .firstWhere((f) => f.id == activeFlatId);
 
       final repository = ref.read(maintenanceRepositoryProvider);
       final result = await repository.createIssue(
         apartmentId: flat.apartmentId,
-        flatId: _selectedFlatId!,
+        flatId: activeFlatId,
         scope: _scope,
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
@@ -162,13 +167,6 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(child: Text('Error: $err')),
           data: (dashboardData) {
-            if (_selectedFlatId == null && dashboardData.availableFlats.isNotEmpty) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                setState(() => _selectedFlatId = dashboardData.availableFlats.first.id);
-              });
-            }
-            final defaultFlatId = _selectedFlatId ?? dashboardData.availableFlats.firstOrNull?.id ?? '';
-
             return SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Form(
@@ -184,27 +182,15 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                     const SizedBox(height: AppSpacing.lg),
 
                     // Unit Selector
-                    const Text('Unit',
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: AppSpacing.xs),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedFlatId ?? (defaultFlatId.isNotEmpty ? defaultFlatId : null),
-                      isExpanded: true,
-                      hint: const Text('Select a unit'),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 12),
+                    if (dashboardData.availableFlats.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                        child: FlatSelector(
+                          flats: dashboardData.availableFlats
+                              .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                              .toList(),
+                        ),
                       ),
-                      items: dashboardData.availableFlats.map((f) {
-                        return DropdownMenuItem(
-                            value: f.id, child: Text(f.label));
-                      }).toList(),
-                      onChanged: (val) => setState(() => _selectedFlatId = val),
-                      validator: (val) => (val == null || val.isEmpty) ? 'Please select a unit' : null,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
 
                     // Scope Toggle
                     const Text('Issue Scope',
