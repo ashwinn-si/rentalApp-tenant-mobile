@@ -4,6 +4,7 @@ import '../../../core/constants/api_paths.dart';
 import '../../../core/network/api_response.dart';
 import '../../../core/network/dio_client.dart';
 import 'models/history_response.dart';
+import 'models/last_3_months_model.dart';
 
 class HistoryRepository {
   final DioClient _client = DioClient.instance;
@@ -79,6 +80,42 @@ class HistoryRepository {
       },
     ).then((result) {
       developer.log('[History] Month Final Result - isSuccess=${result.isSuccess}, hasData=${result.data != null}, error=${result.error}');
+      return result;
+    });
+  }
+
+  Future<ApiResponse<Last3MonthsComparison>> getLast3MonthsComparison({
+    String? flatId,
+  }) {
+    final query = <String, dynamic>{};
+    if (flatId != null && flatId.isNotEmpty && flatId != 'all') {
+      query['flatId'] = flatId;
+    }
+
+    developer.log('[History] Fetching last 3 months: flatId=$flatId');
+
+    return _client.get<Last3MonthsComparison>(
+      ApiPaths.dashboardLast3Months,
+      queryParams: query.isNotEmpty ? query : null,
+      fromJson: (json) {
+        developer.log('[History] Last 3 months Raw API Response: $json');
+
+        final root = json as Map<String, dynamic>;
+        final payload = (root['data'] as Map<String, dynamic>?) ?? root;
+
+        developer.log('[History] Last 3 months Extracted Payload: $payload');
+
+        try {
+          final response = Last3MonthsComparison.fromJson(payload);
+          developer.log('[History] Last 3 months Parsed Response: items=${response.items.length}');
+          return response;
+        } catch (e, stack) {
+          developer.log('[History] Last 3 months Parsing Error: $e\n$stack');
+          rethrow;
+        }
+      },
+    ).then((result) {
+      developer.log('[History] Last 3 months Final Result - isSuccess=${result.isSuccess}, hasData=${result.data != null}, error=${result.error}');
       return result;
     });
   }

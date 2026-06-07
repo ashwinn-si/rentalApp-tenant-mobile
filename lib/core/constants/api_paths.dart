@@ -9,6 +9,7 @@ class ApiPaths {
   static const String fcmToken = '$tenantMobilePrefix/fcm-token';
   static const String activeRentMonth = '$tenantMobilePrefix/portal/active-month';
   static const String dashboard = '$tenantMobilePrefix/dashboard';
+  static const String dashboardLast3Months = '$tenantMobilePrefix/dashboard/last-3-months';
   static const String history = '$tenantMobilePrefix/history';
   static const String notifications = '$tenantMobilePrefix/notifications';
   static const String documents = '$tenantMobilePrefix/documents';

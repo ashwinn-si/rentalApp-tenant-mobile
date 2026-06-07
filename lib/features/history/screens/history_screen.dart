@@ -8,11 +8,13 @@ import '../../../core/providers/error_handler_provider.dart';
 import '../../../core/utils/animations.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/domain/rent_breakdown_card.dart';
+import '../../../widgets/domain/last_3_months_table.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/chart_widgets.dart';
 import '../../../widgets/ui/pagination_footer.dart';
 import '../../../widgets/ui/empty_state_card.dart';
 import '../../../widgets/ui/premium_card.dart';
+import '../../../widgets/ui/app_loader.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/history_provider.dart';
@@ -164,6 +166,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
                           child: FlatSelector(flats: flatItems),
                         ),
+                      _Last3MonthsSection(
+                        activeFlatId: dashboardData.availableFlats.isNotEmpty
+                            ? dashboardData.availableFlats.first.id
+                            : null,
+                      ),
                       if (recentBarData.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -236,6 +243,51 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               ),
             );
           },
+        );
+      },
+    );
+  }
+}
+
+class _Last3MonthsSection extends ConsumerWidget {
+  const _Last3MonthsSection({
+    required this.activeFlatId,
+  });
+
+  final String? activeFlatId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncData = ref.watch(last3MonthsComparisonProvider);
+
+    return asyncData.when(
+      loading: () => Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+        child: const AppLoader(),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (data) {
+        if (data.items.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+          child: Last3MonthsTable(
+            items: data.items
+                .map((item) => Last3MonthsTableItem(
+                      monthLabel: item.monthLabel,
+                      baseRent: item.baseRent,
+                      utility: item.utility,
+                      maintenance: item.maintenance,
+                      extra: item.extra,
+                      totalDue: item.totalDue,
+                      paidAmount: item.paidAmount,
+                      pendingAmount: item.pendingAmount,
+                      status: item.status,
+                    ))
+                .toList(),
+          ),
         );
       },
     );

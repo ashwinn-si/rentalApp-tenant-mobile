@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../data/history_repository.dart';
 import '../data/models/history_response.dart';
+import '../data/models/last_3_months_model.dart';
 
 class HistoryParams {
   const HistoryParams({required this.page, this.flatId});
@@ -53,4 +54,31 @@ final activeHistoryProvider =
   developer.log('[ActiveHistoryProvider] Watching history for page=$page, activeFlatId=$flatId');
   return ref
       .watch(historyProvider(HistoryParams(page: page, flatId: flatId)).future);
+});
+
+final last3MonthsComparisonProvider =
+    FutureProvider<Last3MonthsComparison>((ref) async {
+  final flatId = ref.watch(authProvider.select((state) => state.activeFlatId));
+  developer.log('[Last3MonthsProvider] Loading last 3 months for activeFlatId=$flatId');
+
+  try {
+    final repository = HistoryRepository();
+    final result =
+        await repository.getLast3MonthsComparison(flatId: flatId);
+
+    developer.log('[Last3MonthsProvider] Result - isSuccess=${result.isSuccess}, statusCode=${result.statusCode}, hasData=${result.data != null}, error=${result.error}');
+
+    if (!result.isSuccess || result.data == null) {
+      final error =
+          result.error ?? 'Unable to load last 3 months (status: ${result.statusCode})';
+      developer.log('[Last3MonthsProvider] Throwing error: $error');
+      throw Exception(error);
+    }
+
+    developer.log('[Last3MonthsProvider] SUCCESS - items=${result.data!.items.length}');
+    return result.data!;
+  } catch (e, stack) {
+    developer.log('[Last3MonthsProvider] CAUGHT EXCEPTION: $e\n$stack');
+    rethrow;
+  }
 });
