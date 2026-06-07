@@ -31,6 +31,9 @@ class DioClient {
 
   static GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
 
+  // Set this in AuthNotifier to trigger logout on 401/fatal 403.
+  static void Function()? onUnauthorized;
+
   DioClient._() {
     _dio = Dio(
       BaseOptions(
@@ -68,7 +71,7 @@ class DioClient {
           onResponse: (response, handler) async {
             final statusCode = response.statusCode;
 
-            // Handle 403 Forbidden (platform/screen disabled)
+            // Handle 403 Forbidden
             if (statusCode == 403) {
               final responseData = response.data;
               final message = (responseData is Map<String, dynamic>
@@ -78,14 +81,23 @@ class DioClient {
 
               developer.log('[DioClient] 403 FORBIDDEN - $message');
 
+              // Screen-disabled 403s are handled by individual screens.
+              // Account-inactive and platform-disabled 403s force logout.
+              final isScreenDisabled =
+                  message.contains("Screen '") || message.contains('not enabled');
+              if (!isScreenDisabled) {
+                developer.log('[DioClient] 403 is account/platform level — forcing logout');
+                DioClient.onUnauthorized?.call();
+              }
+
               handler.resolve(response);
               return;
             }
 
-            // Handle 401 Unauthorized (token expired/invalid)
+            // Handle 401 Unauthorized (token expired/invalid) — always force logout
             if (statusCode == 401) {
-              developer.log('[DioClient] 401 UNAUTHORIZED - session expired');
-
+              developer.log('[DioClient] 401 UNAUTHORIZED - session expired, forcing logout');
+              DioClient.onUnauthorized?.call();
               handler.resolve(response);
               return;
             }

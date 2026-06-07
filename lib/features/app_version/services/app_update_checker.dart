@@ -8,11 +8,17 @@ import '../data/app_version_repository.dart';
 const String appStoreUrl =
     'https://play.google.com/store/apps/details?id=com.rentalapp.tenant';
 
+// Prevents the version check from firing more than once per app session.
+bool _versionCheckedThisSession = false;
+
 Future<bool> checkForAppUpdate(
   BuildContext context, {
   bool notifyOptionalUpdate = false,
   bool showErrorToast = false,
 }) async {
+  if (_versionCheckedThisSession) return false;
+  _versionCheckedThisSession = true;
+
   try {
     const currentBuildNumber = buildNumber;
 
