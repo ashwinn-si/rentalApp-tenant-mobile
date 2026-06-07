@@ -21,6 +21,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../history/providers/history_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
 import '../providers/dashboard_provider.dart';
+import '../widgets/rent_card_item.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -66,6 +67,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final asyncDashboard = ref.watch(activeDashboardProvider);
     final asyncHistory = ref.watch(activeHistoryProvider(1));
     final asyncNotifications = ref.watch(notificationsProvider);
+    final asyncRentCards = ref.watch(activeRentCardsProvider);
 
     developer.log('[DashboardScreen] Build - asyncDashboard: ${asyncDashboard.runtimeType}, value: ${asyncDashboard.valueOrNull}, error: ${asyncDashboard.error}');
 
@@ -80,6 +82,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ref.invalidate(historyProvider);
               ref.invalidate(activeHistoryProvider);
               ref.invalidate(notificationsProvider);
+              ref.invalidate(rentCardsProvider);
+              ref.invalidate(activeRentCardsProvider);
             },
             icon: const Icon(Icons.refresh_outlined),
           ),
@@ -164,6 +168,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           totalDue: item.totalDue,
                           paidAmount: item.paidAmount,
                           maintenanceBreakdownItems: item.maintenanceBreakdownItems,
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+            );
+
+            final rentCardsSection = asyncRentCards.when<Widget?>(
+              loading: () => const AppLoader(),
+              error: (_, __) => null,
+              data: (rentCardsData) {
+                if (rentCardsData.cards.isEmpty) {
+                  return null;
+                }
+
+                return StaggeredListView(
+                  children: rentCardsData.cards
+                      .map(
+                        (card) => RentCardItem(
+                          card: card,
+                          isLast3Months: card.isLast3Months,
                         ),
                       )
                       .toList(),
@@ -262,6 +287,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
               ),
+              if (rentCardsSection != null) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  child: Text(
+                    'Rent Cards',
+                    style: TextStyle(
+                      color: secondaryText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                rentCardsSection,
+              ],
               historySection,
             ];
 

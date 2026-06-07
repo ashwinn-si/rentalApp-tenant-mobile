@@ -211,7 +211,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           ),
                         ),
                       _RentCardsSection(
-                        activeFlatId: activeFlat?.flatId,
+                        activeFlatId: dashboardData.availableFlats.isNotEmpty
+                            ? dashboardData.availableFlats.first.id
+                            : null,
                       ),
                     ],
                   ),

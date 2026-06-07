@@ -7,7 +7,9 @@ import 'package:file_picker/file_picker.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
 import '../../../core/utils/app_bar_helper.dart';
+import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/screen_background.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../data/models/payment_proof.dart';
 import '../providers/payment_proof_provider.dart'
@@ -31,6 +33,7 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
   late DateTime now;
   late int selectedMonth;
   late int selectedYear;
+  String? selectedFlatId;
 
   final List<String> months = [
     'January',
@@ -134,6 +137,16 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Flat Selector
+                    if (dashboardData.availableFlats.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                        child: FlatSelector(
+                          flats: dashboardData.availableFlats
+                              .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                              .toList(),
+                        ),
+                      ),
                     // Month & Year Selector
                     _buildMonthYearSelector(),
                     const SizedBox(height: AppSpacing.lg),
