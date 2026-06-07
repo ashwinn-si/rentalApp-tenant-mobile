@@ -85,10 +85,13 @@ class EmptyStateCard extends StatelessWidget {
     final borderColor = isDark
         ? const Color(0xFF374151).withValues(alpha: 0.5)
         : const Color(0xFFE5E7EB);
+    final iconBgColor = isDark
+        ? const Color(0xFF10B981).withValues(alpha: 0.2)
+        : const Color(0xFF10B981).withValues(alpha: 0.15);
     final iconColor = isDark
-        ? const Color(0xFF6B7280).withValues(alpha: 0.6)
-        : const Color(0xFFD1D5DB);
-    final titleColor = isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary;
+        ? const Color(0xFF10B981)
+        : const Color(0xFF10B981);
+    final titleColor = isDark ? const Color(0xFFF3F4F6) : const Color(0xFF111827);
     final messageColor =
         isDark ? const Color(0xFFA3A3A3) : AppColors.textSecondary;
 
@@ -102,17 +105,33 @@ class EmptyStateCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            _getIcon(),
-            size: 56,
-            color: iconColor,
+          // Decorative icon container
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: iconColor.withValues(alpha: 0.1),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              _getIcon(),
+              size: 40,
+              color: iconColor,
+            ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           Text(
             title ?? _getDefaultTitle(),
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
               color: titleColor,
             ),
@@ -129,22 +148,28 @@ class EmptyStateCard extends StatelessWidget {
             ),
           ),
           if (actionLabel != null && onActionPressed != null) ...[
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.xl),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
+              child: ElevatedButton(
                 onPressed: onActionPressed,
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(actionLabel!),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.violet,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.md,
+                    horizontal: AppSpacing.lg,
+                    vertical: 14,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
+                  elevation: 2,
+                ),
+                child: Text(
+                  actionLabel!,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
