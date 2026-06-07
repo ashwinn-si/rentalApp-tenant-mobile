@@ -256,7 +256,6 @@ class _Last3MonthsSection extends ConsumerWidget {
                       baseRent: item.baseRent,
                       utility: item.utility,
                       maintenance: item.maintenance,
-                      extra: item.extra,
                       totalDue: item.totalDue,
                       paidAmount: item.paidAmount,
                       pendingAmount: item.pendingAmount,

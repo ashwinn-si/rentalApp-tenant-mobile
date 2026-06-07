@@ -3,7 +3,6 @@ class Last3MonthsItem {
   final double baseRent;
   final double utility;
   final double maintenance;
-  final double extra;
   final double totalDue;
   final double paidAmount;
   final double pendingAmount;
@@ -14,7 +13,6 @@ class Last3MonthsItem {
     required this.baseRent,
     required this.utility,
     required this.maintenance,
-    required this.extra,
     required this.totalDue,
     required this.paidAmount,
     required this.pendingAmount,
@@ -27,7 +25,6 @@ class Last3MonthsItem {
       baseRent: ((json['baseRent'] as num?) ?? 0).toDouble(),
       utility: ((json['utility'] as num?) ?? 0).toDouble(),
       maintenance: ((json['maintenance'] as num?) ?? 0).toDouble(),
-      extra: ((json['extra'] as num?) ?? 0).toDouble(),
       totalDue: ((json['totalDue'] as num?) ?? 0).toDouble(),
       paidAmount: ((json['paidAmount'] as num?) ?? 0).toDouble(),
       pendingAmount: ((json['pendingAmount'] as num?) ?? 0).toDouble(),
@@ -38,12 +35,10 @@ class Last3MonthsItem {
 
 class Last3MonthsComparison {
   final String flatLabel;
-  final String apartmentName;
   final List<Last3MonthsItem> items;
 
   Last3MonthsComparison({
     required this.flatLabel,
-    required this.apartmentName,
     required this.items,
   });
 
@@ -52,7 +47,6 @@ class Last3MonthsComparison {
         .cast<Map<String, dynamic>>();
     return Last3MonthsComparison(
       flatLabel: (json['flatLabel'] ?? '').toString(),
-      apartmentName: (json['apartmentName'] ?? '').toString(),
       items: rawItems.map(Last3MonthsItem.fromJson).toList(),
     );
   }

@@ -8,7 +8,6 @@ class Last3MonthsTableItem {
   final double baseRent;
   final double utility;
   final double maintenance;
-  final double extra;
   final double totalDue;
   final double paidAmount;
   final double pendingAmount;
@@ -19,7 +18,6 @@ class Last3MonthsTableItem {
     required this.baseRent,
     required this.utility,
     required this.maintenance,
-    required this.extra,
     required this.totalDue,
     required this.paidAmount,
     required this.pendingAmount,
