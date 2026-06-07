@@ -16,11 +16,13 @@ class MaintenanceRepository {
 
   Future<ApiResponse<MaintenanceIssuesResponse>> getIssues({
     String? status,
+    String? flatId,
     int page = 1,
     int limit = 10,
   }) {
     final query = <String, dynamic>{};
     if (status != null) query['status'] = status;
+    if (flatId != null) query['flatId'] = flatId;
     query['skip'] = (page - 1) * limit;
     query['limit'] = limit;
 

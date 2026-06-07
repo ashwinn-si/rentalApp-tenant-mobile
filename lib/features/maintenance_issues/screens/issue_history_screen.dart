@@ -7,6 +7,7 @@ import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/pagination_footer.dart';
 import '../../../widgets/ui/empty_state_card.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/maintenance_provider.dart';
 import 'issue_detail_screen.dart';
@@ -41,8 +42,20 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final activeFlatId = authState.activeFlatId;
+
+    ref.listen<String?>(
+      authProvider.select((state) => state.activeFlatId),
+      (prev, next) {
+        if (prev != next && mounted) {
+          setState(() => currentPage = 1);
+        }
+      },
+    );
+
     final asyncIssues = ref.watch(
-        maintenanceIssuesProvider((page: currentPage, limit: itemsPerPage)));
+        maintenanceIssuesProvider((page: currentPage, limit: itemsPerPage, flatId: activeFlatId)));
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return asyncDashboard.when(
@@ -136,7 +149,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
           body: isSingleItem
               ? RefreshIndicator(
                   onRefresh: () => ref.refresh(maintenanceIssuesProvider(
-                      (page: currentPage, limit: itemsPerPage)).future),
+                      (page: currentPage, limit: itemsPerPage, flatId: activeFlatId)).future),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: ConstrainedBox(
@@ -176,7 +189,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: () => ref.refresh(maintenanceIssuesProvider(
-                      (page: currentPage, limit: itemsPerPage)).future),
+                      (page: currentPage, limit: itemsPerPage, flatId: activeFlatId)).future),
                   child: ListView.separated(
                     padding: EdgeInsets.only(
                       left: AppSpacing.md,
