@@ -411,6 +411,30 @@ lib/
     └── ...
 ```
 
+## Auth & Session Architecture
+
+### Login flow
+`AuthNotifier.login()` in `auth_provider.dart`:
+1. Calls `POST /auth/tenant-mobile` — returns token + enabledScreens + user.
+2. Stores token in `SecureStorage`, metadata in `SharedPreferences`.
+3. Registers FCM token.
+4. Does **not** call the dashboard. `activeFlatId` starts as `null` after a fresh login.
+   The dashboard provider calls `GET /dashboard/current` with no flatId on first load;
+   `FlatSelector` lets the user pick a flat which persists `activeFlatId` for future sessions.
+
+### 401 / 403 auto-logout
+`DioClient` has a `static void Function()? onUnauthorized` callback.
+`AuthNotifier()` wires it in its constructor: `DioClient.onUnauthorized = handleAccessDenied`.
+
+- **401** (token expired/invalid): always calls `onUnauthorized` → logout → router redirects to `/login`.
+- **403 account/platform** (inactive client or disabled platform): same.
+- **403 screen-disabled** (message contains `"Screen '"` or `"not enabled"`): passes through as `ApiResponse.failure` — the screen shows its own error state; no logout.
+
+### App-version check deduplication
+`checkForAppUpdate()` in `app_update_checker.dart` is called from both `SplashScreen` and
+`DashboardScreen.initState`. A module-level `_versionCheckedThisSession` flag ensures the
+network call fires only once per process lifetime.
+
 ## Screen Visibility
 
 All screens are optional, controlled per client by super admin.
