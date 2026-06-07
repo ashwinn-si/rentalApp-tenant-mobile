@@ -6,6 +6,7 @@ import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/pagination_footer.dart';
 import '../../../widgets/ui/empty_state_card.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../data/models/payment_proof.dart';
 import '../providers/payment_proof_provider.dart';
@@ -27,36 +28,39 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
     return '₹${value.toStringAsFixed(2)}';
   }
 
-  List<Widget> get _refreshAction => [
+  List<Widget> _refreshAction(String? flatId) => [
         IconButton(
-          onPressed: () => ref.invalidate(paymentProofsProvider),
+          onPressed: () => ref.invalidate(paymentProofsProvider(flatId)),
           icon: const Icon(Icons.refresh_outlined, color: Colors.white),
         ),
       ];
 
   @override
   Widget build(BuildContext context) {
-    final proofsAsync = ref.watch(paymentProofsProvider);
+    final authState = ref.watch(authProvider);
+    final activeFlatId = authState.activeFlatId;
+
+    final proofsAsync = ref.watch(paymentProofsProvider(activeFlatId));
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return asyncDashboard.when(
       loading: () => ListPageTemplate(
         title: 'Payment Proofs',
         isLoading: true,
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
       ),
       error: (_, __) => ListPageTemplate(
         title: 'Payment Proofs',
         errorMessage: 'Error loading data',
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
       ),
       data: (dashboardData) => proofsAsync.when(
       loading: () => ListPageTemplate(
         title: 'Payment Proofs',
         isLoading: true,
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -73,7 +77,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
       error: (err, __) => ListPageTemplate(
         title: 'Payment Proofs',
         errorMessage: 'Failed to load proofs',
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -94,7 +98,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
         if (allProofs.isEmpty) {
           return ListPageTemplate(
             title: 'Payment Proofs',
-            actions: _refreshAction,
+            actions: _refreshAction(activeFlatId),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
@@ -133,7 +137,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
 
         return ListPageTemplate(
           title: 'Payment Proofs',
-          actions: _refreshAction,
+          actions: _refreshAction(activeFlatId),
           body: isSingleItem
               ? SingleChildScrollView(
                   child: ConstrainedBox(

@@ -56,7 +56,7 @@ class PaymentProofRepository {
     return RentRecord.fromJson(data['data'] as Map<String, dynamic>);
   }
 
-  Future<List<PaymentProof>> getMyProofs({String? rentRecordId}) async {
+  Future<List<PaymentProof>> getMyProofs({String? rentRecordId, String? flatId}) async {
     developer.log('[PaymentProofRepository.getMyProofs] Calling endpoint: ${ApiPaths.paymentProofs}');
 
     final response = await _client.get<Map<String, dynamic>>(
@@ -64,6 +64,7 @@ class PaymentProofRepository {
       fromJson: (json) => json as Map<String, dynamic>,
       queryParams: {
         if (rentRecordId != null) 'rentRecordId': rentRecordId,
+        if (flatId != null) 'flatId': flatId,
       },
     );
 

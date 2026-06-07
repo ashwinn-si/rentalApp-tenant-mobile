@@ -64,7 +64,7 @@ final activeRentProvider =
 });
 
 // Payment proofs list provider
-final paymentProofsProvider = FutureProvider<List<PaymentProof>>((ref) async {
+final paymentProofsProvider = FutureProvider.family<List<PaymentProof>, String?>((ref, flatId) async {
   developer.log('[PaymentProofsProvider] Loading proofs - starting');
 
   try {
@@ -72,7 +72,7 @@ final paymentProofsProvider = FutureProvider<List<PaymentProof>>((ref) async {
     final repository = ref.watch(paymentProofRepositoryProvider);
 
     developer.log('[PaymentProofsProvider] Calling getMyProofs()');
-    final proofs = await repository.getMyProofs();
+    final proofs = await repository.getMyProofs(flatId: flatId);
 
     developer.log('[PaymentProofsProvider] Success! Got ${proofs.length} proofs');
     return proofs;
@@ -84,9 +84,9 @@ final paymentProofsProvider = FutureProvider<List<PaymentProof>>((ref) async {
 });
 
 // Invalidation trigger for refreshing proofs
-final refreshProofsProvider = Provider<Future<void> Function()>((ref) {
-  return () async {
-    ref.invalidate(paymentProofsProvider);
-    await ref.watch(paymentProofsProvider.future);
+final refreshProofsProvider = Provider<Future<void> Function(String?)>((ref) {
+  return (flatId) async {
+    ref.invalidate(paymentProofsProvider(flatId));
+    await ref.watch(paymentProofsProvider(flatId).future);
   };
 });
