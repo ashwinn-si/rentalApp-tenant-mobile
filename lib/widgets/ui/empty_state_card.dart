@@ -81,10 +81,6 @@ class EmptyStateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF1F2937) : Colors.white;
-    final borderColor = isDark
-        ? const Color(0xFF374151).withValues(alpha: 0.5)
-        : const Color(0xFFE5E7EB);
     final iconBgColor = isDark
         ? const Color(0xFF10B981).withValues(alpha: 0.2)
         : const Color(0xFF10B981).withValues(alpha: 0.15);
@@ -95,88 +91,73 @@ class EmptyStateCard extends StatelessWidget {
     final messageColor =
         isDark ? const Color(0xFFA3A3A3) : AppColors.textSecondary;
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border.all(color: borderColor, width: 1),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Decorative icon container
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: iconColor.withValues(alpha: 0.1),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Icon(
-              _getIcon(),
-              size: 40,
-              color: iconColor,
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Decorative icon container
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: iconBgColor,
+            shape: BoxShape.circle,
           ),
+          child: Icon(
+            _getIcon(),
+            size: 40,
+            color: iconColor,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        Text(
+          title ?? _getDefaultTitle(),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: titleColor,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          message ?? _getDefaultMessage(),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            color: messageColor,
+            height: 1.5,
+          ),
+        ),
+        if (actionLabel != null && onActionPressed != null) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text(
-            title ?? _getDefaultTitle(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: titleColor,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            message ?? _getDefaultMessage(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: messageColor,
-              height: 1.5,
-            ),
-          ),
-          if (actionLabel != null && onActionPressed != null) ...[
-            const SizedBox(height: AppSpacing.xl),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onActionPressed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.violet,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                  ),
-                  elevation: 2,
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onActionPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.violet,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: 14,
                 ),
-                child: Text(
-                  actionLabel!,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
+                elevation: 2,
+              ),
+              child: Text(
+                actionLabel!,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }
