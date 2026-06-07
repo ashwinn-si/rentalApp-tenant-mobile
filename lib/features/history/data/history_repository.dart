@@ -5,6 +5,7 @@ import '../../../core/network/api_response.dart';
 import '../../../core/network/dio_client.dart';
 import 'models/history_response.dart';
 import 'models/last_3_months_model.dart';
+import 'models/history_cards_response.dart';
 
 class HistoryRepository {
   final DioClient _client = DioClient.instance;
@@ -116,6 +117,43 @@ class HistoryRepository {
       },
     ).then((result) {
       developer.log('[History] Last 3 months Final Result - isSuccess=${result.isSuccess}, hasData=${result.data != null}, error=${result.error}');
+      return result;
+    });
+  }
+
+  Future<ApiResponse<HistoryCardsResponse>> getHistoryCards({
+    required int page,
+    String? flatId,
+  }) {
+    final query = <String, dynamic>{'page': page};
+    if (flatId != null && flatId.isNotEmpty && flatId != 'all') {
+      query['flatId'] = flatId;
+    }
+
+    developer.log('[History] Fetching cards with params: page=$page, flatId=$flatId');
+
+    return _client.get<HistoryCardsResponse>(
+      ApiPaths.historyCards,
+      queryParams: query,
+      fromJson: (json) {
+        developer.log('[History Cards] Raw API Response: $json');
+
+        final root = json as Map<String, dynamic>;
+        final payload = (root['data'] as Map<String, dynamic>?) ?? root;
+
+        developer.log('[History Cards] Extracted Payload: $payload');
+
+        try {
+          final response = HistoryCardsResponse.fromJson(payload);
+          developer.log('[History Cards] Parsed Response: items=${response.items.length}, page=${response.pagination.page}, totalPages=${response.pagination.totalPages}');
+          return response;
+        } catch (e, stack) {
+          developer.log('[History Cards] Parsing Error: $e\n$stack');
+          rethrow;
+        }
+      },
+    ).then((result) {
+      developer.log('[History Cards] Final Result - isSuccess=${result.isSuccess}, hasData=${result.data != null}, error=${result.error}');
       return result;
     });
   }

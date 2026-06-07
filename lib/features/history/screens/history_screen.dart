@@ -208,35 +208,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                             ],
                           ),
                         ),
-                      ...history.items.map(
-                        (item) => RentBreakdownCard(
-                          monthLabel: item.monthLabel,
-                          flatLabel: item.flatLabel,
-                          status: item.status,
-                          baseRent: item.baseRent,
-                          utilityBill: item.utilityBill,
-                          maintenance: item.maintenance,
-                          extra: item.extra,
-                          previousDues: item.previousDues,
-                          totalDue: item.totalDue,
-                          paidAmount: item.paidAmount,
-                          maintenanceBreakdownItems: item.maintenanceBreakdownItems,
-                        ),
+                      _RentCardsSection(
+                        activeFlatId: activeFlat.flatId,
                       ),
-                      if (history.totalPages > 1)
-                        Padding(
-                          padding: const EdgeInsets.only(top: AppSpacing.md),
-                          child: PaginationFooter(
-                            currentPage: history.page,
-                            totalPages: history.totalPages,
-                            onPreviousPressed: history.page > 1
-                                ? () => setState(() => _page = history.page - 1)
-                                : null,
-                            onNextPressed: history.page < history.totalPages
-                                ? () => setState(() => _page = history.page + 1)
-                                : null,
-                          ),
-                        ),
                     ],
                   ),
                 ],
@@ -292,4 +266,135 @@ class _Last3MonthsSection extends ConsumerWidget {
       },
     );
   }
+}
+
+class _RentCardsSection extends ConsumerStatefulWidget {
+  const _RentCardsSection({
+    required this.activeFlatId,
+  });
+
+  final String? activeFlatId;
+
+  @override
+  ConsumerState<_RentCardsSection> createState() => _RentCardsSectionState();
+}
+
+class _RentCardsSectionState extends ConsumerState<_RentCardsSection> {
+  int _currentPage = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final asyncCards = ref.watch(
+      historyCardsProvider(
+        HistoryCardsParams(
+          page: _currentPage,
+          flatId: widget.activeFlatId,
+        ),
+      ),
+    );
+
+    return asyncCards.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+        child: AppLoader(),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (response) {
+        if (response.items.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          children: [
+            ...response.items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: RentBreakdownCard(
+                  monthLabel:
+                      '${_getMonthName(item.month)} ${item.year}',
+                  flatLabel: item.flatLabel,
+                  status: item.status,
+                  baseRent: item.baseRent,
+                  utilityBill: item.utilityBill,
+                  maintenance: item.maintenance,
+                  extra: item.extra,
+                  previousDues: 0,
+                  totalDue: item.totalDue,
+                  paidAmount: item.paidAmount,
+                  maintenanceBreakdownItems: item.maintenanceBreakdown
+                      .map(
+                        (mb) => RentBreakdownItem(
+                          id: mb.id,
+                          issueId: mb.issueId,
+                          name: mb.name,
+                          yourShare: mb.yourShare,
+                          totalCost: mb.totalCost,
+                          type: mb.type,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ),
+            if (response.pagination.totalPages > 1)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.md),
+                child: PaginationFooter(
+                  currentPage: response.pagination.page,
+                  totalPages: response.pagination.totalPages,
+                  onPreviousPressed: response.pagination.page > 1
+                      ? () => setState(
+                          () => _currentPage = response.pagination.page - 1)
+                      : null,
+                  onNextPressed:
+                      response.pagination.page <
+                          response.pagination.totalPages
+                          ? () => setState(
+                              () =>
+                                  _currentPage =
+                                      response.pagination.page + 1)
+                          : null,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    return months[month - 1];
+  }
+}
+
+class RentBreakdownItem {
+  final String id;
+  final String issueId;
+  final String name;
+  final double yourShare;
+  final double totalCost;
+  final String type;
+
+  RentBreakdownItem({
+    required this.id,
+    required this.issueId,
+    required this.name,
+    required this.yourShare,
+    required this.totalCost,
+    required this.type,
+  });
 }

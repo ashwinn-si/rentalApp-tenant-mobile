@@ -11,6 +11,7 @@ class ApiPaths {
   static const String dashboard = '$tenantMobilePrefix/dashboard';
   static const String dashboardLast3Months = '$tenantMobilePrefix/dashboard/last-3-months';
   static const String history = '$tenantMobilePrefix/history';
+  static const String historyCards = '$tenantMobilePrefix/history/cards';
   static const String notifications = '$tenantMobilePrefix/notifications';
   static const String documents = '$tenantMobilePrefix/documents';
   static const String profile = '$tenantMobilePrefix/profile';
