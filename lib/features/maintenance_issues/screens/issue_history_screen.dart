@@ -77,12 +77,14 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
           return ListPageTemplate(
             title: 'Maintenance',
             actions: _refreshAction,
-            body: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: EmptyStateCard(
-                type: EmptyStateType.maintenance,
-                actionLabel: 'Report New Issue',
-                onActionPressed: () => context.push('/maintenance/report'),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: EmptyStateCard(
+                  type: EmptyStateType.maintenance,
+                  actionLabel: 'Report New Issue',
+                  onActionPressed: () => context.push('/maintenance/report'),
+                ),
               ),
             ),
             floatingActionButton: FloatingActionButton(

@@ -135,10 +135,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               return ListPageTemplate(
                 title: 'History',
                 actions: _refreshAction,
-                body: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: const EmptyStateCard(
-                    type: EmptyStateType.history,
+                body: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: const EmptyStateCard(
+                      type: EmptyStateType.history,
+                    ),
                   ),
                 ),
               );

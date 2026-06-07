@@ -79,18 +79,20 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
           return ListPageTemplate(
             title: 'Payment Proofs',
             actions: _refreshAction,
-            body: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: EmptyStateCard(
-                type: EmptyStateType.paymentProof,
-                actionLabel: 'Add Payment Proof',
-                onActionPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const AddPaymentProofScreen(),
-                    ),
-                  );
-                },
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: EmptyStateCard(
+                  type: EmptyStateType.paymentProof,
+                  actionLabel: 'Add Payment Proof',
+                  onActionPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AddPaymentProofScreen(),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             floatingActionButton: FloatingActionButton(
