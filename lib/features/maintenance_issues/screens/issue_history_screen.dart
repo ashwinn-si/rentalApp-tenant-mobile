@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_tokens.dart';
+import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/pagination_footer.dart';
 import '../../../widgets/ui/empty_state_card.dart';
+import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/maintenance_provider.dart';
 import 'issue_detail_screen.dart';
 import 'widgets/maintenance_issue_card.dart';
@@ -41,8 +43,36 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
   Widget build(BuildContext context) {
     final asyncIssues = ref.watch(
         maintenanceIssuesProvider((page: currentPage, limit: itemsPerPage)));
+    final asyncDashboard = ref.watch(activeDashboardProvider);
 
-    return asyncIssues.when(
+    return asyncDashboard.when(
+      loading: () => ListPageTemplate(
+        title: 'Maintenance',
+        isLoading: true,
+        actions: _refreshAction,
+        body: const SizedBox.shrink(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => context.push('/maintenance/report'),
+          backgroundColor: AppColors.violet,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          child: const Icon(Icons.add),
+        ),
+      ),
+      error: (_, __) => ListPageTemplate(
+        title: 'Maintenance',
+        errorMessage: 'Error loading flats',
+        actions: _refreshAction,
+        body: const SizedBox.shrink(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => context.push('/maintenance/report'),
+          backgroundColor: AppColors.violet,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          child: const Icon(Icons.add),
+        ),
+      ),
+      data: (dashboardData) => asyncIssues.when(
       loading: () => ListPageTemplate(
         title: 'Maintenance',
         isLoading: true,
@@ -117,19 +147,28 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                         padding: const EdgeInsets.all(AppSpacing.md),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: response.issues
-                              .map((issue) => MaintenanceIssueCard(
-                                    issue: issue,
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute<void>(
-                                          builder: (_) =>
-                                              IssueDetailScreen(issue: issue),
-                                        ),
-                                      );
-                                    },
-                                  ))
-                              .toList(),
+                          children: [
+                            if (dashboardData.availableFlats.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                                child: FlatSelector(
+                                  flats: dashboardData.availableFlats
+                                      .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                                      .toList(),
+                                ),
+                              ),
+                            ...response.issues.map((issue) => MaintenanceIssueCard(
+                              issue: issue,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) =>
+                                        IssueDetailScreen(issue: issue),
+                                  ),
+                                );
+                              },
+                            )),
+                          ],
                         ),
                       ),
                     ),
@@ -145,13 +184,25 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                       top: AppSpacing.md,
                       bottom: totalPages > 1 ? 100 : AppSpacing.md,
                     ),
-                    itemCount:
-                        response.issues.length + (totalPages > 1 ? 1 : 0),
+                    itemCount: response.issues.length +
+                        (totalPages > 1 ? 1 : 0) +
+                        (dashboardData.availableFlats.isNotEmpty ? 1 : 0),
                     separatorBuilder: (_, __) =>
                         const SizedBox(height: AppSpacing.md),
                     itemBuilder: (context, index) {
+                      // First item is flat selector
+                      if (index == 0 && dashboardData.availableFlats.isNotEmpty) {
+                        return FlatSelector(
+                          flats: dashboardData.availableFlats
+                              .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                              .toList(),
+                        );
+                      }
+
+                      final issueIndex = dashboardData.availableFlats.isNotEmpty ? index - 1 : index;
+
                       // Last item is pagination
-                      if (totalPages > 1 && index == response.issues.length) {
+                      if (totalPages > 1 && issueIndex == response.issues.length) {
                         return Padding(
                           padding: const EdgeInsets.only(top: AppSpacing.md),
                           child: PaginationFooter(
@@ -167,7 +218,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                         );
                       }
 
-                      final issue = response.issues[index];
+                      final issue = response.issues[issueIndex];
                       return MaintenanceIssueCard(
                         issue: issue,
                         onTap: () {
@@ -190,6 +241,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
           ),
         );
       },
+      ),
     );
   }
 }
