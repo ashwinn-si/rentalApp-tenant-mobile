@@ -1,3 +1,5 @@
+import 'history_response.dart';
+
 class HistoryCardItem {
   final String id;
   final int month;
@@ -55,35 +57,6 @@ class HistoryCardItem {
       maintenanceBreakdown: rawBreakdown
           .map(MaintenanceBreakdownItem.fromJson)
           .toList(),
-    );
-  }
-}
-
-class MaintenanceBreakdownItem {
-  final String id;
-  final String issueId;
-  final String name;
-  final double yourShare;
-  final double totalCost;
-  final String type;
-
-  MaintenanceBreakdownItem({
-    required this.id,
-    required this.issueId,
-    required this.name,
-    required this.yourShare,
-    required this.totalCost,
-    required this.type,
-  });
-
-  factory MaintenanceBreakdownItem.fromJson(Map<String, dynamic> json) {
-    return MaintenanceBreakdownItem(
-      id: (json['id'] ?? '').toString(),
-      issueId: (json['issueId'] ?? '').toString(),
-      name: (json['name'] ?? '').toString(),
-      yourShare: ((json['yourShare'] as num?) ?? 0).toDouble(),
-      totalCost: ((json['totalCost'] as num?) ?? 0).toDouble(),
-      type: (json['type'] ?? 'adjustment').toString(),
     );
   }
 }

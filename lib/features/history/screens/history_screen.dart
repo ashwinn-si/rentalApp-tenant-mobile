@@ -17,6 +17,8 @@ import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
+import '../data/models/history_response.dart';
+import '../data/models/history_cards_response.dart';
 import '../providers/history_provider.dart';
 
 extension _BreakdownBuilder on RentBarItem {
@@ -209,7 +211,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           ),
                         ),
                       _RentCardsSection(
-                        activeFlatId: activeFlat.flatId,
+                        activeFlatId: activeFlat?.flatId,
                       ),
                     ],
                   ),
@@ -321,18 +323,7 @@ class _RentCardsSectionState extends ConsumerState<_RentCardsSection> {
                   previousDues: 0,
                   totalDue: item.totalDue,
                   paidAmount: item.paidAmount,
-                  maintenanceBreakdownItems: item.maintenanceBreakdown
-                      .map(
-                        (mb) => RentBreakdownItem(
-                          id: mb.id,
-                          issueId: mb.issueId,
-                          name: mb.name,
-                          yourShare: mb.yourShare,
-                          totalCost: mb.totalCost,
-                          type: mb.type,
-                        ),
-                      )
-                      .toList(),
+                  maintenanceBreakdownItems: item.maintenanceBreakdown,
                 ),
               ),
             ),
@@ -379,22 +370,4 @@ class _RentCardsSectionState extends ConsumerState<_RentCardsSection> {
     ];
     return months[month - 1];
   }
-}
-
-class RentBreakdownItem {
-  final String id;
-  final String issueId;
-  final String name;
-  final double yourShare;
-  final double totalCost;
-  final String type;
-
-  RentBreakdownItem({
-    required this.id,
-    required this.issueId,
-    required this.name,
-    required this.yourShare,
-    required this.totalCost,
-    required this.type,
-  });
 }
