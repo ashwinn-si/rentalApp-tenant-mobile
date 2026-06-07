@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/pagination_footer.dart';
+import '../../../widgets/ui/empty_state_card.dart';
 import '../providers/maintenance_provider.dart';
 import 'issue_detail_screen.dart';
 import 'widgets/maintenance_issue_card.dart';
@@ -76,51 +77,12 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
           return ListPageTemplate(
             title: 'Maintenance',
             actions: _refreshAction,
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.history_outlined,
-                      size: 64,
-                      color: AppColors.textSecondary.withValues(alpha: 0.3),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    const Text(
-                      'No issues reported yet',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    const Text(
-                      'Any maintenance issues you report will appear here.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    ElevatedButton.icon(
-                      onPressed: () => context.push('/maintenance/report'),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Report New Issue'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.violet,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg,
-                          vertical: AppSpacing.md,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            body: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: EmptyStateCard(
+                type: EmptyStateType.maintenance,
+                actionLabel: 'Report New Issue',
+                onActionPressed: () => context.push('/maintenance/report'),
               ),
             ),
             floatingActionButton: FloatingActionButton(

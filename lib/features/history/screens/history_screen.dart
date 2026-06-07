@@ -11,6 +11,7 @@ import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/chart_widgets.dart';
 import '../../../widgets/ui/pagination_footer.dart';
+import '../../../widgets/ui/empty_state_card.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
@@ -129,6 +130,19 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 )
                 .toList();
 
+            // Empty state
+            if (history.items.isEmpty && recentBarData.isEmpty) {
+              return ListPageTemplate(
+                title: 'History',
+                actions: _refreshAction,
+                body: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: const EmptyStateCard(
+                    type: EmptyStateType.history,
+                  ),
+                ),
+              );
+            }
 
             return ListPageTemplate(
               title: 'History',

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/pagination_footer.dart';
+import '../../../widgets/ui/empty_state_card.dart';
 import '../data/models/payment_proof.dart';
 import '../providers/payment_proof_provider.dart';
 import 'proof_detail_screen.dart';
@@ -78,24 +79,18 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
           return ListPageTemplate(
             title: 'Payment Proofs',
             actions: _refreshAction,
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'No payment proofs yet',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
+            body: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: EmptyStateCard(
+                type: EmptyStateType.paymentProof,
+                actionLabel: 'Add Payment Proof',
+                onActionPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AddPaymentProofScreen(),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _buildAddButton(),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
             floatingActionButton: FloatingActionButton(
@@ -381,23 +376,6 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
               fontWeight: FontWeight.w600,
               fontSize: 11,
             ),
-      ),
-    );
-  }
-
-Widget _buildAddButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const AddPaymentProofScreen(),
-            ),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Add Payment Proof'),
       ),
     );
   }

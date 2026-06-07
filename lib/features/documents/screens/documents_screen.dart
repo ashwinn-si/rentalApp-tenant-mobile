@@ -10,7 +10,7 @@ import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
-import '../../../widgets/ui/state_card.dart';
+import '../../../widgets/ui/empty_state_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
 import '../providers/documents_provider.dart';
@@ -94,20 +94,18 @@ class DocumentsScreen extends ConsumerWidget {
               loading: () => const AppLoader(),
               error: (_, __) => const Padding(
                 padding: EdgeInsets.all(AppSpacing.md),
-                child: StateCard(
-                    message: 'Unable to load documents',
-                    variant: StateCardVariant.error),
+                child: EmptyStateCard(
+                  type: EmptyStateType.documents,
+                  title: 'Unable to Load',
+                  message: 'Failed to load documents. Please try again.',
+                ),
               ),
               data: (documents) {
                 if (documents.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      children: <Widget>[
-                        Expanded(
-                          child: StateCard(message: 'No documents available'),
-                        ),
-                      ],
+                    child: EmptyStateCard(
+                      type: EmptyStateType.documents,
                     ),
                   );
                 }

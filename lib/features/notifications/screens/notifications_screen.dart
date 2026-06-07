@@ -7,7 +7,7 @@ import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/domain/notification_card.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/screen_background.dart';
-import '../../../widgets/ui/state_card.dart';
+import '../../../widgets/ui/empty_state_card.dart';
 import '../providers/notifications_provider.dart';
 
 class NotificationsScreen extends ConsumerWidget {
@@ -34,15 +34,19 @@ class NotificationsScreen extends ConsumerWidget {
           loading: () => const AppLoader(),
           error: (_, __) => const Padding(
             padding: EdgeInsets.all(AppSpacing.md),
-            child: StateCard(
-                message: 'Unable to load notifications',
-                variant: StateCardVariant.error),
+            child: EmptyStateCard(
+              type: EmptyStateType.notifications,
+              title: 'Unable to Load',
+              message: 'Failed to load notifications. Please try again.',
+            ),
           ),
           data: (items) {
             if (items.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.all(AppSpacing.md),
-                child: StateCard(message: 'No notifications found'),
+                child: EmptyStateCard(
+                  type: EmptyStateType.notifications,
+                ),
               );
             }
 

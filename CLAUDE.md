@@ -164,6 +164,47 @@ Container(
 )
 ```
 
+### Empty State Card Pattern
+
+Use `EmptyStateCard` for all empty/error states in list-based pages. **Never create custom empty state UI.**
+
+```dart
+import '../../../widgets/ui/empty_state_card.dart';
+
+// In your screen's data handler:
+if (items.isEmpty) {
+  return Padding(
+    padding: const EdgeInsets.all(AppSpacing.md),
+    child: EmptyStateCard(
+      type: EmptyStateType.paymentProof,
+      // Optional: custom title & message
+      // title: 'Custom Title',
+      // message: 'Custom message...',
+      // Optional: action button
+      actionLabel: 'Add Payment Proof',
+      onActionPressed: () { /* handle action */ },
+    ),
+  );
+}
+```
+
+**Supported Types:**
+- `EmptyStateType.paymentProof` — Payment proofs (icon: receipt)
+- `EmptyStateType.documents` — Documents (icon: description)
+- `EmptyStateType.maintenance` — Maintenance issues (icon: build_circle)
+- `EmptyStateType.notifications` — Notifications (icon: notifications)
+- `EmptyStateType.history` — Payment/rent history (icon: history)
+- `EmptyStateType.generic` — Fallback for custom cases (icon: info)
+
+Each type has default title, message, and icon. Override with custom `title` and `message` if needed.
+
+**Features:**
+- Auto-adapts to light/dark modes
+- Centered layout with icon + text
+- Optional action button (add new item, navigate, etc.)
+- Consistent spacing and typography
+- Border styling matches card system
+
 ### Chart Styling Pattern
 
 Charts must include:
