@@ -144,6 +144,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
                         padding: const EdgeInsets.only(bottom: AppSpacing.md),
                         child: FlatSelector(flats: flatItems),
                       ),
+                    _buildStatusFilter(),
                     Center(
                       child: Padding(
                         padding: EdgeInsets.symmetric(
