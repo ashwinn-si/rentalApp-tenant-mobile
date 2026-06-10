@@ -96,22 +96,42 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
 
         // Empty state
         if (allProofs.isEmpty) {
+          final flatItems = dashboardData.availableFlats
+              .map((flat) => FlatModel(id: flat.id, label: flat.label))
+              .toList();
+
           return ListPageTemplate(
             title: 'Payment Proofs',
             actions: _refreshAction(activeFlatId),
-            body: Center(
+            body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                child: EmptyStateCard(
-                  type: EmptyStateType.paymentProof,
-                  actionLabel: 'Add Payment Proof',
-                  onActionPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AddPaymentProofScreen(),
+                child: Column(
+                  children: [
+                    if (flatItems.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: FlatSelector(flats: flatItems),
                       ),
-                    );
-                  },
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: MediaQuery.of(context).size.height * 0.15,
+                        ),
+                        child: EmptyStateCard(
+                          type: EmptyStateType.paymentProof,
+                          actionLabel: 'Add Payment Proof',
+                          onActionPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const AddPaymentProofScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

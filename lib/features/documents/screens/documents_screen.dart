@@ -6,10 +6,10 @@ import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/animations.dart';
-import '../../../core/utils/app_bar_helper.dart';
+import '../../../widgets/domain/flat_selector.dart';
+import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/premium_card.dart';
-import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/empty_state_card.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../dashboard/providers/dashboard_provider.dart';
@@ -58,6 +58,13 @@ class DocumentsScreen extends ConsumerWidget {
     }
   }
 
+  List<Widget> _refreshAction(WidgetRef ref) => [
+        IconButton(
+          onPressed: () => ref.invalidate(documentsProvider),
+          icon: const Icon(Icons.refresh_outlined, color: Colors.white),
+        ),
+      ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -75,140 +82,171 @@ class DocumentsScreen extends ConsumerWidget {
     final asyncDocuments = ref.watch(documentsProvider);
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
-    return Scaffold(
-      appBar: buildPremiumAppBar(
+    return asyncDashboard.when(
+      loading: () => ListPageTemplate(
         title: 'Documents',
-        actions: [
-          IconButton(
-            onPressed: () => ref.invalidate(documentsProvider),
-            icon: const Icon(Icons.refresh_outlined),
-          ),
-        ],
+        isLoading: true,
+        actions: _refreshAction(ref),
+        body: const SizedBox.shrink(),
       ),
-      body: ScreenBackground(
-        child: asyncDashboard.when(
-          loading: () => const AppLoader(),
-          error: (_, __) => const AppLoader(),
-          data: (dashboardData) {
-            return asyncDocuments.when(
-              loading: () => const AppLoader(),
-              error: (_, __) => Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Center(
-                    child: EmptyStateCard(
-                      type: EmptyStateType.documents,
-                      title: 'Unable to Load',
-                      message: 'Failed to load documents. Please try again.',
-                    ),
-                  ),
-                ),
-              ),
-              data: (documents) {
-                if (documents.isEmpty) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      child: Center(
+      error: (_, __) => ListPageTemplate(
+        title: 'Documents',
+        errorMessage: 'Error loading flats',
+        actions: _refreshAction(ref),
+        body: const SizedBox.shrink(),
+      ),
+      data: (dashboardData) {
+        final flatItems = dashboardData.availableFlats
+            .map((flat) => FlatModel(id: flat.id, label: flat.label))
+            .toList();
+
+        return asyncDocuments.when(
+          loading: () => ListPageTemplate(
+            title: 'Documents',
+            isLoading: true,
+            actions: _refreshAction(ref),
+            body: const SizedBox.shrink(),
+          ),
+          error: (_, __) => ListPageTemplate(
+            title: 'Documents',
+            actions: _refreshAction(ref),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  children: [
+                    if (flatItems.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: FlatSelector(flats: flatItems),
+                      ),
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: MediaQuery.of(context).size.height * 0.15,
+                        ),
                         child: EmptyStateCard(
                           type: EmptyStateType.documents,
+                          title: 'Unable to Load',
+                          message: 'Failed to load documents. Please try again.',
                         ),
                       ),
                     ),
-                  );
-                }
-
-                return ListView(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  children: [
-                    StaggeredListView(
+                  ],
+                ),
+              ),
+            ),
+          ),
+          data: (documents) {
+            if (documents.isEmpty) {
+              return ListPageTemplate(
+                title: 'Documents',
+                actions: _refreshAction(ref),
+                body: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Column(
                       children: [
-                        ...documents.map((doc) {
-                          final hasUrl = doc.url.trim().isNotEmpty;
-                          final activeFlatId = ref.watch(authProvider
-                              .select((state) => state.activeFlatId));
-                          final currentFlat = dashboardData.availableFlats
-                              .where((f) => f.id == activeFlatId)
-                              .firstOrNull;
-                          final flatLabel = currentFlat?.label ?? 'Unit';
-                          final apartmentName =
-                              currentFlat?.apartmentName ?? '';
+                        if (flatItems.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: FlatSelector(flats: flatItems),
+                          ),
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: MediaQuery.of(context).size.height * 0.15,
+                            ),
+                            child: const EmptyStateCard(
+                              type: EmptyStateType.documents,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
 
-                          return PremiumCard(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.md,
-                                vertical: AppSpacing.sm,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding:
-                                        const EdgeInsets.all(AppSpacing.xs),
-                                    decoration: BoxDecoration(
-                                      color: iconTileBg,
-                                      border: Border.all(
-                                        color: isDark
-                                            ? const Color(0xFF433975)
-                                            : Colors.transparent,
-                                      ),
-                                      borderRadius:
-                                          BorderRadius.circular(AppRadius.md),
+            return ListPageTemplate(
+              title: 'Documents',
+              actions: _refreshAction(ref),
+              body: ListView(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                children: [
+                  StaggeredListView(
+                    children: [
+                      if (flatItems.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: FlatSelector(flats: flatItems),
+                        ),
+                      ...documents.map((doc) {
+                        final hasUrl = doc.url.trim().isNotEmpty;
+                        final activeFlatId = ref.watch(authProvider
+                            .select((state) => state.activeFlatId));
+                        final currentFlat = dashboardData.availableFlats
+                            .where((f) => f.id == activeFlatId)
+                            .firstOrNull;
+                        final flatLabel = currentFlat?.label ?? 'Unit';
+                        final apartmentName =
+                            currentFlat?.apartmentName ?? '';
+
+                        return PremiumCard(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.sm,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding:
+                                      const EdgeInsets.all(AppSpacing.xs),
+                                  decoration: BoxDecoration(
+                                    color: iconTileBg,
+                                    border: Border.all(
+                                      color: isDark
+                                          ? const Color(0xFF433975)
+                                          : Colors.transparent,
                                     ),
-                                    child: const Icon(
-                                      Icons.description_outlined,
-                                      color: AppColors.violet,
-                                      size: 20,
-                                    ),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.md),
                                   ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          doc.fileName,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: primaryText,
-                                          ),
+                                  child: const Icon(
+                                    Icons.description_outlined,
+                                    color: AppColors.violet,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        doc.fileName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: primaryText,
                                         ),
-                                        const SizedBox(height: 2),
-                                        Row(
-                                          children: [
-                                            if (apartmentName.isNotEmpty) ...[
-                                              Expanded(
-                                                child: Text(
-                                                  apartmentName,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: secondaryText
-                                                        .withValues(alpha: 0.8),
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                ' • ',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: secondaryText
-                                                      .withValues(alpha: 0.6),
-                                                ),
-                                              ),
-                                            ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        children: [
+                                          if (apartmentName.isNotEmpty) ...[
                                             Expanded(
                                               child: Text(
-                                                flatLabel,
+                                                apartmentName,
                                                 maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontSize: 11,
                                                   color: secondaryText
@@ -216,59 +254,79 @@ class DocumentsScreen extends ConsumerWidget {
                                                 ),
                                               ),
                                             ),
+                                            Text(
+                                              ' • ',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: secondaryText
+                                                    .withValues(alpha: 0.6),
+                                              ),
+                                            ),
                                           ],
-                                        ),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                          formatDate(doc.uploadedAt),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: secondaryText.withValues(
-                                                alpha: 0.7),
+                                          Expanded(
+                                            child: Text(
+                                              flatLabel,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: secondaryText
+                                                    .withValues(alpha: 0.8),
+                                              ),
+                                            ),
                                           ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        formatDate(doc.uploadedAt),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: secondaryText.withValues(
+                                              alpha: 0.7),
                                         ),
-                                      ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                TextButton(
+                                  onPressed: hasUrl
+                                      ? () => _openDocument(doc.url)
+                                      : null,
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.sm,
+                                      vertical: 4,
+                                    ),
+                                    backgroundColor: actionBg,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.sm),
                                     ),
                                   ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  TextButton(
-                                    onPressed: hasUrl
-                                        ? () => _openDocument(doc.url)
-                                        : null,
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: AppSpacing.sm,
-                                        vertical: 4,
-                                      ),
-                                      backgroundColor: actionBg,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(AppRadius.sm),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      hasUrl ? 'View' : 'N/A',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: AppColors.violet,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                  child: Text(
+                                    hasUrl ? 'View' : 'N/A',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.violet,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ],
-                );
-              },
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ],
+              ),
             );
           },
-        ),
-      ),
+        );
+      },
     );
   }
 }

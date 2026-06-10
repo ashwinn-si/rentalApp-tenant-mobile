@@ -117,16 +117,36 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
 
         // Empty state
         if (response.issues.isEmpty && currentPage == 1) {
+          final flatItems = dashboardData.availableFlats
+              .map((flat) => FlatModel(id: flat.id, label: flat.label))
+              .toList();
+
           return ListPageTemplate(
             title: 'Maintenance',
             actions: _refreshAction,
-            body: Center(
+            body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                child: EmptyStateCard(
-                  type: EmptyStateType.maintenance,
-                  actionLabel: 'Report New Issue',
-                  onActionPressed: () => context.push('/maintenance/report'),
+                child: Column(
+                  children: [
+                    if (flatItems.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: FlatSelector(flats: flatItems),
+                      ),
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: MediaQuery.of(context).size.height * 0.15,
+                        ),
+                        child: EmptyStateCard(
+                          type: EmptyStateType.maintenance,
+                          actionLabel: 'Report New Issue',
+                          onActionPressed: () => context.push('/maintenance/report'),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

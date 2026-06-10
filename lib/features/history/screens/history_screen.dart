@@ -141,14 +141,34 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
             // Empty state - show when no rent records exist
             if (history.items.isEmpty) {
+              final flatItems = dashboardData.availableFlats
+                  .map((flat) => FlatModel(id: flat.id, label: flat.label))
+                  .toList();
+
               return ListPageTemplate(
                 title: 'History',
                 actions: _refreshAction,
-                body: Center(
+                body: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
-                    child: const EmptyStateCard(
-                      type: EmptyStateType.history,
+                    child: Column(
+                      children: [
+                        if (flatItems.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: FlatSelector(flats: flatItems),
+                          ),
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: MediaQuery.of(context).size.height * 0.15,
+                            ),
+                            child: const EmptyStateCard(
+                              type: EmptyStateType.history,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
