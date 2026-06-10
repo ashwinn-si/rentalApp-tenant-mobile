@@ -206,82 +206,102 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm,
-                            vertical: AppSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.info,
-                                size: 14,
-                                color: Color(0xFFEF4444),
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                'OUTSTANDING',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFFEF4444),
-                                  letterSpacing: 0.5,
+                        Builder(
+                          builder: (context) {
+                            final isDark = Theme.of(context).brightness == Brightness.dark;
+                            final badgeBgColor = isDark
+                                ? const Color(0xFFEF4444).withValues(alpha: 0.15)
+                                : const Color(0xFFEF4444).withValues(alpha: 0.1);
+                            final badgeTextColor = isDark
+                                ? const Color(0xFFFF6B6B)
+                                : const Color(0xFFEF4444);
+                            final amountColor = isDark
+                                ? const Color(0xFFFF6B6B)
+                                : const Color(0xFFEF4444);
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.sm,
+                                    vertical: AppSpacing.xs,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: badgeBgColor,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.info,
+                                        size: 14,
+                                        color: badgeTextColor,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'OUTSTANDING',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: badgeTextColor,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          formatINR(data.totalOutstanding),
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        ref.watch(activeOutstandingDueProvider).when(
-                          data: (due) => due.months.isEmpty
-                              ? const SizedBox.shrink()
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Divider(height: 1, color: dividerColor),
-                                    const SizedBox(height: AppSpacing.sm),
-                                    ...due.months.map((month) => Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 6),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                month.name,
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: secondaryText,
-                                                ),
-                                              ),
-                                              Text(
-                                                formatINR(month.amount),
-                                                style: const TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFFEF4444),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )),
-                                  ],
+                                const SizedBox(height: AppSpacing.md),
+                                Text(
+                                  formatINR(data.totalOutstanding),
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark ? Colors.white : AppColors.textPrimary,
+                                  ),
                                 ),
-                          loading: () => const SizedBox.shrink(),
-                          error: (_, __) => const SizedBox.shrink(),
+                                const SizedBox(height: AppSpacing.md),
+                                ref.watch(activeOutstandingDueProvider).when(
+                                  data: (due) => due.months.isEmpty
+                                      ? const SizedBox.shrink()
+                                      : Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Divider(height: 1, color: dividerColor),
+                                            const SizedBox(height: AppSpacing.sm),
+                                            ...due.months.map((month) => Padding(
+                                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        month.name,
+                                                        style: TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.w400,
+                                                          color: secondaryText,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        formatINR(month.amount),
+                                                        style: TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: amountColor,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )),
+                                          ],
+                                        ),
+                                  loading: () => const SizedBox.shrink(),
+                                  error: (_, __) => const SizedBox.shrink(),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
