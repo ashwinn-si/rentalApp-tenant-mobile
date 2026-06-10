@@ -44,6 +44,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
   }
 
+  void _autoSelectFirstFlat(WidgetRef ref, DashboardResponse data) {
+    final currentActiveFlatId = ref.read(authProvider.select((state) => state.activeFlatId));
+    if (currentActiveFlatId == null && data.availableFlats.isNotEmpty) {
+      final firstFlatId = data.availableFlats.first.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(authProvider.notifier).setActiveFlatId(firstFlatId);
+        }
+      });
+    }
+  }
+
   String _getMonthYearLabel(Map<String, dynamic>? data) {
     if (data == null) return '';
     // Use outstandingFrom when available — points to oldest unpaid month
@@ -120,6 +132,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             );
           },
           data: (data) {
+            _autoSelectFirstFlat(ref, data);
             final isDark = Theme.of(context).brightness == Brightness.dark;
             final secondaryText =
                 isDark ? const Color(0xFFD1D5DB) : AppColors.textSecondary;
