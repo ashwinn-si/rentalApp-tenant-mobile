@@ -45,7 +45,7 @@ class _BugReportsScreenState extends ConsumerState<BugReportsScreen> {
       ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final bugReportsAsync = ref.watch(
       bugReportsWithPaginationProvider(
         BugReportsParams(
