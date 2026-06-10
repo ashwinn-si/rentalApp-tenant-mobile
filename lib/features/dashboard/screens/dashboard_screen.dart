@@ -332,6 +332,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ],
             ];
 
+            // Show centered empty state when no rent records
+            if (rentCardsSection == null) {
+              return Column(
+                children: [
+                  if (flatItems.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: FlatSelector(flats: flatItems),
+                    ),
+                  Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: const EmptyStateCard(
+                          type: EmptyStateType.history,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.md),
               children: [
