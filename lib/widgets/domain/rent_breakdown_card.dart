@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_tokens.dart';
-import '../../core/utils/animations.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../features/history/data/models/history_response.dart';
 import '../../features/maintenance_issues/screens/issue_detail_by_id_screen.dart';
@@ -246,10 +245,10 @@ class _RentBreakdownCardState extends State<RentBreakdownCard> {
                     Text('Maintenance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: secondaryText)),
                     if (hasBreakdown) ...[
                       const SizedBox(width: 4),
-                      AnimatedRotation(
-                        turns: _breakdownExpanded ? 0.5 : 0,
-                        duration: AppAnimations.fast,
-                        child: Icon(Icons.expand_more, size: 16, color: AppColors.violet),
+                      Icon(
+                        _breakdownExpanded ? Icons.expand_less : Icons.expand_more,
+                        size: 16,
+                        color: AppColors.violet,
                       ),
                     ],
                   ],
@@ -275,89 +274,83 @@ class _RentBreakdownCardState extends State<RentBreakdownCard> {
         ),
 
         // Collapsible breakdown
-        if (hasBreakdown)
-          AnimatedSize(
-            duration: AppAnimations.normal,
-            curve: AppAnimations.easeOutCubic,
-            child: _breakdownExpanded
-                ? Container(
-                    margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.violet.withValues(alpha: 0.04),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      border: Border.all(color: AppColors.violet.withValues(alpha: 0.1)),
-                    ),
-                    child: Column(
-                      children: widget.maintenanceBreakdownItems.asMap().entries.map((entry) {
-                        final item = entry.value;
-                        final isLast = entry.key == widget.maintenanceBreakdownItems.length - 1;
-                        final isReimbursement = item.type == 'reimbursement';
-                        final sign = isReimbursement ? '−' : '+';
-                        final signColor = isReimbursement ? AppColors.pending : AppColors.paid;
-                        final hasLink = item.issueId != null && item.issueId!.isNotEmpty;
+        if (hasBreakdown && _breakdownExpanded)
+          Container(
+            margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.violet.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              border: Border.all(color: AppColors.violet.withValues(alpha: 0.1)),
+            ),
+            child: Column(
+              children: widget.maintenanceBreakdownItems.asMap().entries.map((entry) {
+                final item = entry.value;
+                final isLast = entry.key == widget.maintenanceBreakdownItems.length - 1;
+                final isReimbursement = item.type == 'reimbursement';
+                final sign = isReimbursement ? '−' : '+';
+                final signColor = isReimbursement ? AppColors.pending : AppColors.paid;
+                final hasLink = item.issueId != null && item.issueId!.isNotEmpty;
 
-                        return Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: hasLink
-                                        ? GestureDetector(
-                                            onTap: () => Navigator.push(
-                                              context,
-                                              MaterialPageRoute<void>(
-                                                builder: (_) => IssueDetailByIdScreen(issueId: item.issueId!),
-                                              ),
-                                            ),
-                                            child: Text(
-                                              'Issue Reimbursement (#${item.issueId})',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: AppColors.violet,
-                                                decoration: TextDecoration.underline,
-                                                decorationColor: AppColors.violet,
-                                              ),
-                                            ),
-                                          )
-                                        : Text(
-                                            item.name,
-                                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                                          ),
-                                  ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: '$sign ${formatINR(item.yourShare)}',
-                                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: signColor),
-                                        ),
-                                        if (item.totalCost > 0)
-                                          TextSpan(
-                                            text: ' of ${formatINR(item.totalCost)}',
-                                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                                          ),
-                                      ],
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: hasLink
+                                ? GestureDetector(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute<void>(
+                                        builder: (_) => IssueDetailByIdScreen(issueId: item.issueId!),
+                                      ),
                                     ),
+                                    child: Text(
+                                      'Issue Reimbursement (#${item.issueId})',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.violet,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColors.violet,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    item.name,
+                                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                                   ),
-                                ],
-                              ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '$sign ${formatINR(item.yourShare)}',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: signColor),
+                                ),
+                                if (item.totalCost > 0)
+                                  TextSpan(
+                                    text: ' of ${formatINR(item.totalCost)}',
+                                    style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                  ),
+                              ],
                             ),
-                            if (!isLast)
-                              Divider(height: 1, color: dividerColor),
-                          ],
-                        );
-                      }).toList(),
+                          ),
+                        ],
+                      ),
                     ),
-                  )
-                : const SizedBox.shrink(),
+                    if (!isLast)
+                      Divider(height: 1, color: dividerColor),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
       ],
     );
