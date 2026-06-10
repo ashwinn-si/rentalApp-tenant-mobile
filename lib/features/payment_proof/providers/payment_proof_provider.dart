@@ -119,11 +119,21 @@ final paymentProofsProvider = FutureProvider.family<PaymentProofsResponse, Payme
 
     try {
       final repository = ref.watch(paymentProofRepositoryProvider);
-      final response = await repository.getMyProofsWithPagination(
+      final dto = await repository.getMyProofsWithPagination(
         flatId: params.flatId,
         status: params.status,
         page: params.page,
         limit: params.limit,
+      );
+
+      final response = PaymentProofsResponse(
+        items: dto.items,
+        pagination: PaginationData(
+          page: dto.pagination.page,
+          limit: dto.pagination.limit,
+          total: dto.pagination.total,
+          totalPages: dto.pagination.totalPages,
+        ),
       );
 
       developer.log('[PaymentProofsProvider] Success! Got ${response.items.length} proofs');
@@ -139,7 +149,8 @@ final paymentProofsProvider = FutureProvider.family<PaymentProofsResponse, Payme
 // Invalidation trigger for refreshing proofs
 final refreshProofsProvider = Provider<Future<void> Function(String?)>((ref) {
   return (flatId) async {
-    ref.invalidate(paymentProofsProvider(flatId));
-    await ref.watch(paymentProofsProvider(flatId).future);
+    final params = PaymentProofsParams(flatId: flatId);
+    ref.invalidate(paymentProofsProvider(params));
+    await ref.watch(paymentProofsProvider(params).future);
   };
 });
