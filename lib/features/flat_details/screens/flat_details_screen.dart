@@ -451,7 +451,7 @@ class _LeaseCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Security Deposit',
+                  'Leasing',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.pending,
                         fontWeight: FontWeight.w600,
