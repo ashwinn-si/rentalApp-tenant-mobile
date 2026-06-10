@@ -37,7 +37,8 @@ class FlatDetailsScreen extends ConsumerWidget {
           actions: [
             IconButton(
               onPressed: () {
-                developer.log('[FlatDetailsScreen] Refresh clicked, activeFlatId=$activeFlatId');
+                developer.log(
+                    '[FlatDetailsScreen] Refresh clicked, activeFlatId=$activeFlatId');
                 ref.invalidate(flatDetailsProvider(activeFlatId));
               },
               icon: const Icon(Icons.refresh_outlined),
@@ -51,8 +52,8 @@ class FlatDetailsScreen extends ConsumerWidget {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ApiErrorHandler.handleAccessDenied(error, ref);
             });
-            return Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+            return const Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
               child: StateCard(
                 message: 'Failed to load flat details',
                 variant: StateCardVariant.error,
@@ -88,7 +89,8 @@ class FlatDetailsScreen extends ConsumerWidget {
                       duration: AppAnimations.normal,
                       child: FlatSelector(
                         flats: response.availableFlats
-                            .map((flat) => FlatModel(id: flat.flatId, label: flat.label))
+                            .map((flat) =>
+                                FlatModel(id: flat.flatId, label: flat.label))
                             .toList(),
                       ),
                     ),
@@ -169,7 +171,7 @@ class _FlatInfoCard extends StatelessWidget {
                   color: AppColors.violet.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.home,
                   color: AppColors.violet,
                   size: 24,
@@ -190,9 +192,10 @@ class _FlatInfoCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       details.flatNumber,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                     ),
                   ],
                 ),
@@ -246,7 +249,7 @@ class _ApartmentCard extends StatelessWidget {
                   color: AppColors.violet.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.location_on,
                   color: AppColors.violet,
                   size: 20,
@@ -351,7 +354,7 @@ class _TenancyCard extends StatelessWidget {
                   color: AppColors.violet.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.event,
                   color: AppColors.violet,
                   size: 20,
@@ -405,7 +408,7 @@ class _LeaseCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark
         ? const Color(0xFF2D2A3D).withOpacity(0.6)
-        : const Color(0xFFFEF3C7).withOpacity(0.4);
+        : const Color(0xFFFEF3C7).withOpacity(0.8);
 
     return Container(
       decoration: BoxDecoration(
@@ -439,7 +442,7 @@ class _LeaseCard extends StatelessWidget {
               color: AppColors.pending.withOpacity(0.1),
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.lock,
               color: AppColors.pending,
               size: 28,
@@ -451,7 +454,7 @@ class _LeaseCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Leasing',
+                  'Leasing Amount',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.pending,
                         fontWeight: FontWeight.w600,
