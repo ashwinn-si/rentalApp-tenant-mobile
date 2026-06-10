@@ -64,6 +64,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeFlatId = ref.watch(authProvider.select((state) => state.activeFlatId));
+
     ref.listen<String?>(
       authProvider.select((state) => state.activeFlatId),
       (prev, next) {
@@ -209,9 +211,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           ),
                         ),
                       _RentCardsSection(
-                        activeFlatId: dashboardData.availableFlats.isNotEmpty
-                            ? dashboardData.availableFlats.first.id
-                            : null,
+                        activeFlatId: activeFlatId,
                       ),
                     ],
                   ),
