@@ -18,6 +18,7 @@ import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../app_version/services/app_update_checker.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../history/data/models/history_response.dart';
 import '../../notifications/providers/notifications_provider.dart';
 import '../data/models/dashboard_response.dart';
 import '../providers/dashboard_provider.dart';
