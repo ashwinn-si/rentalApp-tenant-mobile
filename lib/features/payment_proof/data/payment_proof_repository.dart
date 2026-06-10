@@ -92,6 +92,38 @@ class PaymentProofRepository {
         .toList();
   }
 
+  Future<PaymentProofsResponseDto> getMyProofsWithPagination({
+    String? rentRecordId,
+    String? flatId,
+    String? status,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    developer.log('[PaymentProofRepository.getMyProofsWithPagination] Calling endpoint with filters');
+
+    final response = await _client.get<Map<String, dynamic>>(
+      ApiPaths.paymentProofs,
+      fromJson: (json) => json as Map<String, dynamic>,
+      queryParams: {
+        if (rentRecordId != null) 'rentRecordId': rentRecordId,
+        if (flatId != null) 'flatId': flatId,
+        if (status != null) 'status': status,
+        'page': page,
+        'limit': limit,
+      },
+    );
+
+    developer.log('[PaymentProofRepository.getMyProofsWithPagination] Response received - isSuccess: ${response.isSuccess}');
+
+    if (!response.isSuccess) {
+      developer.log('[PaymentProofRepository.getMyProofsWithPagination] API Error: ${response.message}');
+      throw Exception(response.message);
+    }
+
+    final responseData = response.data ?? {};
+    return PaymentProofsResponseDto.fromJson(responseData);
+  }
+
   Future<Map<String, dynamic>> getS3UploadUrl({
     required String fileName,
     String? contentType,

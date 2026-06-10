@@ -63,25 +63,78 @@ final activeRentProvider =
   );
 });
 
-// Payment proofs list provider
-final paymentProofsProvider = FutureProvider.family<List<PaymentProof>, String?>((ref, flatId) async {
-  developer.log('[PaymentProofsProvider] Loading proofs - starting');
+// Payment proofs params
+class PaymentProofsParams {
+  const PaymentProofsParams({
+    this.flatId,
+    this.status,
+    this.page = 1,
+    this.limit = 10,
+  });
 
-  try {
-    developer.log('[PaymentProofsProvider] Getting repository');
-    final repository = ref.watch(paymentProofRepositoryProvider);
+  final String? flatId;
+  final String? status;
+  final int page;
+  final int limit;
 
-    developer.log('[PaymentProofsProvider] Calling getMyProofs()');
-    final proofs = await repository.getMyProofs(flatId: flatId);
-
-    developer.log('[PaymentProofsProvider] Success! Got ${proofs.length} proofs');
-    return proofs;
-  } catch (e, stack) {
-    developer.log('[PaymentProofsProvider] ERROR: $e');
-    developer.log('[PaymentProofsProvider] Stack: $stack');
-    rethrow;
+  @override
+  bool operator ==(Object other) {
+    return other is PaymentProofsParams &&
+        other.flatId == flatId &&
+        other.status == status &&
+        other.page == page &&
+        other.limit == limit;
   }
-});
+
+  @override
+  int get hashCode => Object.hash(flatId, status, page, limit);
+}
+
+// Payment proofs response model
+class PaymentProofsResponse {
+  const PaymentProofsResponse({required this.items, required this.pagination});
+
+  final List<PaymentProof> items;
+  final PaginationData pagination;
+}
+
+class PaginationData {
+  const PaginationData({
+    required this.page,
+    required this.limit,
+    required this.total,
+    required this.totalPages,
+  });
+
+  final int page;
+  final int limit;
+  final int total;
+  final int totalPages;
+}
+
+// Payment proofs list provider
+final paymentProofsProvider = FutureProvider.family<PaymentProofsResponse, PaymentProofsParams>(
+  (ref, params) async {
+    developer.log('[PaymentProofsProvider] Loading proofs - flatId=${params.flatId}, status=${params.status}, page=${params.page}');
+
+    try {
+      final repository = ref.watch(paymentProofRepositoryProvider);
+      final response = await repository.getMyProofsWithPagination(
+        flatId: params.flatId,
+        status: params.status,
+        page: params.page,
+        limit: params.limit,
+      );
+
+      developer.log('[PaymentProofsProvider] Success! Got ${response.items.length} proofs');
+      return response;
+    } catch (e, stack) {
+      developer.log('[PaymentProofsProvider] ERROR: $e');
+      developer.log('[PaymentProofsProvider] Stack: $stack');
+      rethrow;
+    }
+  },
+);
 
 // Invalidation trigger for refreshing proofs
 final refreshProofsProvider = Provider<Future<void> Function(String?)>((ref) {

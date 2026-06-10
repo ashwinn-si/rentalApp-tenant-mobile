@@ -21,8 +21,9 @@ class PaymentProofScreen extends ConsumerStatefulWidget {
 }
 
 class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
-  static const int itemsPerPage = 5;
-  int currentPage = 0;
+  static const int itemsPerPage = 10;
+  int currentPage = 1;
+  String? selectedStatus; // null = all, 'pending', 'approved', 'rejected'
 
   String formatINR(double value) {
     return '₹${value.toStringAsFixed(2)}';
@@ -30,7 +31,18 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
 
   List<Widget> _refreshAction(String? flatId) => [
         IconButton(
-          onPressed: () => ref.invalidate(paymentProofsProvider(flatId)),
+          onPressed: () {
+            ref.invalidate(
+              paymentProofsProvider(
+                PaymentProofsParams(
+                  flatId: flatId,
+                  status: selectedStatus,
+                  page: currentPage,
+                  limit: itemsPerPage,
+                ),
+              ),
+            );
+          },
           icon: const Icon(Icons.refresh_outlined, color: Colors.white),
         ),
       ];
@@ -40,7 +52,25 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
     final authState = ref.watch(authProvider);
     final activeFlatId = authState.activeFlatId;
 
-    final proofsAsync = ref.watch(paymentProofsProvider(activeFlatId));
+    ref.listen<String?>(
+      authProvider.select((state) => state.activeFlatId),
+      (prev, next) {
+        if (prev != next && mounted) {
+          setState(() => currentPage = 1);
+        }
+      },
+    );
+
+    final proofsAsync = ref.watch(
+      paymentProofsProvider(
+        PaymentProofsParams(
+          flatId: activeFlatId,
+          status: selectedStatus,
+          page: currentPage,
+          limit: itemsPerPage,
+        ),
+      ),
+    );
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return asyncDashboard.when(
@@ -91,8 +121,9 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
           child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
-      data: (allProofs) {
-        final totalPages = (allProofs.length / itemsPerPage).ceil().toInt();
+      data: (response) {
+        final allProofs = response.items;
+        final pagination = response.pagination;
 
         // Empty state
         if (allProofs.isEmpty) {
@@ -149,11 +180,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
           );
         }
 
-        // Paginate
-        final startIdx = currentPage * itemsPerPage;
-        final endIdx = (startIdx + itemsPerPage).clamp(0, allProofs.length);
-        final pageProofs = allProofs.sublist(startIdx, endIdx);
-        final isSingleItem = pageProofs.length == 1 && totalPages == 1;
+        final isSingleItem = allProofs.length == 1 && pagination.totalPages == 1;
 
         return ListPageTemplate(
           title: 'Payment Proofs',
@@ -178,7 +205,8 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
                                     .toList(),
                               ),
                             ),
-                          ...pageProofs.map((proof) => _buildProofCard(proof)),
+                          _buildStatusFilter(),
+                          ...allProofs.map((proof) => _buildProofCard(proof)),
                         ],
                       ),
                     ),
@@ -190,7 +218,7 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
                       left: AppSpacing.md,
                       right: AppSpacing.md,
                       top: AppSpacing.md,
-                      bottom: totalPages > 1 ? 100 : AppSpacing.md,
+                      bottom: pagination.totalPages > 1 ? 100 : AppSpacing.md,
                     ),
                     child: Column(
                       children: [
@@ -203,17 +231,18 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
                                   .toList(),
                             ),
                           ),
-                        ...pageProofs.map((proof) => _buildProofCard(proof)),
-                        if (totalPages > 1) ...[
+                        _buildStatusFilter(),
+                        ...allProofs.map((proof) => _buildProofCard(proof)),
+                        if (pagination.totalPages > 1) ...[
                           const SizedBox(height: AppSpacing.md),
                           PaginationFooter(
-                            currentPage: currentPage + 1,
-                            totalPages: totalPages,
-                            onPreviousPressed: currentPage > 0
-                                ? () => setState(() => currentPage--)
+                            currentPage: pagination.page,
+                            totalPages: pagination.totalPages,
+                            onPreviousPressed: pagination.page > 1
+                                ? () => setState(() => currentPage = pagination.page - 1)
                                 : null,
-                            onNextPressed: currentPage < totalPages - 1
-                                ? () => setState(() => currentPage++)
+                            onNextPressed: pagination.page < pagination.totalPages
+                                ? () => setState(() => currentPage = pagination.page + 1)
                                 : null,
                           ),
                         ],
@@ -437,6 +466,59 @@ class _PaymentProofScreenState extends ConsumerState<PaymentProofScreen> {
               fontWeight: FontWeight.w600,
               fontSize: 11,
             ),
+      ),
+    );
+  }
+
+  Widget _buildStatusFilter() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final filterBg = isDark ? const Color(0xFF2C2550) : AppColors.violet.withValues(alpha: 0.08);
+    final selectedBg = AppColors.violet;
+    final selectedText = Colors.white;
+    final unselectedText = isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary;
+
+    final statuses = [
+      {'value': null, 'label': 'All'},
+      {'value': 'pending', 'label': 'Pending'},
+      {'value': 'approved', 'label': 'Approved'},
+      {'value': 'rejected', 'label': 'Rejected'},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: statuses.map((status) {
+            final isSelected = selectedStatus == status['value'];
+            return Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: FilterChip(
+                label: Text(
+                  status['label'] as String,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? selectedText : unselectedText,
+                  ),
+                ),
+                selected: isSelected,
+                onSelected: (_) {
+                  setState(() {
+                    selectedStatus = status['value'] as String?;
+                    currentPage = 0;
+                  });
+                },
+                backgroundColor: filterBg,
+                selectedColor: selectedBg,
+                side: BorderSide(
+                  color: isSelected ? selectedBg : AppColors.violet.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

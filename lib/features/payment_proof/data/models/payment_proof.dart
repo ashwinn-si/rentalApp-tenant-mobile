@@ -87,3 +87,46 @@ class ProofImage {
     };
   }
 }
+
+class PaginationInfo {
+  final int page;
+  final int limit;
+  final int total;
+  final int totalPages;
+
+  PaginationInfo({
+    required this.page,
+    required this.limit,
+    required this.total,
+    required this.totalPages,
+  });
+
+  factory PaginationInfo.fromJson(Map<String, dynamic> json) {
+    return PaginationInfo(
+      page: json['page'] ?? 1,
+      limit: json['limit'] ?? 10,
+      total: json['total'] ?? 0,
+      totalPages: json['totalPages'] ?? 0,
+    );
+  }
+}
+
+class PaymentProofsResponseDto {
+  final List<PaymentProof> items;
+  final PaginationInfo pagination;
+
+  PaymentProofsResponseDto({required this.items, required this.pagination});
+
+  factory PaymentProofsResponseDto.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] as Map<String, dynamic>? ?? {};
+    return PaymentProofsResponseDto(
+      items: (data['items'] as List<dynamic>?)
+              ?.map((item) => PaymentProof.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      pagination: data['pagination'] != null
+          ? PaginationInfo.fromJson(data['pagination'] as Map<String, dynamic>)
+          : PaginationInfo(page: 1, limit: 10, total: 0, totalPages: 0),
+    );
+  }
+}
