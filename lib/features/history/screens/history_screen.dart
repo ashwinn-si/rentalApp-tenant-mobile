@@ -240,6 +240,15 @@ class _RentCardsSectionState extends ConsumerState<_RentCardsSection> {
   int _currentPage = 1;
 
   @override
+  void didUpdateWidget(_RentCardsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reset pagination when flat selection changes
+    if (oldWidget.activeFlatId != widget.activeFlatId) {
+      setState(() => _currentPage = 1);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final asyncCards = ref.watch(
       historyCardsProvider(
