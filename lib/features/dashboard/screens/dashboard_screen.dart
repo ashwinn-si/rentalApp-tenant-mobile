@@ -21,6 +21,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../../history/data/models/history_response.dart';
 import '../../history/providers/history_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
+import '../data/models/dashboard_response.dart';
 import '../providers/dashboard_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
