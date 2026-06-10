@@ -148,17 +148,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   return;
                                 }
 
-                                if (_newPasswordController.text.length < 6) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Password must be at least 6 characters',
-                                      ),
-                                    ),
-                                  );
-                                  return;
-                                }
-
                                 setState(() {
                                   _isChangingPassword = true;
                                 });
