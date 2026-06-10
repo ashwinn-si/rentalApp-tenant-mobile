@@ -136,8 +136,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   .toList(),
             );
 
-            // Empty state
-            if (history.items.isEmpty && recentBarData.isEmpty) {
+            // Empty state - show when no rent records exist
+            if (history.items.isEmpty) {
               return ListPageTemplate(
                 title: 'History',
                 actions: _refreshAction,
