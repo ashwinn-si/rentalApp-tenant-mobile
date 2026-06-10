@@ -23,19 +23,29 @@ class IssueHistoryScreen extends ConsumerStatefulWidget {
 class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
   late int currentPage;
   late int itemsPerPage;
-  late int totalPages;
+  String? selectedStatus; // null = all, 'submitted', 'under_review', 'resolved', 'rejected'
 
   @override
   void initState() {
     super.initState();
     currentPage = 1;
-    itemsPerPage = 5;
-    totalPages = 0;
+    itemsPerPage = 10;
   }
 
-  List<Widget> get _refreshAction => [
+  List<Widget> _refreshAction(String? flatId) => [
         IconButton(
-          onPressed: () => ref.invalidate(maintenanceIssuesProvider),
+          onPressed: () {
+            ref.invalidate(
+              maintenanceIssuesProvider(
+                MaintenanceIssuesParams(
+                  flatId: flatId,
+                  status: selectedStatus,
+                  page: currentPage,
+                  limit: itemsPerPage,
+                ),
+              ),
+            );
+          },
           icon: const Icon(Icons.refresh_outlined, color: Colors.white),
         ),
       ];
@@ -55,14 +65,22 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
     );
 
     final asyncIssues = ref.watch(
-        maintenanceIssuesProvider((page: currentPage, limit: itemsPerPage, flatId: activeFlatId)));
+      maintenanceIssuesProvider(
+        MaintenanceIssuesParams(
+          flatId: activeFlatId,
+          status: selectedStatus,
+          page: currentPage,
+          limit: itemsPerPage,
+        ),
+      ),
+    );
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return asyncDashboard.when(
       loading: () => ListPageTemplate(
         title: 'Maintenance',
         isLoading: true,
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () => context.push('/maintenance/report'),
@@ -75,7 +93,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
       error: (_, __) => ListPageTemplate(
         title: 'Maintenance',
         errorMessage: 'Error loading flats',
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () => context.push('/maintenance/report'),
@@ -89,7 +107,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
       loading: () => ListPageTemplate(
         title: 'Maintenance',
         isLoading: true,
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () => context.push('/maintenance/report'),
@@ -102,7 +120,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
       error: (error, _) => ListPageTemplate(
         title: 'Maintenance',
         errorMessage: error.toString(),
-        actions: _refreshAction,
+        actions: _refreshAction(activeFlatId),
         body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () => context.push('/maintenance/report'),
@@ -113,7 +131,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
         ),
       ),
       data: (response) {
-        totalPages = (response.total / itemsPerPage).ceil();
+        final pagination = response.pagination;
 
         // Empty state
         if (response.issues.isEmpty && currentPage == 1) {
@@ -123,7 +141,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
 
           return ListPageTemplate(
             title: 'Maintenance',
-            actions: _refreshAction,
+            actions: _refreshAction(activeFlatId),
             body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
@@ -134,6 +152,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                         padding: const EdgeInsets.only(bottom: AppSpacing.md),
                         child: FlatSelector(flats: flatItems),
                       ),
+                    _buildStatusFilter(),
                     Center(
                       child: Padding(
                         padding: EdgeInsets.symmetric(
@@ -161,15 +180,21 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
         }
 
         // List with pagination
-        final isSingleItem = response.issues.length == 1 && totalPages == 1;
+        final isSingleItem = response.issues.length == 1 && pagination!.totalPages == 1;
 
         return ListPageTemplate(
           title: 'Maintenance',
-          actions: _refreshAction,
+          actions: _refreshAction(activeFlatId),
           body: isSingleItem
               ? RefreshIndicator(
                   onRefresh: () => ref.refresh(maintenanceIssuesProvider(
-                      (page: currentPage, limit: itemsPerPage, flatId: activeFlatId)).future),
+                    MaintenanceIssuesParams(
+                      flatId: activeFlatId,
+                      status: selectedStatus,
+                      page: currentPage,
+                      limit: itemsPerPage,
+                    ),
+                  ).future),
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: ConstrainedBox(
@@ -190,6 +215,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                                       .toList(),
                                 ),
                               ),
+                            _buildStatusFilter(),
                             ...response.issues.map((issue) => MaintenanceIssueCard(
                               issue: issue,
                               onTap: () {
@@ -209,17 +235,24 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                 )
               : RefreshIndicator(
                   onRefresh: () => ref.refresh(maintenanceIssuesProvider(
-                      (page: currentPage, limit: itemsPerPage, flatId: activeFlatId)).future),
+                    MaintenanceIssuesParams(
+                      flatId: activeFlatId,
+                      status: selectedStatus,
+                      page: currentPage,
+                      limit: itemsPerPage,
+                    ),
+                  ).future),
                   child: ListView.separated(
                     padding: EdgeInsets.only(
                       left: AppSpacing.md,
                       right: AppSpacing.md,
                       top: AppSpacing.md,
-                      bottom: totalPages > 1 ? 100 : AppSpacing.md,
+                      bottom: pagination!.totalPages > 1 ? 100 : AppSpacing.md,
                     ),
                     itemCount: response.issues.length +
-                        (totalPages > 1 ? 1 : 0) +
-                        (dashboardData.availableFlats.isNotEmpty ? 1 : 0),
+                        (pagination!.totalPages > 1 ? 1 : 0) +
+                        (dashboardData.availableFlats.isNotEmpty ? 1 : 0) +
+                        1, // status filter is always shown
                     separatorBuilder: (_, __) =>
                         const SizedBox(height: AppSpacing.md),
                     itemBuilder: (context, index) {
@@ -232,26 +265,33 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                         );
                       }
 
-                      final issueIndex = dashboardData.availableFlats.isNotEmpty ? index - 1 : index;
+                      // Second item is status filter
+                      final filterIndex = dashboardData.availableFlats.isNotEmpty ? 1 : 0;
+                      if (index == filterIndex) {
+                        return _buildStatusFilter();
+                      }
+
+                      final issueIndex = filterIndex + 1;
+                      final dataIndex = index - issueIndex;
 
                       // Last item is pagination
-                      if (totalPages > 1 && issueIndex == response.issues.length) {
+                      if (pagination!.totalPages > 1 && dataIndex == response.issues.length) {
                         return Padding(
                           padding: const EdgeInsets.only(top: AppSpacing.md),
                           child: PaginationFooter(
-                            currentPage: currentPage,
-                            totalPages: totalPages,
-                            onPreviousPressed: currentPage > 1
-                                ? () => setState(() => currentPage--)
+                            currentPage: pagination!.page,
+                            totalPages: pagination!.totalPages,
+                            onPreviousPressed: pagination!.page > 1
+                                ? () => setState(() => currentPage = pagination!.page - 1)
                                 : null,
-                            onNextPressed: currentPage < totalPages
-                                ? () => setState(() => currentPage++)
+                            onNextPressed: pagination!.page < pagination!.totalPages
+                                ? () => setState(() => currentPage = pagination!.page + 1)
                                 : null,
                           ),
                         );
                       }
 
-                      final issue = response.issues[issueIndex];
+                      final issue = response.issues[dataIndex];
                       return MaintenanceIssueCard(
                         issue: issue,
                         onTap: () {
@@ -274,6 +314,60 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
           ),
         );
       },
+      ),
+    );
+  }
+
+  Widget _buildStatusFilter() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final filterBg = isDark ? const Color(0xFF2C2550) : AppColors.violet.withValues(alpha: 0.08);
+    final selectedBg = AppColors.violet;
+    final selectedText = Colors.white;
+    final unselectedText = isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary;
+
+    final statuses = [
+      {'value': null, 'label': 'All'},
+      {'value': 'submitted', 'label': 'Submitted'},
+      {'value': 'under_review', 'label': 'Under Review'},
+      {'value': 'resolved', 'label': 'Resolved'},
+      {'value': 'rejected', 'label': 'Rejected'},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: statuses.map((status) {
+            final isSelected = selectedStatus == status['value'];
+            return Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: FilterChip(
+                label: Text(
+                  status['label'] as String,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? selectedText : unselectedText,
+                  ),
+                ),
+                selected: isSelected,
+                onSelected: (_) {
+                  setState(() {
+                    selectedStatus = status['value'] as String?;
+                    currentPage = 1;
+                  });
+                },
+                backgroundColor: filterBg,
+                selectedColor: selectedBg,
+                side: BorderSide(
+                  color: isSelected ? selectedBg : AppColors.violet.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

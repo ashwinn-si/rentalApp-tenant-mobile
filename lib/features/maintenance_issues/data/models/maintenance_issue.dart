@@ -129,21 +129,54 @@ class MaintenanceIssuesResponse {
   const MaintenanceIssuesResponse({
     required this.issues,
     required this.total,
+    this.pagination,
   });
 
   final List<MaintenanceIssue> issues;
   final int total;
+  final PaginationInfo? pagination;
 
   factory MaintenanceIssuesResponse.fromJson(Map<String, dynamic> json) {
     final rawIssues = (json['issues'] as List<dynamic>? ?? <dynamic>[])
         .cast<Map<String, dynamic>>();
+
+    // Calculate pagination if not provided by backend
+    final pagination = json['pagination'] as Map<String, dynamic>?;
+    final page = pagination?['page'] ?? json['page'] ?? 1;
+    final limit = pagination?['limit'] ?? json['limit'] ?? 10;
+    final total = (json['total'] ?? 0) as int;
+
     return MaintenanceIssuesResponse(
       issues: rawIssues.map(MaintenanceIssue.fromJson).toList(),
-      total: (json['total'] ?? 0) as int,
+      total: total,
+      pagination: PaginationInfo(
+        page: page as int,
+        limit: limit as int,
+        total: total,
+        totalPages: ((total / limit) as double).ceil(),
+      ),
     );
   }
 
   factory MaintenanceIssuesResponse.empty() {
-    return const MaintenanceIssuesResponse(issues: <MaintenanceIssue>[], total: 0);
+    return MaintenanceIssuesResponse(
+      issues: <MaintenanceIssue>[],
+      total: 0,
+      pagination: const PaginationInfo(page: 1, limit: 10, total: 0, totalPages: 0),
+    );
   }
+}
+
+class PaginationInfo {
+  const PaginationInfo({
+    required this.page,
+    required this.limit,
+    required this.total,
+    required this.totalPages,
+  });
+
+  final int page;
+  final int limit;
+  final int total;
+  final int totalPages;
 }
