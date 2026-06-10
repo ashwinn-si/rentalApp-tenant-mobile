@@ -364,6 +364,7 @@ class _IssueHistoryScreenState extends ConsumerState<IssueHistoryScreen> {
                   color: isSelected ? selectedBg : AppColors.violet.withValues(alpha: 0.2),
                   width: 1,
                 ),
+                showCheckmark: false,
               ),
             );
           }).toList(),
