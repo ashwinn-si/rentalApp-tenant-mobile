@@ -198,95 +198,95 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             final children = <Widget>[
               if (flatItems.isNotEmpty) FlatSelector(flats: flatItems),
               if (flatItems.isNotEmpty) const SizedBox(height: AppSpacing.md),
-              if (notificationSection != null) notificationSection,
-              ScaleInAnimation(
-                duration: AppAnimations.normal,
-                child: PremiumCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: AppSpacing.xs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.info,
-                              size: 14,
-                              color: Color(0xFFEF4444),
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'OUTSTANDING',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+              if (rentCardsSection != null) ...[
+                if (notificationSection != null) notificationSection,
+                ScaleInAnimation(
+                  duration: AppAnimations.normal,
+                  child: PremiumCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.info,
+                                size: 14,
                                 color: Color(0xFFEF4444),
-                                letterSpacing: 0.5,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        formatINR(data.totalOutstanding),
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      ref.watch(activeOutstandingDueProvider).when(
-                        data: (due) => due.months.isEmpty
-                            ? const SizedBox.shrink()
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Divider(height: 1, color: dividerColor),
-                                  const SizedBox(height: AppSpacing.sm),
-                                  ...due.months.map((month) => Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 6),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              month.name,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w400,
-                                                color: secondaryText,
-                                              ),
-                                            ),
-                                            Text(
-                                              formatINR(month.amount),
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                                color: Color(0xFFEF4444),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )),
-                                ],
+                              SizedBox(width: 6),
+                              Text(
+                                'OUTSTANDING',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFEF4444),
+                                  letterSpacing: 0.5,
+                                ),
                               ),
-                        loading: () => const SizedBox.shrink(),
-                        error: (_, __) => const SizedBox.shrink(),
-                      ),
-                    ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          formatINR(data.totalOutstanding),
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        ref.watch(activeOutstandingDueProvider).when(
+                          data: (due) => due.months.isEmpty
+                              ? const SizedBox.shrink()
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Divider(height: 1, color: dividerColor),
+                                    const SizedBox(height: AppSpacing.sm),
+                                    ...due.months.map((month) => Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 6),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                month.name,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: secondaryText,
+                                                ),
+                                              ),
+                                              Text(
+                                                formatINR(month.amount),
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFFEF4444),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )),
+                                  ],
+                                ),
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, __) => const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (rentCardsSection != null) ...[
                 const SizedBox(height: AppSpacing.lg),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -301,7 +301,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 rentCardsSection,
               ] else ...[
-                const SizedBox(height: AppSpacing.lg),
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
