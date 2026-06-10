@@ -53,7 +53,7 @@ class EmptyStateCard extends StatelessWidget {
       case EmptyStateType.maintenance:
         return 'No Issues Reported';
       case EmptyStateType.notifications:
-        return 'No Notifications';
+        return 'No Alerts';
       case EmptyStateType.history:
         return 'No History';
       case EmptyStateType.generic:
@@ -84,10 +84,10 @@ class EmptyStateCard extends StatelessWidget {
     final iconBgColor = isDark
         ? const Color(0xFF10B981).withValues(alpha: 0.2)
         : const Color(0xFF10B981).withValues(alpha: 0.15);
-    final iconColor = isDark
-        ? const Color(0xFF10B981)
-        : const Color(0xFF10B981);
-    final titleColor = isDark ? const Color(0xFFF3F4F6) : const Color(0xFF111827);
+    final iconColor =
+        isDark ? const Color(0xFF10B981) : const Color(0xFF10B981);
+    final titleColor =
+        isDark ? const Color(0xFFF3F4F6) : const Color(0xFF111827);
     final messageColor =
         isDark ? const Color(0xFFA3A3A3) : AppColors.textSecondary;
 
@@ -97,70 +97,70 @@ class EmptyStateCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-        // Decorative icon container
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: iconBgColor,
-            shape: BoxShape.circle,
+          // Decorative icon container
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _getIcon(),
+              size: 40,
+              color: iconColor,
+            ),
           ),
-          child: Icon(
-            _getIcon(),
-            size: 40,
-            color: iconColor,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        Text(
-          title ?? _getDefaultTitle(),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: titleColor,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          message ?? _getDefaultMessage(),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: messageColor,
-            height: 1.5,
-          ),
-        ),
-        if (actionLabel != null && onActionPressed != null) ...[
           const SizedBox(height: AppSpacing.xl),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: onActionPressed,
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.violet.withValues(alpha: 0.15),
-                foregroundColor: AppColors.violet,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: 14,
+          Text(
+            title ?? _getDefaultTitle(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: titleColor,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            message ?? _getDefaultMessage(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: messageColor,
+              height: 1.5,
+            ),
+          ),
+          if (actionLabel != null && onActionPressed != null) ...[
+            const SizedBox(height: AppSpacing.xl),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onActionPressed,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.violet.withValues(alpha: 0.15),
+                  foregroundColor: AppColors.violet,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                  ),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                ),
-              ),
-              child: Text(
-                actionLabel!,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                child: Text(
+                  actionLabel!,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
-      ],
-        ),
-      );
+      ),
+    );
   }
 }
