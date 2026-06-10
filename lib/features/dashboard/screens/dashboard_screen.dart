@@ -18,8 +18,6 @@ import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
 import '../../app_version/services/app_update_checker.dart';
 import '../../auth/providers/auth_provider.dart';
-import '../../history/data/models/history_response.dart';
-import '../../history/providers/history_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
 import '../data/models/dashboard_response.dart';
 import '../providers/dashboard_provider.dart';
@@ -78,7 +76,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final asyncDashboard = ref.watch(activeDashboardProvider);
-    final asyncHistory = ref.watch(activeHistoryProvider(1));
     final asyncNotifications = ref.watch(notificationsProvider);
     final asyncRentCards = ref.watch(activeRentCardsProvider);
 
@@ -92,8 +89,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             onPressed: () {
               ref.invalidate(dashboardProvider);
               ref.invalidate(activeDashboardProvider);
-              ref.invalidate(historyProvider);
-              ref.invalidate(activeHistoryProvider);
               ref.invalidate(notificationsProvider);
               ref.invalidate(rentCardsProvider);
               ref.invalidate(activeRentCardsProvider);
@@ -155,36 +150,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   notificationCount: items.length,
                   latestTitle: latest.title,
                   latestMessage: latest.message,
-                );
-              },
-            );
-
-            final historySection = asyncHistory.when(
-              loading: () => const AppLoader(),
-              error: (_, __) => const StateCard(message: 'History unavailable'),
-              data: (history) {
-                if (history.items.isEmpty) {
-                  return const StateCard(message: 'No rent history available');
-                }
-
-                return StaggeredListView(
-                  children: history.items
-                      .take(2)
-                      .map(
-                        (item) => RentBreakdownCard(
-                          monthLabel: item.monthLabel,
-                          status: item.status,
-                          baseRent: item.baseRent,
-                          utilityBill: item.utilityBill,
-                          maintenance: item.maintenance,
-                          extra: item.extra,
-                          previousDues: item.previousDues,
-                          totalDue: item.totalDue,
-                          paidAmount: item.paidAmount,
-                          maintenanceBreakdownItems: item.maintenanceBreakdownItems,
-                        ),
-                      )
-                      .toList(),
                 );
               },
             );
@@ -334,7 +299,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 rentCardsSection,
               ],
-              historySection,
             ];
 
             return ListView(
