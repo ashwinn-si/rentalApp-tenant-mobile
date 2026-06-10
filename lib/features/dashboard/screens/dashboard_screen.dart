@@ -13,6 +13,7 @@ import '../../../widgets/domain/rent_breakdown_card.dart';
 import '../../../widgets/domain/flat_selector.dart';
 import '../../../widgets/ui/app_loader.dart';
 import '../../../widgets/ui/confirmation_dialog.dart';
+import '../../../widgets/ui/empty_state_card.dart';
 import '../../../widgets/ui/premium_card.dart';
 import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/state_card.dart';
@@ -299,6 +300,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
                 rentCardsSection,
+              ] else ...[
+                const SizedBox(height: AppSpacing.lg),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: const EmptyStateCard(
+                      type: EmptyStateType.history,
+                    ),
+                  ),
+                ),
               ],
             ];
 
