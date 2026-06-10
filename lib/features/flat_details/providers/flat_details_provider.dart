@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/providers/auth_provider.dart';
 import '../data/flat_details_repository.dart';
 import '../data/models/flat_details_model.dart';
 
@@ -17,16 +18,6 @@ final flatDetailsProvider =
   return result.data!;
 });
 
-final activeFlatIdProvider = StateProvider<String?>((ref) => null);
-
-final currentFlatDetailsProvider =
-    FutureProvider<FlatDetailsResponse>((ref) async {
-  final activeFlatId = ref.watch(activeFlatIdProvider);
-  final result = await ref.watch(flatDetailsProvider(activeFlatId).future);
-
-  if (activeFlatId == null && result.activeFlatId != null) {
-    ref.read(activeFlatIdProvider.notifier).state = result.activeFlatId;
-  }
-
-  return result;
+final activeFlatIdProvider = Provider<String?>((ref) {
+  return ref.watch(authProvider.select((state) => state.activeFlatId));
 });
