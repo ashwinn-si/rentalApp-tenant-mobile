@@ -56,6 +56,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ref.invalidate(activeHistoryProvider);
             ref.invalidate(dashboardProvider);
             ref.invalidate(activeDashboardProvider);
+            ref.invalidate(last3MonthsComparisonProvider);
           },
           icon: const Icon(Icons.refresh_outlined, color: Colors.white),
         ),
