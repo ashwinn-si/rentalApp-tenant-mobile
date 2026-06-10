@@ -103,6 +103,49 @@ enum BugType { uiBug, placementBug, performance, other }
 
 enum BugStatus { open, inProgress, resolved, closed }
 
+class PaginationInfo {
+  final int page;
+  final int limit;
+  final int total;
+  final int totalPages;
+
+  PaginationInfo({
+    required this.page,
+    required this.limit,
+    required this.total,
+    required this.totalPages,
+  });
+
+  factory PaginationInfo.fromJson(Map<String, dynamic> json) {
+    return PaginationInfo(
+      page: json['page'] ?? 1,
+      limit: json['limit'] ?? 10,
+      total: json['total'] ?? 0,
+      totalPages: json['totalPages'] ?? 0,
+    );
+  }
+}
+
+class BugReportsResponseDto {
+  final List<BugReport> items;
+  final PaginationInfo pagination;
+
+  BugReportsResponseDto({required this.items, required this.pagination});
+
+  factory BugReportsResponseDto.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] as Map<String, dynamic>? ?? {};
+    return BugReportsResponseDto(
+      items: (data['items'] as List<dynamic>?)
+              ?.map((item) => BugReport.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      pagination: data['pagination'] != null
+          ? PaginationInfo.fromJson(data['pagination'] as Map<String, dynamic>)
+          : PaginationInfo(page: 1, limit: 10, total: 0, totalPages: 0),
+    );
+  }
+}
+
 extension BugTypeLabel on BugType {
   String get label {
     switch (this) {

@@ -6,101 +6,230 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/providers/error_handler_provider.dart';
-import '../../../core/utils/app_bar_helper.dart';
+import '../../../widgets/templates/list_page_template.dart';
 import '../../../widgets/ui/app_button.dart';
 import '../../../widgets/ui/app_loader.dart';
+import '../../../widgets/ui/pagination_footer.dart';
 import '../../../widgets/ui/premium_card.dart';
-import '../../../widgets/ui/screen_background.dart';
 import '../../../widgets/ui/empty_state_card.dart';
 import '../data/models/bug_reports_model.dart';
 import '../providers/bug_reports_provider.dart';
 
-class BugReportsScreen extends ConsumerWidget {
+class BugReportsScreen extends ConsumerStatefulWidget {
   const BugReportsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final bugReportsAsync = ref.watch(bugReportsListProvider);
+  ConsumerState<BugReportsScreen> createState() => _BugReportsScreenState();
+}
 
-    return ScreenBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: buildPremiumAppBar(
-          title: 'Bug Reports',
-          actions: [
-            IconButton(
-              onPressed: () {
-                debugPrint('[BugReportsScreen] Refresh clicked');
-                ref.invalidate(bugReportsListProvider);
-              },
-              icon: const Icon(Icons.refresh_outlined),
-              tooltip: 'Refresh',
-            ),
-          ],
+class _BugReportsScreenState extends ConsumerState<BugReportsScreen> {
+  static const int itemsPerPage = 10;
+  int currentPage = 1;
+  String? selectedStatus;
+
+  List<Widget> _refreshAction() => [
+        IconButton(
+          onPressed: () {
+            ref.invalidate(
+              bugReportsWithPaginationProvider(
+                BugReportsParams(
+                  status: selectedStatus,
+                  page: currentPage,
+                  limit: itemsPerPage,
+                ),
+              ),
+            );
+          },
+          icon: const Icon(Icons.refresh_outlined, color: Colors.white),
         ),
+      ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bugReportsAsync = ref.watch(
+      bugReportsWithPaginationProvider(
+        BugReportsParams(
+          status: selectedStatus,
+          page: currentPage,
+          limit: itemsPerPage,
+        ),
+      ),
+    );
+
+    return bugReportsAsync.when(
+      loading: () => ListPageTemplate(
+        title: 'Bug Reports',
+        isLoading: true,
+        actions: _refreshAction(),
+        body: const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showReportDialog(context, ref),
           backgroundColor: AppColors.violet,
-          foregroundColor: Colors.white,
-          elevation: 4,
-          child: const Icon(Icons.add),
+          child: const Icon(Icons.add, color: Colors.white),
         ),
-        body: bugReportsAsync.when(
-          loading: () => const Center(child: AppLoader()),
-          error: (error, stack) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              ApiErrorHandler.handleAccessDenied(error, ref);
-            });
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(AppSpacing.md),
-                child: EmptyStateCard(
-                  type: EmptyStateType.generic,
-                  title: 'Unable to Load',
-                  message: 'Failed to load bug reports. Please try again.',
-                ),
-              ),
-            );
-          },
-          data: (bugReports) {
-            if (bugReports.isEmpty) {
-              return Center(
+      ),
+      error: (error, stack) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ApiErrorHandler.handleAccessDenied(error, ref);
+        });
+        return ListPageTemplate(
+          title: 'Bug Reports',
+          errorMessage: 'Failed to load bug reports',
+          actions: _refreshAction(),
+          body: const SizedBox.shrink(),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _showReportDialog(context, ref),
+            backgroundColor: AppColors.violet,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        );
+      },
+      data: (response) {
+        final bugReports = response.items;
+        final pagination = response.pagination;
+
+        if (bugReports.isEmpty) {
+          return ListPageTemplate(
+            title: 'Bug Reports',
+            actions: _refreshAction(),
+            body: SingleChildScrollView(
+              child: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.md),
-                  child: EmptyStateCard(
-                    type: EmptyStateType.generic,
-                    title: 'No bug reports yet',
-                    message: 'Help us improve the app',
-                    actionLabel: 'Report Your First Bug',
-                    onActionPressed: () => _showReportDialog(context, ref),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildStatusFilter(),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: MediaQuery.of(context).size.height * 0.15,
+                        ),
+                        child: EmptyStateCard(
+                          type: EmptyStateType.generic,
+                          title: 'No bug reports yet',
+                          message: 'Help us improve the app',
+                          actionLabel: 'Report Your First Bug',
+                          onActionPressed: () => _showReportDialog(context, ref),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              );
-            }
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => _showReportDialog(context, ref),
+              backgroundColor: AppColors.violet,
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
+          );
+        }
 
-            return RefreshIndicator(
-              onRefresh: () async {
-                debugPrint('[BugReportsScreen] Pull-to-refresh triggered');
-                ref.invalidate(bugReportsListProvider);
-                await ref.watch(bugReportsListProvider.future);
-              },
-              child: ListView.builder(
-                padding: const EdgeInsets.only(
-                  left: AppSpacing.md,
-                  right: AppSpacing.md,
-                  top: AppSpacing.md,
-                  bottom: AppSpacing.xl,
+        return ListPageTemplate(
+          title: 'Bug Reports',
+          actions: _refreshAction(),
+          body: ListView.builder(
+            padding: EdgeInsets.only(
+              left: AppSpacing.md,
+              right: AppSpacing.md,
+              top: AppSpacing.md,
+              bottom: pagination.totalPages > 1 ? 100 : AppSpacing.xl,
+            ),
+            itemCount: bugReports.length + 1 + (pagination.totalPages > 1 ? 1 : 0),
+            itemBuilder: (context, index) {
+              // First item is status filter
+              if (index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: _buildStatusFilter(),
+                );
+              }
+
+              final dataIndex = index - 1;
+
+              // Last item is pagination
+              if (pagination.totalPages > 1 && dataIndex == bugReports.length) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.md),
+                  child: PaginationFooter(
+                    currentPage: pagination.page,
+                    totalPages: pagination.totalPages,
+                    onPreviousPressed: pagination.page > 1
+                        ? () => setState(() => currentPage = pagination.page - 1)
+                        : null,
+                    onNextPressed: pagination.page < pagination.totalPages
+                        ? () => setState(() => currentPage = pagination.page + 1)
+                        : null,
+                  ),
+                );
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _BugReportCard(
+                  bugReport: bugReports[dataIndex],
+                  onTap: () => _showDetailDialog(context, ref, bugReports[dataIndex].id),
                 ),
-                itemCount: bugReports.length,
-                itemBuilder: (context, index) => _BugReportCard(
-                  bugReport: bugReports[index],
-                  onTap: () =>
-                      _showDetailDialog(context, ref, bugReports[index].id),
+              );
+            },
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _showReportDialog(context, ref),
+            backgroundColor: AppColors.violet,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatusFilter() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final filterBg = isDark ? const Color(0xFF2C2550) : AppColors.violet.withValues(alpha: 0.08);
+    final selectedBg = AppColors.violet;
+    final selectedText = Colors.white;
+    final unselectedText = isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary;
+
+    final statuses = [
+      {'value': null, 'label': 'All'},
+      {'value': 'open', 'label': 'Open'},
+      {'value': 'in_progress', 'label': 'In Progress'},
+      {'value': 'resolved', 'label': 'Resolved'},
+      {'value': 'closed', 'label': 'Closed'},
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: statuses.map((status) {
+          final isSelected = selectedStatus == status['value'];
+          return Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: FilterChip(
+              label: Text(
+                status['label'] as String,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? selectedText : unselectedText,
                 ),
               ),
-            );
-          },
-        ),
+              selected: isSelected,
+              onSelected: (_) {
+                setState(() {
+                  selectedStatus = status['value'] as String?;
+                  currentPage = 1;
+                });
+              },
+              backgroundColor: filterBg,
+              selectedColor: selectedBg,
+              side: BorderSide(
+                color: isSelected ? selectedBg : AppColors.violet.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

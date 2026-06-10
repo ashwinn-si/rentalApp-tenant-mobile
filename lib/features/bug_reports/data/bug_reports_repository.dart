@@ -29,6 +29,25 @@ class BugReportsRepository {
     );
   }
 
+  Future<ApiResponse<BugReportsResponseDto>> getBugReportsWithPagination({
+    String? status,
+    int page = 1,
+    int limit = 10,
+  }) {
+    return _client.get<BugReportsResponseDto>(
+      ApiPaths.bugReports,
+      fromJson: (json) {
+        final root = json as Map<String, dynamic>;
+        return BugReportsResponseDto.fromJson(root);
+      },
+      queryParams: {
+        if (status != null) 'status': status,
+        'page': page,
+        'limit': limit,
+      },
+    );
+  }
+
   Future<ApiResponse<BugReport>> getBugReport(String bugReportId) {
     return _client.get<BugReport>(
       '${ApiPaths.bugReports}/$bugReportId',
