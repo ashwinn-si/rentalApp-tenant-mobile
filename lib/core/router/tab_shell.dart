@@ -55,6 +55,7 @@ class _TabShellState extends ConsumerState<TabShell> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
     final enabledScreens =
         ref.watch(authProvider.select((s) => s.enabledScreens));
     final tabs = TabShell._allTabs
@@ -73,11 +74,11 @@ class _TabShellState extends ConsumerState<TabShell> {
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(
+        margin: EdgeInsets.fromLTRB(
           AppSpacing.md,
           AppSpacing.sm,
           AppSpacing.md,
-          AppSpacing.md,
+          AppSpacing.md + bottomInset,
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(22),
