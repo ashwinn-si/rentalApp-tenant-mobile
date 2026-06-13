@@ -25,11 +25,18 @@ class IssueDetailByIdScreen extends ConsumerWidget {
       ),
       error: (_, __) => Scaffold(
         appBar: buildPremiumAppBar(title: 'Issue Details'),
-        body: const ScreenBackground(
+        body: ScreenBackground(
           child: Center(
-            child: Text(
-              'Could not load issue',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Builder(
+              builder: (context) {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                return Text(
+                  'Could not load issue',
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFF9CA3AF) : AppColors.textSecondary,
+                  ),
+                );
+              },
             ),
           ),
         ),

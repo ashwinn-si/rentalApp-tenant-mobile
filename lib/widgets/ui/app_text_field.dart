@@ -36,15 +36,22 @@ class _AppTextFieldState extends State<AppTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary;
+    final inputColor = isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary;
+    final fillColor = isDark
+        ? (_isFocused ? const Color(0xFF2A2250) : const Color(0xFF1E1836))
+        : (_isFocused ? AppColors.violet.withValues(alpha: 0.03) : Colors.white);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: labelColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -58,18 +65,16 @@ class _AppTextFieldState extends State<AppTextField> {
             obscureText: widget.obscureText && !_showPassword,
             validator: widget.validator,
             maxLines: widget.maxLines,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+              color: inputColor,
             ),
             decoration: InputDecoration(
               hintText: widget.placeholder,
               helperText: widget.helperText,
               filled: true,
-              fillColor: _isFocused
-                  ? AppColors.violet.withValues(alpha: 0.03)
-                  : Colors.white,
+              fillColor: fillColor,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 14,

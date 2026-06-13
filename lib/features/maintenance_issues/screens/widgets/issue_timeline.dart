@@ -13,6 +13,9 @@ class IssueTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary;
+    final secondaryText = isDark ? const Color(0xFFCBD5E1) : AppColors.textSecondary;
     final timelineEvents = _buildTimelineEvents();
 
     return Column(
@@ -22,7 +25,7 @@ class IssueTimeline extends StatelessWidget {
           'Timeline',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: primaryText,
               ),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -71,14 +74,14 @@ class IssueTimeline extends StatelessWidget {
                         event['label'] as String,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: primaryText,
                             ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         event['timestamp'] as String,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
+                              color: secondaryText,
                             ),
                       ),
                     ],

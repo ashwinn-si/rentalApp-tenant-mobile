@@ -16,19 +16,20 @@ class StateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isError = variant == StateCardVariant.error;
     final isWarning = variant == StateCardVariant.warning;
     late final Color bgColor;
     late final Color textColor;
 
     if (isError) {
-      bgColor = const Color(0xFFFEE2E2);
+      bgColor = isDark ? const Color(0xFF4A1C1C) : const Color(0xFFFEE2E2);
       textColor = AppColors.pending;
     } else if (isWarning) {
-      bgColor = const Color(0xFFFEF6E8);
+      bgColor = isDark ? const Color(0xFF3D2A0A) : const Color(0xFFFEF6E8);
       textColor = AppColors.orange;
     } else {
-      bgColor = const Color(0xFFEDE9FE);
+      bgColor = isDark ? const Color(0xFF1E1654) : const Color(0xFFEDE9FE);
       textColor = AppColors.violet;
     }
 

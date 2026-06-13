@@ -64,12 +64,17 @@ class _SkeletonCardState extends State<SkeletonCard>
             child: child,
           );
         },
-        child: Container(
-          height: 90,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE5E7EB),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-          ),
+        child: Builder(
+          builder: (context) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Container(
+              height: 90,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+              ),
+            );
+          },
         ),
       ),
     );

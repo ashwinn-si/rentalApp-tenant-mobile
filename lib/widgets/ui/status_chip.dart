@@ -26,28 +26,31 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final Color fg;
-    final Color bg;
+    final Color lightBg;
     final String defaultLabel;
 
     switch (status) {
       case RentStatus.paid:
         fg = AppColors.paid;
-        bg = const Color(0xFFEAFBF4);
+        lightBg = const Color(0xFFEAFBF4);
         defaultLabel = 'Paid';
       case RentStatus.partial:
         fg = AppColors.partial;
-        bg = const Color(0xFFFEF6E8);
+        lightBg = const Color(0xFFFEF6E8);
         defaultLabel = 'Partial';
       case RentStatus.pending:
         fg = AppColors.pending;
-        bg = const Color(0xFFFFF4DE);
+        lightBg = const Color(0xFFFFF4DE);
         defaultLabel = 'Pending';
       case RentStatus.error:
         fg = AppColors.red;
-        bg = const Color(0xFFFEF2F2);
+        lightBg = const Color(0xFFFEF2F2);
         defaultLabel = 'Error';
     }
+
+    final bg = isDark ? fg.withValues(alpha: 0.15) : lightBg;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
