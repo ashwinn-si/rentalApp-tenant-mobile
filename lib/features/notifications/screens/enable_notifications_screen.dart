@@ -86,17 +86,25 @@ class _EnableNotificationsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gradientStart =
+        isDark ? const Color(0xFF1E1040) : AppColors.violet;
+    final gradientEnd =
+        isDark ? const Color(0xFF130A2E) : AppColors.violetDark;
+
     return PopScope(
       canPop: false,
       child: Scaffold(
+        backgroundColor:
+            isDark ? const Color(0xFF0C0B14) : AppColors.violet,
         body: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColors.violet, AppColors.violetDark],
+              colors: [gradientStart, gradientEnd],
             ),
           ),
           child: SafeArea(

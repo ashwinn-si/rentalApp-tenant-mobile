@@ -264,6 +264,11 @@ class _BugReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final typeBadgeBg = isDark
+        ? const Color(0xFF2C2550)
+        : AppColors.screenBg;
+
     return GestureDetector(
       onTap: onTap,
       child: PremiumCard(
@@ -318,7 +323,7 @@ class _BugReportCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.screenBg,
+                    color: typeBadgeBg,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: Text(
@@ -685,7 +690,12 @@ class _BugReportDetailSheet extends ConsumerWidget {
           message: 'Failed to load bug report. Please try again.',
         ),
       ),
-      data: (bugReport) => SingleChildScrollView(
+      data: (bugReport) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final typeBadgeBg =
+            isDark ? const Color(0xFF2C2550) : AppColors.screenBg;
+
+        return SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
@@ -731,7 +741,7 @@ class _BugReportDetailSheet extends ConsumerWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.screenBg,
+                      color: typeBadgeBg,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Text(
@@ -834,7 +844,8 @@ class _BugReportDetailSheet extends ConsumerWidget {
             ],
           ),
         ),
-      ),
+      );
+      },
     );
   }
 
@@ -898,13 +909,15 @@ class _ImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (imageUrl == null) {
       return Container(
         width: 80,
         height: 80,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          color: AppColors.screenBg,
+          color: isDark ? const Color(0xFF2C2550) : AppColors.screenBg,
         ),
         child: const Icon(Icons.image_not_supported),
       );

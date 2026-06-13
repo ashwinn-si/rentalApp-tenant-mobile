@@ -15,9 +15,12 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final asyncNotifications = ref.watch(notificationsProvider);
 
     return Scaffold(
+      backgroundColor:
+          isDark ? const Color(0xFF0C0B14) : AppColors.screenBg,
       appBar: buildPremiumAppBar(
         title: 'Alerts',
         actions: [

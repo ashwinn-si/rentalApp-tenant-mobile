@@ -35,6 +35,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final validImages = widget.images
         .where((img) => (img.url ?? img.s3Key).trim().isNotEmpty)
         .toList();
@@ -138,7 +139,9 @@ class _ImageCarouselState extends State<ImageCarousel> {
           Text(
             '${_currentIndex + 1} of ${validImages.length}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: isDark
+                      ? const Color(0xFF9CA3AF)
+                      : AppColors.textSecondary,
                 ),
           ),
         ],
@@ -147,11 +150,21 @@ class _ImageCarouselState extends State<ImageCarousel> {
   }
 
   Widget _buildEmptyState() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final emptyIconColor = isDark
+        ? const Color(0xFF9CA3AF).withValues(alpha: 0.7)
+        : AppColors.textSecondary.withValues(alpha: 0.5);
+    final emptyTextColor = isDark
+        ? const Color(0xFF9CA3AF).withValues(alpha: 0.8)
+        : AppColors.textSecondary.withValues(alpha: 0.6);
+
     return Container(
       height: 160,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        color: AppColors.violet.withValues(alpha: 0.08),
+        color: isDark
+            ? AppColors.violet.withValues(alpha: 0.12)
+            : AppColors.violet.withValues(alpha: 0.08),
       ),
       child: Center(
         child: Column(
@@ -160,13 +173,13 @@ class _ImageCarouselState extends State<ImageCarousel> {
             Icon(
               Icons.image_not_supported_outlined,
               size: 48,
-              color: AppColors.textSecondary.withValues(alpha: 0.5),
+              color: emptyIconColor,
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'No images attached',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary.withValues(alpha: 0.6),
+                    color: emptyTextColor,
                   ),
             ),
           ],

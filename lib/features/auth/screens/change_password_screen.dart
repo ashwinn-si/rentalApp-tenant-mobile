@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_tokens.dart';
 import '../../../core/services/toast_service.dart';
 import '../../../core/utils/animations.dart';
+import '../../../core/utils/app_bar_helper.dart';
 import '../../../widgets/ui/app_button.dart';
 import '../../../widgets/ui/app_text_field.dart';
+import '../../../widgets/ui/screen_background.dart';
 import '../providers/auth_provider.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -64,93 +66,100 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isLoading =
         ref.watch(authProvider.select((state) => state.isLoading));
+    final bannerBg = isDark
+        ? AppColors.pending.withValues(alpha: 0.15)
+        : AppColors.pending.withValues(alpha: 0.08);
+    final bannerBorder = isDark
+        ? AppColors.pending.withValues(alpha: 0.35)
+        : AppColors.pending.withValues(alpha: 0.2);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Change Password'),
-        elevation: 4,
-        shadowColor: AppColors.violet.withValues(alpha: 0.3),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            children: <Widget>[
-              FadeSlideTransition(
-                child: Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.pending.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(
-                      color: AppColors.pending.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: AppColors.pending,
-                        size: 20,
+      backgroundColor:
+          isDark ? const Color(0xFF0C0B14) : AppColors.screenBg,
+      appBar: buildPremiumAppBar(title: 'Change Password'),
+      body: ScreenBackground(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              children: <Widget>[
+                FadeSlideTransition(
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: bannerBg,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: bannerBorder,
+                        width: 1,
                       ),
-                      SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Text(
-                          'You must change your password to continue',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.pending,
-                            fontWeight: FontWeight.w500,
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: AppColors.pending,
+                          size: 20,
+                        ),
+                        SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Text(
+                            'You must change your password to continue',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.pending,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              FadeSlideTransition(
-                duration: const Duration(milliseconds: 300),
-                child: AppTextField(
-                  label: 'Current Password',
-                  obscureText: true,
-                  controller: _currentPasswordController,
-                  prefixIcon: Icons.lock_outlined,
+                const SizedBox(height: AppSpacing.lg),
+                FadeSlideTransition(
+                  duration: const Duration(milliseconds: 300),
+                  child: AppTextField(
+                    label: 'Current Password',
+                    obscureText: true,
+                    controller: _currentPasswordController,
+                    prefixIcon: Icons.lock_outlined,
+                  ),
                 ),
-              ),
-              FadeSlideTransition(
-                duration: const Duration(milliseconds: 400),
-                child: AppTextField(
-                  label: 'New Password',
-                  obscureText: true,
-                  controller: _newPasswordController,
-                  prefixIcon: Icons.lock_open_outlined,
-                  helperText: 'Minimum 1 character',
+                FadeSlideTransition(
+                  duration: const Duration(milliseconds: 400),
+                  child: AppTextField(
+                    label: 'New Password',
+                    obscureText: true,
+                    controller: _newPasswordController,
+                    prefixIcon: Icons.lock_open_outlined,
+                    helperText: 'Minimum 1 character',
+                  ),
                 ),
-              ),
-              FadeSlideTransition(
-                duration: const Duration(milliseconds: 500),
-                child: AppTextField(
-                  label: 'Confirm New Password',
-                  obscureText: true,
-                  controller: _confirmPasswordController,
-                  prefixIcon: Icons.verified_user_outlined,
+                FadeSlideTransition(
+                  duration: const Duration(milliseconds: 500),
+                  child: AppTextField(
+                    label: 'Confirm New Password',
+                    obscureText: true,
+                    controller: _confirmPasswordController,
+                    prefixIcon: Icons.verified_user_outlined,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              FadeSlideTransition(
-                duration: const Duration(milliseconds: 600),
-                child: AppButton(
-                  label: 'Update Password',
-                  onPressed: _submit,
-                  isLoading: isLoading,
-                  fullWidth: true,
+                const SizedBox(height: AppSpacing.lg),
+                FadeSlideTransition(
+                  duration: const Duration(milliseconds: 600),
+                  child: AppButton(
+                    label: 'Update Password',
+                    onPressed: _submit,
+                    isLoading: isLoading,
+                    fullWidth: true,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
