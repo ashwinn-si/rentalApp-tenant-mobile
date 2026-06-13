@@ -64,6 +64,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeFlatId = ref.watch(authProvider.select((state) => state.activeFlatId));
 
     ref.listen<String?>(
@@ -202,8 +203,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Padding(
-                                      padding: EdgeInsets.only(
+                                    Padding(
+                                      padding: const EdgeInsets.only(
                                         left: AppSpacing.xs,
                                         bottom: AppSpacing.sm,
                                       ),
@@ -212,7 +213,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 16,
-                                          color: AppColors.textPrimary,
+                                          color: isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary,
                                         ),
                                       ),
                                     ),

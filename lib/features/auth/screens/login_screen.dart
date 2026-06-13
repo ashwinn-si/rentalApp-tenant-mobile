@@ -81,17 +81,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget build(BuildContext context) {
     final isLoading =
         ref.watch(authProvider.select((state) => state.isLoading));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgStart = isDark ? const Color(0xFF0F0A1E) : AppColors.bgGradient1;
+    final bgEnd = isDark ? const Color(0xFF1A1030) : AppColors.bgGradient2;
+    final headingColor = isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary;
+    final subtitleColor = isDark ? const Color(0xFF9CA3AF) : AppColors.textSecondary;
+    final cardBg = isDark ? const Color(0xFF1E1836) : Colors.white.withValues(alpha: 0.92);
 
     return Scaffold(
       body: Stack(
         children: <Widget>[
           // Gradient background
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.bgGradient1, AppColors.bgGradient2],
+                colors: [bgStart, bgEnd],
               ),
             ),
           ),
@@ -172,22 +178,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ),
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        const Text(
+                        Text(
                           'Welcome Back',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: headingColor,
                             height: 1.2,
                           ),
                         ),
                         const SizedBox(height: AppSpacing.sm),
-                        const Text(
+                        Text(
                           'Sign in to check dues, payment status, and history',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary,
+                            color: subtitleColor,
                             height: 1.4,
                           ),
                         ),
@@ -202,10 +208,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.md),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.92),
+                        color: cardBg,
                         borderRadius: BorderRadius.circular(AppRadius.lg),
                         border: Border.all(
-                          color: AppColors.violet.withValues(alpha: 0.16),
+                          color: AppColors.violet.withValues(alpha: isDark ? 0.25 : 0.16),
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -251,9 +257,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary.withValues(
-                                alpha: 0.7,
-                              ),
+                              color: subtitleColor.withValues(alpha: 0.7),
                             ),
                           ),
                         ],

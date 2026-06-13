@@ -10,12 +10,14 @@ class ProofDetailScreen extends StatelessWidget {
 
   const ProofDetailScreen({required this.proof, super.key});
 
-  String formatINR(double value) {
-    return '₹${value.toStringAsFixed(2)}';
-  }
+  String formatINR(double value) => '₹${value.toStringAsFixed(2)}';
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? const Color(0xFFF8FAFC) : AppColors.textPrimary;
+    final secondaryText = isDark ? const Color(0xFFCBD5E1) : AppColors.textSecondary;
+
     final validImageUrls = proof.proofImages
         .map((image) => (image.url ?? image.s3Key).trim())
         .where((url) => url.isNotEmpty)
@@ -79,7 +81,7 @@ class ProofDetailScreen extends StatelessWidget {
                               color: AppColors.textSecondary.withValues(alpha: 0.2),
                             ),
                             const SizedBox(height: AppSpacing.md),
-                            _buildDetailRow(context, 'Paid To', proof.paidToName),
+                            _buildDetailRow(context, 'Paid To', proof.paidToName, primaryText: primaryText, secondaryText: secondaryText),
                             const SizedBox(height: AppSpacing.md),
                             _buildDetailRow(
                               context,
@@ -90,6 +92,8 @@ class ProofDetailScreen extends StatelessWidget {
                                       .toString()
                                       .split('.')[0]
                                   : '—',
+                              primaryText: primaryText,
+                              secondaryText: secondaryText,
                             ),
                           ],
                         ),
@@ -108,7 +112,7 @@ class ProofDetailScreen extends StatelessWidget {
                                     .textTheme
                                     .titleMedium
                                     ?.copyWith(
-                                      color: AppColors.textPrimary,
+                                      color: primaryText,
                                       fontWeight: FontWeight.w600,
                                     ),
                               ),
@@ -153,7 +157,7 @@ class ProofDetailScreen extends StatelessWidget {
                           'Proof Images',
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: AppColors.textPrimary,
+                                    color: primaryText,
                                     fontWeight: FontWeight.w600,
                                   ),
                         ),
@@ -252,20 +256,26 @@ class ProofDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value) {
+  Widget _buildDetailRow(
+    BuildContext context,
+    String label,
+    String value, {
+    required Color primaryText,
+    required Color secondaryText,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: secondaryText,
               ),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textPrimary,
+                color: primaryText,
                 fontWeight: FontWeight.w600,
               ),
         ),

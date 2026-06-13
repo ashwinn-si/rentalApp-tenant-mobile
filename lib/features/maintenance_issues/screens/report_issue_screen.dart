@@ -158,6 +158,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final asyncDashboard = ref.watch(activeDashboardProvider);
 
     return Scaffold(
@@ -174,10 +175,10 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Describe the maintenance issue you are facing.',
                       style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 14),
+                          color: isDark ? const Color(0xFF9CA3AF) : AppColors.textSecondary, fontSize: 14),
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
@@ -193,8 +194,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                       ),
 
                     // Scope Toggle
-                    const Text('Issue Scope',
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text('Issue Scope',
+                        style: TextStyle(fontWeight: FontWeight.w600, color: isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary)),
                     const SizedBox(height: AppSpacing.xs),
                     Row(
                       children: [
@@ -220,8 +221,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                     const SizedBox(height: AppSpacing.md),
 
                     // Category
-                    const Text('Category',
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text('Category',
+                        style: TextStyle(fontWeight: FontWeight.w600, color: isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary)),
                     const SizedBox(height: AppSpacing.xs),
                     DropdownButtonFormField<String>(
                       initialValue: _category,
@@ -276,8 +277,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Photos (Max 5)',
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Text('Photos (Max 5)',
+                            style: TextStyle(fontWeight: FontWeight.w600, color: isDark ? const Color(0xFFF3F4F6) : AppColors.textPrimary)),
                         Text(
                           '${(_totalImageSizeBytes / (1024 * 1024)).toStringAsFixed(2)}MB / ${maxTotalSizeMb}MB',
                           style: const TextStyle(
@@ -293,7 +294,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                         margin: const EdgeInsets.only(bottom: AppSpacing.md),
                         padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEE2E2),
+                          color: isDark ? AppColors.red.withValues(alpha: 0.15) : const Color(0xFFFEE2E2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -350,7 +351,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                 width: 100,
                                 height: 100,
                                 decoration: BoxDecoration(
-                                  color: AppColors.screenBg,
+                                  color: isDark ? const Color(0xFF1F2937) : AppColors.screenBg,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                       color: AppColors.textSecondary.withValues(alpha: 0.2),
