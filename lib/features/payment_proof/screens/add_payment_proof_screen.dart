@@ -1145,9 +1145,10 @@ class _AddPaymentProofScreenState extends ConsumerState<AddPaymentProofScreen> {
       }
 
       final total = _calculateTotal();
-      if (total > rent.totalDue) {
+      final remainingDue = (rent.totalDue - rent.paidAmount).clamp(0.0, double.infinity);
+      if (total > remainingDue) {
         ToastService.showError(
-          'Amount cannot exceed rent due of ₹${rent.totalDue.toStringAsFixed(2)}',
+          'Amount cannot exceed remaining rent due of ₹${remainingDue.toStringAsFixed(2)}',
         );
         setState(() => isSubmitting = false);
         return;
